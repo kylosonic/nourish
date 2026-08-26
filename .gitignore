@@ -9,7 +9,8 @@ coverage/
 .dart_tool/
 .packages
 .pub/
-pubspec.lock
+# pubspec.lock is intentionally COMMITTED (blueprint S0 §7: reproducible
+# builds, Windows/CI parity). Do not re-add it here.
 apps/mobile/build/
 apps/mobile/.flutter-plugins
 apps/mobile/.flutter-plugins-dependencies

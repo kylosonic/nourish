@@ -1,0 +1,24 @@
+# Strict analyzer configuration for the pure-Dart domain package.
+# No Flutter-specific lints: this package must never depend on Flutter.
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    always_declare_return_types: error
+    annotate_overrides: error
+    missing_return: error
+    prefer_single_quotes: error
+    throw_in_finally: error
+    unnecessary_statements: error
+    unused_import: error
+    unused_local_variable: error
+
+linter:
+  rules:
+    - avoid_dynamic_calls
+    - prefer_const_declarations
+    - prefer_final_locals

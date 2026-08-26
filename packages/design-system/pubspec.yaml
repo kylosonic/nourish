@@ -1,0 +1,39 @@
+name: nourish_design_system
+description: >-
+  Nourish design system: tokens, theme, and widget primitives per
+  Design/nourish/DESIGN.md. Bundles Inter (400/600/700) and
+  Noto Sans Ethiopic (400/700) as font-family fallback for the Amharic
+  script (ONB-02). Zero runtime network egress.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+# Fonts are downloaded once and committed (OFF-01: no runtime fetch).
+flutter:
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+    - family: Noto Sans Ethiopic
+      fonts:
+        - asset: assets/fonts/NotoSansEthiopic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/NotoSansEthiopic-Bold.ttf
+          weight: 700

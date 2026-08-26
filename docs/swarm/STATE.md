@@ -8,12 +8,12 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `PLANNED (S0) — Gate B part 3 (UI) INCOMPLETE — SESSION CHECKPOINT saved` |
+| Phase | `INTEGRATION (S0) — Gates B–E complete; Gate F (atomic commit) imminent` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
 | Active slice | S0 (Foundation + Onboarding + Manual Logging) |
-| Active gate | Gate B (implement) — parts 1 & 2 DONE; part 3 `@designer` (design-system package + real screens) was ABORTED by the user before producing output |
-| Retry count | 1 (implementation retry used: first `@build` core task returned empty/no files → retried with reduced scope, succeeded. Designer abort is NOT a retry — task must be re-dispatched fresh) |
+| Active gate | Gate F (commit) — pending architect execution on feat/nourish-mvp |
+| Retry count | 1 (implementation retry used). No further retries consumed. |
 
 ## Gates
 
@@ -29,15 +29,45 @@ agent's exact approval.
   slice-limited deviation, adjustability deferred to S4; (c) go_router version
   resolved at `pub add` time; (d) target-engine test cases hand-verified by
   architect.
+- **Gate B part 3 (UI)** — COMPLETE 2026-08-26. `@designer` delivered: full
+  `packages/design-system` (tokens/theme/8 widget primitives, Inter
+  400/600/700 + Noto Sans Ethiopic 400/700 bundled locally, 13 tests); all 16
+  stub screens replaced with real Stitch-faithful implementations + missing
+  widgets/controllers created (onboarding flow/controller, home screen +
+  calorie ring/macro pills/meals/hydration widgets, scan menu sheet, search
+  widgets, history widgets, honest voids); 37 new mobile tests. Architect
+  independently verified: `flutter analyze` clean (apps/mobile +
+  design-system), `flutter test` +87 (mobile), +13 (design-system), +27
+  (domain untouched), zero-egress grep zero, STUB/TODO/PLACEHOLDER grep zero,
+  5 fonts present (324–365 KB).
+- **Gate C (QA)** — `QA APPROVED` 2026-08-26 (independent @qa). Full blueprint
+  §16 matrix covered; suites reproduced by QA: +87 mobile, +13 design-system,
+  +27 domain; analyzers clean. Extended zero-egress grep zero matches. 7
+  MINOR findings, none blocking — recorded under Unresolved Risks as deferred
+  polish. Designer deviations all adjudicated ACCEPTABLE/CORRECT (incl.
+  `/welcome` redirect change — required by ONB-09; skip-pace null persistence
+  — per ONB-06/engine §8).
+- **Gate D (security)** — `SECURITY NOT REQUIRED` recorded for S0. Rationale:
+  zero network egress (architect + QA double-verified), no secrets/tokens, no
+  auth/permissions, no remote code/uploads, no external inputs. Residual:
+  health data in app-private local SQLite unencrypted at rest — documented
+  provisional risk (blueprint §14), deferred to S3. Re-open immediately if
+  any runtime network call or secret appears.
+- **Gate E (integration)** — PASS by architect 2026-08-26: both packages
+  compile/analyze clean together; router contract intact (16
+  const-constructed screens); provider graph acyclic with 22 uniquely-named
+  providers; greenfield Drift schema v1 (no migrations); integrated paths
+  covered (87 mobile tests incl. end-to-end widget flows); no unresolved
+  TODO/stub in shipped paths (honest-void lanes intentional); branch contains
+  only intentional changes (untracked apps/, packages/; STATE.md). `graphify`
+  unavailable — limitation recorded (not run, not pretended).
 
 ### Active
 
-- **Gate B (implement)** for slice S0 — parts 1 and 2 COMPLETE (evidence in
-  `## Last Verification Evidence`). Part 3 (`@designer`: design-system package +
-  real screens replacing stubs) was dispatched and **aborted by the user**; no
-  designer output was produced (verified: all 16 feature files still carry
-  `// STUB` markers; `packages/design-system` is still the placeholder). See
-  `## Resume Instructions`.
+- **Gate F (commit)** — single atomic commit of S0 implementation on
+  `feat/nourish-mvp` pending architect execution (imminent). No commit hash
+  recorded yet. Do not mark complete until the architect executes the commit
+  and reports the hash.
 
 ### Failed
 
@@ -48,38 +78,19 @@ agent's exact approval.
 
 ## Resume Instructions (next session — follow in order)
 
-1. **Do not re-run anything already done.** Verified-on-disk state: git has a
-   single commit `25e27c8` (baseline); everything since is untracked on
-   `feat/nourish-mvp` — `CONTEXT.md`, `docs/`, `packages/`, `apps/`. Nothing
-   has been committed because Gate F has not been reached (per commit policy).
-2. **Quick sanity check** (optional): `flutter analyze` + `flutter test` in
-   `apps/mobile` and `packages/domain` to reconfirm part-1/2 state
-   (was: domain 27/27 green, mobile 50/50 green, analyzers clean).
-3. **Re-dispatch Gate B part 3** — `@designer` task with the same brief as
-   recorded in this session: replace `packages/design-system` placeholder with
-   the full token/theme/widget package per `Design/nourish/DESIGN.md`; replace
-   all 16 stub screens with real Stitch-faithful implementations per
-   `docs/plans/slice-s0-blueprint.md` §10/§16 and behavior files
-   `docs/behaviors/onboarding.md`, `home-dashboard.md`, `logging-methods.md`,
-   `scan-analysis.md`; bundle Inter + Noto Sans Ethiopic fonts; zero runtime
-   network; extend `apps/mobile/test/widget/`; keep existing tests green.
-4. **Gate C (QA)** — dispatch `@qa` from the architect level with the
-   acceptance matrix in blueprint §16.
-5. **Gate D (security)** — record `SECURITY NOT REQUIRED` for S0 per
-   execution-contract rationale (zero network egress, no secrets, no remote
-   code; local-only sensitive data, at-rest encryption deferred to S3 and
-   accepted as documented provisional risk) — re-open immediately if any
-   runtime network call or secret appears.
-6. **Gate E (integration)** — architect verifies: analyze clean, all tests
-   green, no TODO/stub markers remaining in shipped paths (honest-void lanes
-   are intentional), zero-egress grep clean, `graphify update .` if available
-   (if still unavailable, record limitation).
-7. **Gate F (commit)** — single atomic commit of S0 implementation on
-   `feat/nourish-mvp` (after gates C–E). Then update STATE phase to
-   `IMPLEMENTING (S1)` / plan S1 blueprint (Gate A for S1).
-8. **UAT checkpoint** — present the S0 build to the human for hands-on review
-   before any merge; also surface `docs/plans/provisional-product-assumptions.md`
-   (PPA-1..8) for sign-off since several assumptions ship in S0.
+1. **Gate F (commit)** — `@architect` executes the single atomic commit of S0
+   implementation (`apps/`, `packages/`, `docs/swarm/STATE.md`) on
+   `feat/nourish-mvp`, then a checkpoint commit recording the commit hash.
+   `@scribe` records the hash in this file only after the architect reports
+   it — Gate F stays open until then.
+2. **UAT STOP** — present the S0 build to the human for hands-on review. No
+   merge without explicit human UAT approval. Surface
+   `docs/plans/provisional-product-assumptions.md` (PPA-1..8) for sign-off,
+   including the Gate C QA MINOR finding on PPA-7 (Home renders 4 slot rows
+   incl. Snack; design shows 3; "Other" has no Home row) which needs
+   `@vision` confirmation at UAT.
+3. **After UAT approval** — transition to S1: plan the S1 blueprint (Gate A
+   for S1) per the batch plan.
 
 ## Unresolved Risks
 
@@ -118,6 +129,26 @@ From `docs/behaviors/pending-behaviors.md`:
 - **Logging lanes:** P-LOG-1..5 (text/voice/barcode/OCR/custom-food/calendar
   screens not designed).
 
+### QA MINOR findings (accepted, deferred to S1+ polish)
+
+From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking:
+
+1. File-level circular import `providers.dart` ↔ `onboarding_controller.dart`
+   (safe/lazy; suggest constructor injection or `lib/controllers/` move).
+2. HOME-03: no widget test for filled-slot aggregated totals /
+   multi-items-per-slot (repo-level test + code inspection cover it).
+3. WW-01: `todayMeals`/`todayWater` providers capture date key at build time —
+   session open across midnight shows stale day until rebuild (save-time keys
+   stay correct; display-only).
+4. PPA-7 surface: Home renders 4 slot rows (incl. Snack), design shows 3;
+   "Other" has no Home row — needs `@vision` confirmation at UAT.
+5. `strings.dart`: `honestVoidFeatures` Set declared but never referenced
+   (dead code).
+6. `notifications` void id falls to generic copy (calendar has dedicated
+   copy) — cosmetic.
+7. ONB-01: welcome content non-scrollable; could clip on very short
+   viewports.
+
 ## Artifact Paths
 
 - `docs/behaviors/*` — behavior contracts (product behavior source of truth).
@@ -155,14 +186,55 @@ From `docs/behaviors/pending-behaviors.md`:
     drift_flutter 0.3.1; seed rounding per half-away-from-zero (Shiro 281, Misir
     216 — matches design cards via the pinned rounding rule).
   - `graphify` not installed on this machine — recorded as limitation, not run.
-- **Gate B part 3 (UI)** — NOT STARTED (designer task aborted by user; verified
-  no output: 16/16 feature files still stubs, design-system still placeholder).
-- Gates C (QA), D (security record), E (integration), F (commit): pending.
+- **Gate B part 3 (UI)** — COMPLETE 2026-08-26 (see gates B–E evidence block
+  below).
+- **2026-08-26 — Session resume sanity check (architect, pre-dispatch)**:
+  - `flutter analyze` `apps/mobile` → `No issues found!`
+  - `flutter test` `apps/mobile` → `+50: All tests passed!`
+  - `flutter test` `packages/domain` → `+27: All tests passed!`
+  - Git: 2 commits (`f493342` checkpoint, `25e27c8` baseline); `apps/` +
+    `packages/` still uncommitted per commit policy.
+  - Confirmed 16/16 feature files carry `// STUB` markers;
+    `packages/design-system/lib` is still the placeholder with
+    `buildNourishThemeStub()`.
+  - Note: Gate B part 3 re-dispatched to `@designer` with full recorded brief
+    (design-system package, 16 screens, widget tests, fonts, zero-egress).
+- Gates C (QA), D (security record), E (integration): COMPLETE 2026-08-26
+  (see below). Gate F (commit): imminent, pending architect execution.
 - Environment checks:
   - Flutter 3.44.8 (stable)
   - Node v24.16.0
   - npm 11.13.0
   - git 2.55.0.windows.5
+- **2026-08-26 — Gates B part 3, C, D, E evidence**:
+  - Gate B part 3 (UI) — COMPLETE by `@designer`; architect independently
+    verified:
+    - `flutter analyze` `apps/mobile` + `packages/design-system` →
+      `No issues found!`
+    - `flutter test` → `+87` (apps/mobile), `+13` (packages/design-system),
+      `+27` (packages/domain)
+    - Zero-egress grep: zero matches; STUB/TODO/PLACEHOLDER grep: zero
+      matches; 5 fonts present (324–365 KB).
+  - Gate C (QA) — `QA APPROVED` (independent `@qa`): full blueprint §16
+    matrix covered; suites reproduced (+87 mobile, +13 design-system, +27
+    domain); analyzers clean; extended zero-egress grep zero matches; 7
+    MINOR findings, none blocking (see `## Unresolved Risks`). Designer
+    deviations adjudicated ACCEPTABLE/CORRECT (`/welcome` redirect per
+    ONB-09; skip-pace null persistence per ONB-06/engine §8).
+  - Gate D (security) — `SECURITY NOT REQUIRED` recorded for S0: zero
+    network egress (architect + QA double-verified); no secrets/tokens; no
+    auth/permissions; no remote code/uploads; no external inputs. Residual
+    provisional risk: health data in app-private local SQLite unencrypted at
+    rest (blueprint §14) — deferred to S3; re-open if any runtime network
+    call or secret appears.
+  - Gate E (integration) — PASS by architect: both packages compile/analyze
+    clean together; router contract intact (16 const-constructed screens);
+    provider graph acyclic with 22 uniquely-named providers; greenfield Drift
+    schema v1 (no migrations); 87 mobile tests cover integrated paths incl.
+    end-to-end widget flows; no unresolved TODO/stub in shipped paths
+    (honest-void lanes intentional); branch contains only intentional
+    changes (untracked `apps/`, `packages/`; `STATE.md`).
+  - `graphify` unavailable — limitation recorded (not run, not pretended).
 
 ## GraphSync Note
 

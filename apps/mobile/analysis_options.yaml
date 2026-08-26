@@ -1,0 +1,24 @@
+# Analyzer configuration for the Nourish mobile app.
+# flutter_lints base + strictness mirroring packages/domain.
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    always_declare_return_types: error
+    annotate_overrides: error
+    missing_return: error
+    prefer_single_quotes: error
+    throw_in_finally: error
+    unnecessary_statements: error
+    unused_import: error
+    unused_local_variable: error
+
+linter:
+  rules:
+    - avoid_dynamic_calls
+    - prefer_const_declarations
+    - prefer_final_locals
