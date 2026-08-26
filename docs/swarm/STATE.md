@@ -8,11 +8,11 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `INTEGRATION (S0) — Gates B–E complete; Gate F (atomic commit) imminent` |
+| Phase | `UAT (S0) — all engineering gates complete; awaiting human hands-on approval` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
 | Active slice | S0 (Foundation + Onboarding + Manual Logging) |
-| Active gate | Gate F (commit) — pending architect execution on feat/nourish-mvp |
+| Active gate | UAT STOP (awaiting explicit human approval; no merge before it) |
 | Retry count | 1 (implementation retry used). No further retries consumed. |
 
 ## Gates
@@ -61,13 +61,21 @@ agent's exact approval.
   TODO/stub in shipped paths (honest-void lanes intentional); branch contains
   only intentional changes (untracked apps/, packages/; STATE.md). `graphify`
   unavailable — limitation recorded (not run, not pretended).
+- **Gate F (commit)** — COMPLETE: commit `80800d4` — `feat: S0 —
+  foundation, onboarding, home, and manual logging (offline MVP)` on
+  `feat/nourish-mvp`, atomic, 231 files, working tree clean after commit.
+  Root `.gitignore` and both package `.gitignore`s updated to COMMIT
+  `pubspec.lock` (blueprint §7 reproducible builds; 3 lock files included).
+  Pre-commit hygiene: 0 forbidden artifacts staged (no
+  build/.dart_tool/ephemeral/.idea/.env); ephemeral iOS env artifact
+  confirmed gitignored.
 
 ### Active
 
-- **Gate F (commit)** — single atomic commit of S0 implementation on
-  `feat/nourish-mvp` pending architect execution (imminent). No commit hash
-  recorded yet. Do not mark complete until the architect executes the commit
-  and reports the hash.
+- **UAT** — pending explicit human approval. The human must sign off
+  PPA-1..8 (from `docs/plans/provisional-product-assumptions.md`) and
+  `@vision` should confirm QA MINOR #4 (Home shows 4 slot rows incl. Snack
+  vs design's 3; PPA-7).
 
 ### Failed
 
@@ -78,19 +86,13 @@ agent's exact approval.
 
 ## Resume Instructions (next session — follow in order)
 
-1. **Gate F (commit)** — `@architect` executes the single atomic commit of S0
-   implementation (`apps/`, `packages/`, `docs/swarm/STATE.md`) on
-   `feat/nourish-mvp`, then a checkpoint commit recording the commit hash.
-   `@scribe` records the hash in this file only after the architect reports
-   it — Gate F stays open until then.
-2. **UAT STOP** — present the S0 build to the human for hands-on review. No
-   merge without explicit human UAT approval. Surface
-   `docs/plans/provisional-product-assumptions.md` (PPA-1..8) for sign-off,
-   including the Gate C QA MINOR finding on PPA-7 (Home renders 4 slot rows
-   incl. Snack; design shows 3; "Other" has no Home row) which needs
-   `@vision` confirmation at UAT.
-3. **After UAT approval** — transition to S1: plan the S1 blueprint (Gate A
-   for S1) per the batch plan.
+1. Human performs hands-on UAT of the S0 build on `feat/nourish-mvp` (commit
+   `80800d4`). No merge/deploy without explicit approval.
+2. On approval: transition phase to `IMPLEMENTING (S1)` and run Gate A for
+   S1 (Ethiopian FCT 2025 import, backend scaffold) — S1 blueprint to be
+   planned per ADR-0002.
+3. Deferred S1+ polish backlog: QA MINOR findings 1–7 already recorded under
+   Unresolved Risks — fold into S1 planning.
 
 ## Unresolved Risks
 
@@ -235,6 +237,15 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
     (honest-void lanes intentional); branch contains only intentional
     changes (untracked `apps/`, `packages/`; `STATE.md`).
   - `graphify` unavailable — limitation recorded (not run, not pretended).
+- **Gate F (commit)** — COMPLETE 2026-08-26:
+  - Commit hash: `80800d4` — `feat: S0 — foundation, onboarding, home, and
+    manual logging (offline MVP)` on `feat/nourish-mvp`
+  - Atomic: 231 files in one commit; working tree clean after commit.
+  - `.gitignore` updates: root + both packages — `pubspec.lock` COMMITTED
+    (blueprint §7 reproducible builds; 3 lock files included).
+  - Pre-commit hygiene: 0 forbidden artifacts staged (no
+    build/.dart_tool/ephemeral/.idea/.env); ephemeral iOS env artifact
+    confirmed gitignored.
 
 ## GraphSync Note
 
