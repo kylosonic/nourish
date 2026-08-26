@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Scan Menu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-container-high": "#eae7e7",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-primary-container": "#00422b",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#4edea3",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-container": "#fc7c78",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#313030",
+                        "on-tertiary-fixed": "#410005",
+                        "on-surface-variant": "#3c4a42",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#711419",
+                        "primary": "#006c49",
+                        "on-secondary-container": "#684000",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf9f8",
+                        "outline": "#6c7a71",
+                        "surface-container-low": "#f6f3f2",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-surface": "#1c1b1b",
+                        "on-error-container": "#93000a",
+                        "surface": "#fcf9f8",
+                        "surface-container": "#f0eded",
+                        "primary-fixed": "#6ffbbe",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#ffdad7",
+                        "primary-container": "#10b981",
+                        "error-container": "#ffdad6",
+                        "secondary": "#855300",
+                        "surface-dim": "#dcd9d9",
+                        "surface-tint": "#006c49",
+                        "outline-variant": "#bbcabf",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "surface-variant": "#e5e2e1",
+                        "secondary-container": "#fea619",
+                        "surface-bright": "#fcf9f8",
+                        "on-background": "#1c1b1b",
+                        "tertiary": "#a43a3a",
+                        "on-primary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "section-gap": "40px",
+                        "gutter": "16px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "metric-xl": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "metric-xl": ["40px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background h-full text-on-background antialiased overflow-hidden font-body-md">
+<!-- Mock Home Screen Content behind the overlay -->
+<div class="h-full w-full flex flex-col relative z-0 filter blur-[2px]">
+<!-- TopAppBar Placeholder -->
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-container-margin py-base max-w-[1200px] mx-auto">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A macro shot of a fresh green leaf with morning dew drops catching the early sunlight. The lighting is soft and bright, emphasizing health, vitality, and purity. The mood is calm and refreshing. Minimalist editorial style, high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDhbVMLummeVibafw9XlT-nqzRhv28Trbjdl3wz7t5IwWTRvWItJscVphSqaGDWMNYqJMMBTd0PKWb-OnoOMuYNtMgx1R36nfr1gsnexeWdNAMn5WvWxyL660ShirOgXRgNoNNtEB-JMBP5VtnYHeD40P39Apflwh0Q0GHBncNS0qDXaIot5R1baWTVgjkxEjsL-QyLTOFoBYMfg2GSMGun5BN7s0aai-iJxnrPbYpAkY1obmtvb_2"/>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary">Nourish</h1>
+<button class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="flex-1 px-container-margin py-section-gap max-w-[1200px] mx-auto w-full">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg mb-6">Today's Progress</h2>
+<div class="bg-surface-container-low rounded-xl p-6 shadow-sm mb-section-gap">
+<p class="font-body-md text-body-md text-on-surface-variant mb-2">Calories</p>
+<div class="flex items-end gap-2">
+<span class="font-metric-xl text-metric-xl text-primary">1,240</span>
+<span class="font-body-md text-body-md text-on-surface-variant mb-1">/ 2,000</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Placeholder -->
+<nav class="fixed bottom-0 left-0 right-0 flex justify-around items-center px-gutter pb-6 pt-2 bg-surface/80 backdrop-blur-md shadow-[0_-4px_12px_rgba(49,48,48,0.04)] z-50 rounded-t-xl hidden md:flex">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-container-low transition-colors rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="add_circle">add_circle</span>
+<span class="font-label-caps text-label-caps">Scan</span>
+</a>
+</nav>
+</div>
+<!-- Overlay / Dimmed Background -->
+<div aria-hidden="true" class="fixed inset-0 bg-inverse-surface/40 z-40 transition-opacity duration-300"></div>
+<!-- Bottom Sheet -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-surface rounded-t-[32px] shadow-2xl transform transition-transform duration-300 translate-y-0 pb-10 pt-4 px-container-margin max-w-[800px] mx-auto md:bottom-auto md:top-1/2 md:-translate-y-1/2 md:rounded-[32px] md:shadow-[0_12px_48px_rgba(49,48,48,0.12)]">
+<!-- Drag Handle (Mobile only) -->
+<div class="w-12 h-1.5 bg-outline-variant rounded-full mx-auto mb-6 md:hidden"></div>
+<div class="flex justify-between items-center mb-8">
+<h2 class="font-headline-md text-headline-md text-on-surface">What did you eat?</h2>
+<button class="text-on-surface-variant hover:bg-surface-container-high rounded-full p-2 transition-colors md:hidden">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Options Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant hover:bg-surface-container-highest transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl" data-icon="photo_camera">photo_camera</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface tracking-wider">TAKE PHOTO</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant hover:bg-surface-container-highest transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mb-4 group-hover:scale-110 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl" data-icon="image">image</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface tracking-wider">CHOOSE PHOTO</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant hover:bg-surface-container-highest transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary mb-4 group-hover:scale-110 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl" data-icon="edit_note">edit_note</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface tracking-wider">DESCRIBE MEAL</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant hover:bg-surface-container-highest transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl" data-icon="mic">mic</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface tracking-wider">USE VOICE</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant hover:bg-surface-container-highest transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="w-12 h-12 rounded-full bg-outline-variant/30 flex items-center justify-center text-on-surface-variant mb-4 group-hover:scale-110 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl" data-icon="search">search</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface tracking-wider">SEARCH FOOD</span>
+</button>
+<button class="flex flex-col items-center justify-center p-6 bg-surface-container-low rounded-xl border border-transparent hover:border-outline-variant hover:bg-surface-container-highest transition-all duration-200 group focus:outline-none focus:ring-2 focus:ring-primary">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary mb-4 group-hover:scale-110 transition-transform duration-200">
+<span class="material-symbols-outlined text-3xl" data-icon="barcode_scanner">barcode_scanner</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface tracking-wider">SCAN BARCODE</span>
+</button>
+</div>
+</div>
+</body></html>

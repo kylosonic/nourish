@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#711419",
+                        "on-secondary-fixed": "#2a1700",
+                        "secondary-container": "#fea619",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "on-primary-fixed-variant": "#005236",
+                        "primary-container": "#10b981",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed": "#410005",
+                        "surface-variant": "#e5e2e1",
+                        "error-container": "#ffdad6",
+                        "surface": "#fcf9f8",
+                        "surface-bright": "#fcf9f8",
+                        "tertiary-container": "#fc7c78",
+                        "surface-container-highest": "#e5e2e1",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary": "#855300",
+                        "surface-container-low": "#f6f3f2",
+                        "inverse-on-surface": "#f3f0ef",
+                        "surface-dim": "#dcd9d9",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-primary-fixed": "#002113",
+                        "on-background": "#1c1b1b",
+                        "inverse-surface": "#313030",
+                        "surface-tint": "#006c49",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "outline": "#6c7a71",
+                        "on-surface-variant": "#3c4a42",
+                        "primary": "#006c49",
+                        "background": "#fcf9f8",
+                        "on-surface": "#1c1b1b",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#a43a3a",
+                        "secondary-fixed": "#ffddb8",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-primary-container": "#00422b",
+                        "inverse-primary": "#4edea3",
+                        "surface-container": "#f0eded",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#bbcabf",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#eae7e7",
+                        "on-secondary-container": "#684000"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "section-gap": "40px",
+                        "gutter": "16px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "metric-xl": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "metric-xl": ["40px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .segmented-btn.active {
+            background-color: #ffffff;
+            color: #1c1b1b;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col items-center">
+<main class="w-full max-w-[600px] px-container-margin py-8 flex-grow flex flex-col">
+<!-- Top Nav (Minimal for Onboarding) -->
+<header class="w-full flex flex-col gap-6 mb-8">
+<div class="flex items-center">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors text-on-background">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 33%;"></div>
+</div>
+</header>
+<!-- Title -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background mb-8">
+            Your body
+        </h1>
+<!-- Form Elements -->
+<div class="flex flex-col gap-section-gap flex-grow">
+<!-- Sex Segmented Control -->
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Biological Sex</label>
+<div class="flex p-1 bg-surface-container-low rounded-xl">
+<button class="segmented-btn active flex-1 py-3 rounded-lg font-headline-md text-headline-md text-on-surface-variant transition-all" onclick="toggleSegment(this)">Female</button>
+<button class="segmented-btn flex-1 py-3 rounded-lg font-headline-md text-headline-md text-on-surface-variant transition-all" onclick="toggleSegment(this)">Male</button>
+</div>
+</div>
+<!-- Age & Height Row -->
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Age</label>
+<input class="w-full bg-surface-container-low border border-outline focus:border-2 focus:border-on-background focus:bg-surface-container-lowest rounded-lg px-4 py-4 font-body-lg text-body-lg text-on-background outline-none transition-all placeholder:text-outline-variant" placeholder="yrs" type="number"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Height (cm)</label>
+<input class="w-full bg-surface-container-low border border-outline focus:border-2 focus:border-on-background focus:bg-surface-container-lowest rounded-lg px-4 py-4 font-body-lg text-body-lg text-on-background outline-none transition-all placeholder:text-outline-variant" placeholder="cm" type="number"/>
+</div>
+</div>
+<!-- Weight Row -->
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Current Weight</label>
+<input class="w-full bg-surface-container-low border border-outline focus:border-2 focus:border-on-background focus:bg-surface-container-lowest rounded-lg px-4 py-4 font-body-lg text-body-lg text-on-background outline-none transition-all placeholder:text-outline-variant" placeholder="kg" type="number"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase">Target Weight</label>
+<input class="w-full bg-surface-container-low border border-outline focus:border-2 focus:border-on-background focus:bg-surface-container-lowest rounded-lg px-4 py-4 font-body-lg text-body-lg text-on-background outline-none transition-all placeholder:text-outline-variant" placeholder="kg" type="number"/>
+</div>
+</div>
+</div>
+<!-- Bottom Action -->
+<div class="mt-8 mb-6 pt-4">
+<button class="w-full bg-primary-container text-on-primary font-headline-md text-headline-md py-4 rounded-xl active:scale-95 transition-transform duration-200 hover:opacity-90 flex items-center justify-center gap-2">
+                Continue
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_forward</span>
+</button>
+</div>
+</main>
+<script>
+        function toggleSegment(clickedBtn) {
+            const buttons = clickedBtn.parentElement.querySelectorAll('.segmented-btn');
+            buttons.forEach(btn => btn.classList.remove('active', 'text-on-background'));
+            buttons.forEach(btn => btn.classList.add('text-on-surface-variant'));
+            
+            clickedBtn.classList.add('active', 'text-on-background');
+            clickedBtn.classList.remove('text-on-surface-variant');
+        }
+    </script>
+</body></html>

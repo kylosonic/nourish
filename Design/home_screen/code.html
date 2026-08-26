@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-container-high": "#eae7e7",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-primary-container": "#00422b",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#4edea3",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-container": "#fc7c78",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#313030",
+                        "on-tertiary-fixed": "#410005",
+                        "on-surface-variant": "#3c4a42",
+                        "surface-container-highest": "#e5e2e1",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#711419",
+                        "primary": "#006c49",
+                        "on-secondary-container": "#684000",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fcf9f8",
+                        "outline": "#6c7a71",
+                        "surface-container-low": "#f6f3f2",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-surface": "#1c1b1b",
+                        "on-error-container": "#93000a",
+                        "surface": "#fcf9f8",
+                        "surface-container": "#f0eded",
+                        "primary-fixed": "#6ffbbe",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#ffdad7",
+                        "primary-container": "#10b981",
+                        "error-container": "#ffdad6",
+                        "secondary": "#855300",
+                        "surface-dim": "#dcd9d9",
+                        "surface-tint": "#006c49",
+                        "outline-variant": "#bbcabf",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "surface-variant": "#e5e2e1",
+                        "secondary-container": "#fea619",
+                        "surface-bright": "#fcf9f8",
+                        "on-background": "#1c1b1b",
+                        "tertiary": "#a43a3a",
+                        "on-primary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "section-gap": "40px",
+                        "gutter": "16px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "metric-xl": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "metric-xl": ["40px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .macro-ring {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 25;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pb-32">
+<!-- TopAppBar (Web & Mobile Hybrid) -->
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-container-margin py-base max-w-[1200px] mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden cursor-pointer hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A high-quality, professional headshot of an individual, minimalist light mode aesthetic, soft bright studio lighting, neutral background, evoking a premium health app user profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfLXz9o_HltUVyUygVs6E8nMLKH6R6S-8pb4kSTnh-laXqVdbMlUCqtPgR2thd1_OpzVujSP_aGPI-Udqq-greqJWzOvX5HZmkeoIjXA7HvXhp97BwQpNfwbG9CKpe_5KWGFXHSWSvJO1nKmFTv0ZhhjZEXrBSzY6SxllWBlTd8nWcn1c_fc5Tk_K9teJErstQfurzbioUIqgRoDi9kJVwmBeKQnjGghE6stvnA6T8P9O2QzCaIpJ4"/>
+</div>
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant uppercase">Good evening</p>
+<h1 class="font-headline-md text-headline-md text-primary">Nourish</h1>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container-low transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="px-container-margin max-w-[1200px] mx-auto mt-section-gap space-y-section-gap">
+<!-- Calorie Visualization (Bento Main) -->
+<section class="bg-surface rounded-[32px] p-8 shadow-[0_4px_12px_rgba(49,48,48,0.04)] relative overflow-hidden flex flex-col items-center justify-center min-h-[300px]">
+<div class="absolute inset-0 opacity-5">
+<!-- Subtle texture or background pattern could go here -->
+</div>
+<div class="relative z-10 text-center flex flex-col items-center">
+<svg class="w-64 h-64 -rotate-90 absolute -top-4" viewbox="0 0 120 120">
+<circle cx="60" cy="60" fill="none" r="54" stroke="#f0eded" stroke-width="4"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="60" cy="60" fill="none" r="54" stroke="#006c49" stroke-dasharray="339.29" stroke-dashoffset="100" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<div class="mt-16 flex flex-col items-center justify-center bg-surface w-40 h-40 rounded-full shadow-[0_0_24px_rgba(255,255,255,1)]">
+<span class="font-metric-xl text-metric-xl text-primary">1,420</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase mt-1">Calories Left</span>
+</div>
+</div>
+<!-- Macro Pills -->
+<div class="flex gap-4 mt-8 z-10 w-full justify-center">
+<div class="bg-primary/10 rounded-full px-4 py-2 flex items-center gap-2 border border-primary/20">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="font-label-caps text-label-caps text-primary">Protein 95g left</span>
+</div>
+<div class="bg-secondary-container/20 rounded-full px-4 py-2 flex items-center gap-2 border border-secondary-container/30">
+<div class="w-2 h-2 rounded-full bg-secondary-container"></div>
+<span class="font-label-caps text-label-caps text-on-secondary-container">Carbs 120g left</span>
+</div>
+<div class="bg-tertiary-container/20 rounded-full px-4 py-2 flex items-center gap-2 border border-tertiary-container/30">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="font-label-caps text-label-caps text-tertiary">Fat 42g left</span>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Meals & Water -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Today's Meals -->
+<div class="md:col-span-8 bg-surface rounded-[32px] p-6 shadow-[0_4px_12px_rgba(49,48,48,0.04)]">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-on-surface">TODAY'S MEALS</h2>
+<button class="text-primary hover:text-primary-fixed-dim font-label-caps text-label-caps uppercase transition-colors">See All</button>
+</div>
+<div class="space-y-4">
+<!-- Meal Item 1 -->
+<div class="flex items-center p-4 bg-surface-container-low rounded-xl gap-4 hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A top-down view of Chechebsa, a traditional Ethiopian breakfast dish, beautifully presented in a minimalist light mode setting with clean lighting, emphasizing rich textures and warm colors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChLjIK_X4R7FhDNiK2tXkJe2TkM5mXaVVOB2-usgkrd3ChDWAWb5B8TfroBSi23Yw9bN-7jZXRaiEK8N1HraR8H-C2cCmQ210WanqvCkebLhd6vu7B_fXQL_Ht1JNjNsW6HX-0FGRa0d2azkLdhRQIcccS8c5XkzeTbNNAHV3UFJt2E9ioHY2RSPVjij5DtMNmx4JrTkGv-bTvhRUmbBJ5JCLANwMWShLyRm9PM7slWsp4n7DdE8v-"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-body-md text-body-md font-semibold text-on-surface">Breakfast</h3>
+<p class="font-body-sm text-on-surface-variant">Chechebsa</p>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-primary">420</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant"> kcal</span>
+</div>
+</div>
+<!-- Meal Item 2 -->
+<div class="flex items-center p-4 bg-surface-container-low rounded-xl gap-4 hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="w-16 h-16 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="A high-end culinary photo of Doro Wot with Injera, an Ethiopian traditional dish, minimalist light mode aesthetic, bright soft lighting, showcasing deep red stew on white flatbread." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMoMoOCx1TAwGZeHGY2pqiGH5_YVhaotUzoSO4lLChPDJVCFOdyM64XmlONXcWv5h7X5bIr5oPHboO-CW_C3ZpbIbFJKiBC2usXctMWRXeTdfeCIbyOfeSRTT2DWl1pPBRuGXfgmEOw25gPuARzFMr3vxWk0D86rkKSZ511XUJk_qpGz30BRokvph0XXNXWK1LuniKSy8YuETPWBI-8nWVh0PT75EHcNrSQUjeDEPSGVuV-GzOcNEy"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-body-md text-body-md font-semibold text-on-surface">Lunch</h3>
+<p class="font-body-sm text-on-surface-variant">Doro Wot + Injera</p>
+</div>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-primary">780</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant"> kcal</span>
+</div>
+</div>
+<!-- Meal Item 3 (Empty State) -->
+<div class="flex items-center p-4 border-2 border-dashed border-outline-variant rounded-xl gap-4 cursor-pointer hover:bg-surface-container-low transition-colors group">
+<div class="w-16 h-16 rounded-lg bg-surface-container-highest flex items-center justify-center shrink-0 group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-outline group-hover:text-on-primary-container">add</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-body-md text-body-md font-semibold text-on-surface">Dinner</h3>
+<p class="font-body-sm text-on-surface-variant">Not logged</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Water Tracking -->
+<div class="md:col-span-4 bg-primary text-on-primary rounded-[32px] p-6 shadow-lg relative overflow-hidden flex flex-col justify-between min-h-[300px]">
+<div class="absolute -bottom-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+<div class="relative z-10 flex justify-between items-start">
+<h2 class="font-headline-md text-headline-md">Hydration</h2>
+<span class="material-symbols-outlined text-4xl opacity-80" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+</div>
+<div class="relative z-10 mt-auto">
+<div class="flex items-end gap-2 mb-2">
+<span class="font-metric-xl text-metric-xl">2.1</span>
+<span class="font-headline-md text-headline-md opacity-80 pb-1">/ 3.0 L</span>
+</div>
+<!-- Water Progress -->
+<div class="h-4 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-white rounded-full w-[70%] transition-all duration-1000 ease-out"></div>
+</div>
+<div class="flex justify-between mt-4">
+<button class="bg-white/20 hover:bg-white/30 text-white rounded-full p-2 backdrop-blur-sm transition-colors active:scale-95">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="bg-white text-primary hover:bg-surface-container-low rounded-full px-6 py-2 font-label-caps text-label-caps uppercase transition-colors active:scale-95 shadow-md flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                             Add 250ml
+                         </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/80 backdrop-blur-md shadow-[0_-4px_12px_rgba(49,48,48,0.04)] px-gutter pb-6 pt-2">
+<ul class="flex justify-around items-end">
+<!-- Home (Active) -->
+<li class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-2 cursor-pointer hover:bg-surface-container-low transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-[10px] mt-1">Home</span>
+</li>
+<!-- Progress -->
+<li class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 cursor-pointer hover:bg-surface-container-low transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-label-caps text-[10px] mt-1">Progress</span>
+</li>
+<!-- Scan (FAB-like Center Action) -->
+<li class="relative -top-4 flex flex-col items-center justify-center cursor-pointer active:scale-90 transition-transform duration-150">
+<div class="w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow">
+<span class="material-symbols-outlined text-3xl">add_circle</span>
+</div>
+<span class="font-label-caps text-[10px] mt-2 text-primary">Scan</span>
+</li>
+<!-- Insights -->
+<li class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 cursor-pointer hover:bg-surface-container-low transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined">lightbulb</span>
+<span class="font-label-caps text-[10px] mt-1">Insights</span>
+</li>
+<!-- Profile -->
+<li class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 cursor-pointer hover:bg-surface-container-low transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-[10px] mt-1">Profile</span>
+</li>
+</ul>
+</nav>
+<!-- SideNav / TopNav Links (Desktop) -->
+<div class="hidden md:flex fixed bottom-8 left-1/2 -translate-x-1/2 bg-surface/90 backdrop-blur-md px-6 py-4 rounded-full shadow-lg border border-outline-variant/20 z-50">
+<ul class="flex items-center gap-8">
+<li class="flex items-center gap-2 cursor-pointer text-primary bg-primary/10 px-4 py-2 rounded-full font-label-caps uppercase transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+                Home
+            </li>
+<li class="flex items-center gap-2 cursor-pointer text-on-surface-variant hover:text-primary transition-colors font-label-caps uppercase">
+<span class="material-symbols-outlined">query_stats</span>
+                Progress
+            </li>
+<li class="flex items-center justify-center cursor-pointer w-12 h-12 bg-primary text-on-primary rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined">add_circle</span>
+</li>
+<li class="flex items-center gap-2 cursor-pointer text-on-surface-variant hover:text-primary transition-colors font-label-caps uppercase">
+<span class="material-symbols-outlined">lightbulb</span>
+                Insights
+            </li>
+<li class="flex items-center gap-2 cursor-pointer text-on-surface-variant hover:text-primary transition-colors font-label-caps uppercase">
+<span class="material-symbols-outlined">person</span>
+                Profile
+            </li>
+</ul>
+</div>
+</body></html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#711419",
+                    "on-secondary-fixed": "#2a1700",
+                    "secondary-container": "#fea619",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "on-primary-fixed-variant": "#005236",
+                    "primary-container": "#10b981",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed": "#410005",
+                    "surface-variant": "#e5e2e1",
+                    "error-container": "#ffdad6",
+                    "surface": "#fcf9f8",
+                    "surface-bright": "#fcf9f8",
+                    "tertiary-container": "#fc7c78",
+                    "surface-container-highest": "#e5e2e1",
+                    "primary-fixed": "#6ffbbe",
+                    "secondary": "#855300",
+                    "surface-container-low": "#f6f3f2",
+                    "inverse-on-surface": "#f3f0ef",
+                    "surface-dim": "#dcd9d9",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffdad7",
+                    "on-primary-fixed": "#002113",
+                    "on-background": "#1c1b1b",
+                    "inverse-surface": "#313030",
+                    "surface-tint": "#006c49",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-tertiary-fixed-variant": "#842225",
+                    "outline": "#6c7a71",
+                    "on-surface-variant": "#3c4a42",
+                    "primary": "#006c49",
+                    "background": "#fcf9f8",
+                    "on-surface": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#a43a3a",
+                    "secondary-fixed": "#ffddb8",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-primary-container": "#00422b",
+                    "inverse-primary": "#4edea3",
+                    "surface-container": "#f0eded",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#bbcabf",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#eae7e7",
+                    "on-secondary-container": "#684000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "section-gap": "40px",
+                    "gutter": "16px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "metric-xl": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "metric-xl": ["40px", {"lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar { display: none; }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col font-body-md antialiased">
+<!-- Progress Header (Transactional flow, nav suppressed) -->
+<header class="px-container-margin py-container-margin flex flex-col gap-4 max-w-[600px] mx-auto w-full pt-8 md:pt-12">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors p-2 -ml-2 rounded-full hover:bg-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex-1 h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[33%] rounded-full transition-all duration-700 ease-out"></div>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">1 OF 3</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-container-margin py-base max-w-[600px] mx-auto w-full flex flex-col">
+<div class="mb-section-gap">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-3 tracking-tight">
+                What do you usually eat?
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+                We'll use this to build your baseline nutritional targets and suggest relevant meals.
+            </p>
+</div>
+<form class="flex flex-col gap-4 flex-1">
+<!-- Option: Ethiopian -->
+<label class="relative cursor-pointer group block">
+<input checked="" class="peer sr-only" name="diet_preference" type="radio" value="ethiopian"/>
+<div class="flex items-center p-3 rounded-xl border-2 border-outline-variant bg-surface-container-lowest peer-checked:border-primary peer-checked:bg-primary-container/5 transition-all duration-200 hover:border-outline shadow-[0_4px_12px_rgba(49,48,48,0.02)] hover:shadow-[0_8px_16px_rgba(49,48,48,0.06)]">
+<div class="w-[88px] h-[88px] rounded-lg overflow-hidden shrink-0 relative bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A top-down, high-quality editorial food photograph of traditional Ethiopian Injera served on a large round platter. The spongy flatbread is beautifully arranged with vibrant, colorful stews (wots) in rich reds, deep yellows, and earthy greens. The lighting is soft and natural, casting delicate shadows that highlight the textures of the food. The setting is clean and minimalist, keeping the focus entirely on the rich, appetizing colors of the dish." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzKMa12GgoHLyvo9QFZud8B1RAxfQzL4bjEkmLjLjNGTFfyUY2O52TyoOz3zNFuqPUQuS05T-rKTpeuTA97bVstdx1zAoQvucb4HLR8EVXVV2TErkPfRbbn1splJIkzfQG3CfUDT8UIrVmlRc4V7YTNCmUD9Rz32PmJxdFklj8doM4Q_GidRzvmNY7ChiI3gcGWy-B7lm7g5g8JSbJ9-wiWi-hSgksqh3FGyzcb3M0eC1WiJ6CQ7eC"/>
+</div>
+<div class="ml-4 flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Ethiopian</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 leading-snug">Traditional dishes like Injera, wot, and tibs.</p>
+</div>
+<div class="ml-2 mr-2 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center transition-colors duration-200 peer-checked:border-primary peer-checked:bg-primary">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 transition-opacity duration-200 peer-checked:opacity-100" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+</label>
+<!-- Option: Mixed -->
+<label class="relative cursor-pointer group block">
+<input class="peer sr-only" name="diet_preference" type="radio" value="mixed"/>
+<div class="flex items-center p-3 rounded-xl border-2 border-outline-variant bg-surface-container-lowest peer-checked:border-primary peer-checked:bg-primary-container/5 transition-all duration-200 hover:border-outline shadow-[0_4px_12px_rgba(49,48,48,0.02)] hover:shadow-[0_8px_16px_rgba(49,48,48,0.06)]">
+<div class="w-[88px] h-[88px] rounded-lg overflow-hidden shrink-0 relative bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A bright, modern food photograph showing a fusion meal blending traditional and modern elements. A beautifully plated bowl containing a mix of ancient grains, grilled chicken, and a side of lightly spiced lentils. The aesthetic is clean, healthy, and premium, shot from a 45-degree angle with shallow depth of field. Natural window light illuminates the fresh ingredients against a pristine white marble background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFj_x7FG09474aqH89E3epQS8gHGG62lmys6j2XekP_kfWFF963XXGFbHuCzro1U65v3U_4x8z5_eiFMHsJk5k4tswGU-KLa9GjYZxieRiAHkuy57hjqN2g3c4_oA4v4B5oqKDNORdhnPTYTkp9CDiOKvh-mX-_PsH6XSVjfGE0W9alCeNosKobLYi8bJ7udP1ATwWEZk1tyfmOynnz6bCuwGVfx1tTdQ8d-aAhQpV-5sOOQg3UmRq"/>
+</div>
+<div class="ml-4 flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">Mixed</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 leading-snug">A balance of traditional meals and modern preps.</p>
+</div>
+<div class="ml-2 mr-2 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center transition-colors duration-200 peer-checked:border-primary peer-checked:bg-primary">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 transition-opacity duration-200 peer-checked:opacity-100" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+</label>
+<!-- Option: International -->
+<label class="relative cursor-pointer group block">
+<input class="peer sr-only" name="diet_preference" type="radio" value="international"/>
+<div class="flex items-center p-3 rounded-xl border-2 border-outline-variant bg-surface-container-lowest peer-checked:border-primary peer-checked:bg-primary-container/5 transition-all duration-200 hover:border-outline shadow-[0_4px_12px_rgba(49,48,48,0.02)] hover:shadow-[0_8px_16px_rgba(49,48,48,0.06)]">
+<div class="w-[88px] h-[88px] rounded-lg overflow-hidden shrink-0 relative bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A minimalist, high-end editorial shot of a healthy international meal. A perfectly plated Mediterranean quinoa salad with avocado, cherry tomatoes, and grilled salmon on a matte ceramic plate. The lighting is crisp and bright, emphasizing the vibrant colors and fresh textures. The background is an out-of-focus soft white, evoking a modern, health-conscious lifestyle aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHy5RWTkkfpFZY4YqKKaW-qw-zpOgtr2ESgU9emJYQ3ZN6AW3z3LvXaO0IIjnVf7cjb1I8jYmiaJBG6A1op1L8GbDNYnF5QPr937B0DxnQ9enpSXrB9p4cGg46BtsuuPlR8-nHCpo8bc9Vtm4PT7c4izaCzewjHqVbGQLOoRkzP4NMK62AQP6Yf7SLTAXXmSVP3_cFSN07nNdhFKzrYuKofaATcVtq8C_p2usqSIdDGKEn8idRI5pA"/>
+</div>
+<div class="ml-4 flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface">International</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 leading-snug">Global cuisine, pastas, salads, and proteins.</p>
+</div>
+<div class="ml-2 mr-2 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center transition-colors duration-200 peer-checked:border-primary peer-checked:bg-primary">
+<span class="material-symbols-outlined text-on-primary text-[16px] opacity-0 transition-opacity duration-200 peer-checked:opacity-100" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+</label>
+</form>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="px-container-margin py-6 max-w-[600px] mx-auto w-full mt-auto bg-gradient-to-t from-surface via-surface to-transparent">
+<button class="w-full bg-primary text-on-primary font-headline-md text-headline-md py-4 rounded-xl shadow-[0_8px_24px_rgba(0,108,73,0.25)] hover:opacity-95 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
+            Continue
+        </button>
+</footer>
+</body></html>

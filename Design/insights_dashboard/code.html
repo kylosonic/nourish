@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Insights Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#4edea3",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#f0eded",
+                        "surface": "#fcf9f8",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "background": "#fcf9f8",
+                        "surface-tint": "#006c49",
+                        "primary-container": "#10b981",
+                        "surface-bright": "#fcf9f8",
+                        "on-tertiary-fixed": "#410005",
+                        "on-primary-container": "#00422b",
+                        "inverse-primary": "#4edea3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f6f3f2",
+                        "primary-fixed": "#6ffbbe",
+                        "tertiary-container": "#fc7c78",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "tertiary-fixed": "#ffdad7",
+                        "primary": "#006c49",
+                        "surface-container-highest": "#e5e2e1",
+                        "secondary-container": "#fea619",
+                        "on-surface": "#1c1b1b",
+                        "tertiary": "#a43a3a",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f3f0ef",
+                        "on-secondary-container": "#684000",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-primary-fixed-variant": "#005236",
+                        "outline": "#6c7a71",
+                        "on-surface-variant": "#3c4a42",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#711419",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-dim": "#dcd9d9",
+                        "inverse-surface": "#313030",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface-container-high": "#eae7e7",
+                        "outline-variant": "#bbcabf",
+                        "secondary": "#855300",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#002113",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "on-background": "#1c1b1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "section-gap": "40px",
+                        "gutter": "16px",
+                        "base": "8px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "metric-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "metric-xl": ["40px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
+        
+        .chart-grid {
+            background-image: linear-gradient(to right, #eae7e7 1px, transparent 1px), linear-gradient(to bottom, #eae7e7 1px, transparent 1px);
+            background-size: 20% 20px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-[100px] md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-container-margin py-base max-w-[1200px] mx-auto flat no shadows hidden md:flex">
+<div class="flex items-center gap-4">
+<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="A small, high-quality, professional headshot photo of an individual looking confident and healthy, set against a clean, light-mode background. The lighting is soft and flattering, suitable for a premium health application profile avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfZBae_Lej6d0Jo2xzhopGc5KMPKCr2p5zyQfsMjeAeMPapFpOoPRjdb8g3psMD46CIfoLwOvrIMEgnwSoXN_vQJcYmGwlD8AQLJM9EuBWR125LRXgIAIoTqk4y3fN1ouDI6XgIO22GVQBIulifZtuRzTozqh6AHUQANmXJdb3Qmd77TkEYkTNgN_Nys6GYK1qQK8RO3w1p64xmGdPz3_6_BVLlIn5m3aTGTRAp4NdJLZUrIhH7DyP"/>
+</div>
+<div class="font-display-lg text-display-lg text-primary dark:text-primary-fixed-dim">Nourish</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Mobile Header -->
+<header class="md:hidden w-full sticky top-0 z-50 bg-background/80 backdrop-blur-md flex justify-between items-center px-container-margin py-base flat no shadows">
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover shadow-sm" data-alt="A small, high-quality, professional headshot photo of an individual looking confident and healthy, set against a clean, light-mode background. The lighting is soft and flattering, suitable for a premium health application profile avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzsxJ2quDr_OME0cTns-6-YQR9nZcBIim7ooOVqbj4Ri8dEQJjpRVg2FrUNUjRfcTppq4z_RjGKrrss6CbUjdycHMOy3Qe0vJpkiTg5RBiRgVrcP5DnvWdG0dDQBcoOwqobfsR43T1nJxibGP3D-KBA55V3y8XIODXJGpN5Y50EunLh0MBZRJlMhfd9Zsywnp2Vz2UsZdrCt2i7TBlwvHnoTeM4YEpuEV9smAF89HWk66c7cZq1M9t"/>
+<div class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">Nourish</div>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="max-w-[1200px] mx-auto px-container-margin mt-section-gap">
+<div class="mb-section-gap">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background mb-2">Weekly Insights</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Here is a breakdown of your nutrition over the past 7 days.</p>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter md:gap-6">
+<!-- Weekly Overview Chart -->
+<section class="md:col-span-8 bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(28,27,27,0.04)]">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-md text-headline-md text-on-background">Caloric Balance</h2>
+<span class="font-label-caps text-label-caps bg-surface-container-low text-on-surface px-3 py-1 rounded-full">LAST 7 DAYS</span>
+</div>
+<div class="h-64 relative chart-grid border-b border-surface-container-highest">
+<!-- Chart visualization (simulated with HTML/CSS) -->
+<div class="absolute bottom-0 left-0 w-full h-full flex items-end justify-between px-2 pt-4">
+<div class="w-[10%] bg-primary-container h-[60%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+<div class="w-[10%] bg-primary-container h-[75%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+<div class="w-[10%] bg-primary-container h-[65%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+<div class="w-[10%] bg-primary-container h-[90%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+<div class="w-[10%] bg-error h-[110%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+<div class="w-[10%] bg-primary-container h-[80%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+<div class="w-[10%] bg-primary-container h-[70%] rounded-t-md opacity-80 hover:opacity-100 transition-opacity"></div>
+</div>
+<!-- Target Line -->
+<div class="absolute top-[20%] left-0 w-full border-t border-dashed border-primary opacity-50"></div>
+</div>
+<div class="flex justify-between mt-2 font-label-caps text-label-caps text-on-surface-variant px-2">
+<span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span>
+</div>
+</section>
+<!-- Macro Breakdown -->
+<section class="md:col-span-4 bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(28,27,27,0.04)] flex flex-col justify-between">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-background mb-6">Macro Averages</h2>
+<div class="space-y-6">
+<!-- Protein -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps mb-2">
+<span class="text-on-surface">PROTEIN</span>
+<span class="text-primary-container">85%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 85%"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm">Avg. 110g / 130g</p>
+</div>
+<!-- Carbs -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps mb-2">
+<span class="text-on-surface">CARBS</span>
+<span class="text-secondary-container">92%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 92%"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm">Avg. 230g / 250g</p>
+</div>
+<!-- Fat -->
+<div>
+<div class="flex justify-between font-label-caps text-label-caps mb-2">
+<span class="text-on-surface">FAT</span>
+<span class="text-tertiary-container">78%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 78%"></div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm">Avg. 55g / 70g</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Highlights & Diversity -->
+<section class="md:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-gutter md:gap-6 mt-4">
+<!-- Highlights -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(28,27,27,0.04)]">
+<h3 class="font-headline-md text-headline-md text-on-background mb-4">Highlights</h3>
+<div class="space-y-4">
+<div class="flex items-start gap-4 p-4 bg-primary-container/10 rounded-lg">
+<span class="material-symbols-outlined text-primary-container fill-icon mt-1" data-icon="check_circle">check_circle</span>
+<div>
+<h4 class="font-headline-md text-headline-md text-base text-on-surface">Consistent Fiber</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">You met your fiber goal 6 out of 7 days this week.</p>
+</div>
+</div>
+<div class="flex items-start gap-4 p-4 bg-secondary-container/10 rounded-lg">
+<span class="material-symbols-outlined text-secondary-container fill-icon mt-1" data-icon="warning">warning</span>
+<div>
+<h4 class="font-headline-md text-headline-md text-base text-on-surface">Sodium Intake</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Sodium levels were 15% higher than recommended on Friday.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Meal Diversity -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_12px_rgba(28,27,27,0.04)] flex items-center justify-between">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background mb-2">Dietary Diversity</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-4">A balanced mix of traditional and international cuisines.</p>
+<ul class="space-y-2 font-body-md text-body-md text-on-surface">
+<li class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-primary"></div> Ethiopian (60%)</li>
+<li class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-secondary-container"></div> International (40%)</li>
+</ul>
+</div>
+<!-- Placeholder for small donut chart visual -->
+<div class="w-32 h-32 rounded-full border-8 border-primary border-t-secondary-container transform rotate-45"></div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 right-0 flex justify-around items-center px-gutter pb-6 pt-2 bg-surface dark:bg-surface rounded-t-xl shadow-[0_-4px_12px_rgba(49,48,48,0.04)] bg-surface/80 backdrop-blur-md shadow-lg z-50 md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="query_stats">query_stats</span>
+<span class="font-label-caps text-label-caps">Progress</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="add_circle">add_circle</span>
+<span class="font-label-caps text-label-caps">Scan</span>
+</a>
+<!-- Active Tab -->
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-on-primary-fixed-variant text-on-primary-container dark:text-primary-fixed rounded-xl px-3 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1 fill-icon" data-icon="lightbulb">lightbulb</span>
+<span class="font-label-caps text-label-caps">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:bg-surface-container-low dark:hover:bg-surface-container-high transition-colors active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+</body></html>

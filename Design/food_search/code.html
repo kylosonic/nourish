@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Search Foods</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#dcd9d9",
+                        "inverse-on-surface": "#f3f0ef",
+                        "tertiary": "#a43a3a",
+                        "on-tertiary-container": "#711419",
+                        "on-secondary-fixed": "#2a1700",
+                        "primary-container": "#10b981",
+                        "secondary-fixed": "#ffddb8",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-tertiary-fixed": "#410005",
+                        "surface-bright": "#fcf9f8",
+                        "on-primary": "#ffffff",
+                        "surface": "#fcf9f8",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "surface-tint": "#006c49",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e5e2e1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#1c1b1b",
+                        "surface-container-high": "#eae7e7",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "on-primary-container": "#00422b",
+                        "tertiary-container": "#fc7c78",
+                        "surface-container-low": "#f6f3f2",
+                        "surface-container-highest": "#e5e2e1",
+                        "error-container": "#ffdad6",
+                        "primary": "#006c49",
+                        "primary-fixed": "#6ffbbe",
+                        "secondary": "#855300",
+                        "on-surface-variant": "#3c4a42",
+                        "inverse-primary": "#4edea3",
+                        "background": "#fcf9f8",
+                        "on-primary-fixed": "#002113",
+                        "surface-container": "#f0eded",
+                        "on-surface": "#1c1b1b",
+                        "tertiary-fixed": "#ffdad7",
+                        "outline-variant": "#bbcabf",
+                        "secondary-container": "#fea619",
+                        "on-secondary-container": "#684000",
+                        "outline": "#6c7a71",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#313030"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "base": "8px",
+                        "container-margin": "24px",
+                        "section-gap": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "metric-xl": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "metric-xl": ["40px", { "lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #fcf9f8; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="font-body-md text-on-background antialiased pb-24">
+<!-- Header -->
+<header class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md px-container-margin py-4">
+<div class="max-w-[1200px] mx-auto flex items-center justify-between">
+<button class="text-on-surface hover:text-primary transition-colors p-2 -ml-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-on-surface">Search Foods</h1>
+<div class="w-10"></div> <!-- Spacer -->
+</div>
+<!-- Search Bar -->
+<div class="max-w-[1200px] mx-auto mt-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none" data-icon="search">search</span>
+<input autocomplete="off" class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-3 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow font-body-md" placeholder="Search for food (e.g., Injera, Shiro)..." type="text"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="barcode_scanner">barcode_scanner</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-[1200px] mx-auto px-container-margin mt-section-gap space-y-section-gap">
+<!-- Categories (Horizontal Scroll) -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-gutter">Categories</h2>
+<div class="flex overflow-x-auto hide-scrollbar gap-4 pb-2 -mx-container-margin px-container-margin">
+<div class="flex-none w-28 text-center group cursor-pointer">
+<div class="w-20 h-20 mx-auto rounded-full bg-surface-container overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow relative">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+<img class="w-full h-full object-cover" data-alt="A high-quality, top-down photograph of a traditional Ethiopian meal on an injera platter, featuring various colorful stews (wots) and vegetables. The lighting is bright and natural, highlighting the rich textures and vibrant reds and greens of the food against a clean, modern off-white background, embodying a premium culinary aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjRaF92fu368ti2VyT2L6c5xLzleSgYdFkcYAZA_EQDpJPImBwO7db6LOwYkbLClcRTDrLVEuWpgBeYwI6fIA8Jiw-ooiwECZJaVClk5RU-8lwdox9XM58iCiNz8vmD_uC-EY7dLrPI4MDKPQc2hr7k0JRPLqYjLytnmQyFX3BFW0joxp3W0eSoUlMtRhPDZcNUIEJSDJ4jU_u7MOzZ2BPL_G14I3d9UHolqA7EDg1Nko-CNTn41X4"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant group-hover:text-primary transition-colors">Ethiopian</span>
+</div>
+<div class="flex-none w-28 text-center group cursor-pointer">
+<div class="w-20 h-20 mx-auto rounded-full bg-surface-container overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow relative">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+<img class="w-full h-full object-cover" data-alt="A beautifully styled breakfast bowl featuring a modern take on Ethiopian Fuul, garnished with fresh tomatoes, jalapeños, and a drizzle of olive oil. Served in a minimalist ceramic bowl on a clean, light stone surface. The image is bright, airy, and high-contrast, fitting a health-conscious lifestyle app design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGD1TtB26kRWs4Kvkt53Y5O-FLdx36dRVOUrKETcm75xBtY_gQOzZ62dYpnwNixn8h-y28Kaw255nfFXP13IIXD64D2vdBQ8pYjRjhRE5wIR5zowzRn_K-x4P-dUfRD-RQUoafiYlvtoqjPMUeqyknCimbvZvjhZc2-wv8_dE08EVQ6B3shPraPAGYLbS9XDT8HV9Ov2_lPFfRHoSVt7TpyDYAH10Gk40pzHDe6VmP2So9LHcDkJnX"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant group-hover:text-primary transition-colors">Breakfast</span>
+</div>
+<div class="flex-none w-28 text-center group cursor-pointer">
+<div class="w-20 h-20 mx-auto rounded-full bg-surface-container overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow relative">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+<img class="w-full h-full object-cover" data-alt="A premium photograph of a healthy lunch plate containing grilled lean protein and fresh, vibrant green vegetables. The composition is clean and minimalist, set against a pristine white marble background with soft, diffused daylight creating subtle shadows, reflecting a modern, health-focused visual identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN6BOfFYKPYz0Cq6ATCXIdcHA5LHdWPVGsvxa2t1TOV01aGf1Ax9JvcP2BVMTaAvWsKS1FjWHGR_ip5bL6jdGn1O_Pf3qDluYoYMUBWiSRdPtBJSrHrhH6e2eGu9zZzqj77tUcVE-djPZZ8PztB3fBstB2xYyA4jZ9O1EBbDbRzpAmyIpDmJZKn0BfjEH7imNEohx0OMExQpj-5KJlYlPWAP8AeKnSif3xFqVMk8ZYe-eErmChTAnu"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant group-hover:text-primary transition-colors">Lunch</span>
+</div>
+<div class="flex-none w-28 text-center group cursor-pointer">
+<div class="w-20 h-20 mx-auto rounded-full bg-surface-container overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow relative">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+<img class="w-full h-full object-cover" data-alt="An elegant, top-down view of a dinner setting featuring a hearty yet refined dish, perhaps a modern interpretation of Doro Wot with a small portion of injera. The scene is illuminated by warm, inviting evening light that casts soft, atmospheric shadows, maintaining a high-end, sophisticated aesthetic on a neutral tabletop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5lWwtEzASXhkCaIdJ25CJ5KhN2fCX0-t3LA2GKY94cGbIVRK4oX7F8bvdQ8IesybCug40BAXfd1HxFWZGAjOrQB15TybXjaxSKgmdB-8vMZL8zLXheDMFzv8rk63847mPMq5xwZdCVikV7o27ZadF1lRBlY-QWUkGbA3xwEOfD8siYrK8DYjCuDln_rniuPqeQH5_mgUJaxvwrDwyfUctfe3UeUK35-NB60-CKc8Yu4lXLP6eycEj"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant group-hover:text-primary transition-colors">Dinner</span>
+</div>
+<div class="flex-none w-28 text-center group cursor-pointer">
+<div class="w-20 h-20 mx-auto rounded-full bg-surface-container overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow relative">
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
+<img class="w-full h-full object-cover" data-alt="A stylized arrangement of healthy snacks, such as roasted chickpeas and fresh fruit slices, presented in small, minimalist ceramic dishes. The lighting is crisp and even, highlighting the textures of the food against a pale, off-white background. The overall look is clean, modern, and appetizing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEuV-e_vxmKF-ZzbuhPJljv8ky2cf0E5RC8b0nrIwNUmtJ1blwkxKTpMNrGjP4jY6za63oeocNa8QnWCkxjsrkvIe9UNMXMxYbMaVVGTrnGHMw671SbI0jcZ5jCf_dc1ig3F4LHGRZ3A_sdCxFN4pMEMGTIeIFZHM-wtzh0uGXEccl9Bel7WdX6y6d1Bf-pPymcqpZMKiuRFonEYYB9iOxSzHj8rvWqFc51Z3QdPrDV9S3bBQ9hpKr"/>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant group-hover:text-primary transition-colors">Snacks</span>
+</div>
+</div>
+</section>
+<!-- Common Foods / Recent -->
+<section>
+<div class="flex justify-between items-end mb-gutter">
+<h2 class="font-headline-md text-headline-md text-on-surface">Common Local Foods</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Food Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container-high relative overflow-hidden group">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-none mr-4">
+<img class="w-full h-full object-cover" data-alt="A close-up, high-quality macro shot of freshly baked Injera, highlighting its unique spongy texture and characteristic 'eyes'. The lighting is soft and natural, emphasizing the subtle earthy tones of the teff flour. The image is clean and appetizing, styled for a premium health app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKJ1nZ3_1g5qppzqnbyua1vu6SxN2U_Q0TY-e3QnZ6whwBgo6X9i3o2B9vPFdIKWyZsrh7XJlshtthuNKYLj0ZBgJcmpx2yemGaRa7zi1j296oyTL2QEt8N46HXTGZ7Wcuoe1Z43ud_FTGKNjgo2XC-i2E5BkObLi6jVTVvRrgxW7O00AdzrN3MJl19WMIoypQdeFTqJL_mvkiaUUu8IWiX169QwKxg_DnBx9-H0D8Hrmhu8qZeSqd"/>
+</div>
+<div class="flex-1">
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold mb-1">Injera (Teff)</h3>
+<div class="flex items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">1 piece (150g)</span>
+<span class="mx-2 text-outline-variant">•</span>
+<span class="font-body-md text-body-md font-medium text-primary">225 kcal</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container hover:bg-primary hover:text-on-primary text-primary transition-colors flex items-center justify-center flex-none ml-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<!-- Food Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container-high relative overflow-hidden group">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-none mr-4">
+<img class="w-full h-full object-cover" data-alt="A minimalist presentation of Shiro Wot, a smooth chickpea stew, served in a small, modern matte black bowl. The vibrant orange-red color of the stew contrasts beautifully against a light, neutral background. A subtle swirl of oil garnishes the top, captured under bright, appealing studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0GFMoB_sOiVNwN-TWL2cunYn4NiS-XJ-5D1xab6Br6pu_4fKT75NqJRE5VCEfOR8jZVwh1eKWUAXoPyr6ViMzwpFkgfdiamgeI0ytM7d2OZRkRkjWWPn4catOIW2SSMACXaaF0S5u8Xjjsizkhx7TE4Tr2mggCWgXCJAFec4ibZ5Sk5zk7LG7Bh71NoM_LBtTtRnQjZrSvcmMalKywzffLDNq4HjIpdmzKgMKf3MZmW5DfwMfHXwB"/>
+</div>
+<div class="flex-1">
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold mb-1">Shiro Wot</h3>
+<div class="flex items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">1 cup (240g)</span>
+<span class="mx-2 text-outline-variant">•</span>
+<span class="font-body-md text-body-md font-medium text-primary">280 kcal</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container hover:bg-primary hover:text-on-primary text-primary transition-colors flex items-center justify-center flex-none ml-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<!-- Food Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container-high relative overflow-hidden group">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-none mr-4">
+<img class="w-full h-full object-cover" data-alt="A high-resolution image of Tibs (sautéed meat and vegetables) presented elegantly on a minimalist white plate. The glistening meat, vibrant green jalapeños, and caramelized onions are sharply in focus. The lighting is crisp, creating a mouth-watering yet sophisticated culinary aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSCqms3eHZ6LIOBhFcXGhMcCtAp4ntmu0cm_PxsbpyXJXHpDQIa3aDbOuh0ugZGMl_UxUuiF5IKqntA2AXkYoBo5oX65cB1tgA0qPcI2E-TKUE_6dXPtjm9zCS_fmO2DKyqWcgiu0Pla48ugK3raBQf-QUUO9KdJuWdWogkmKhfvtvKWWssjzhdevxIht97CFZI8W1AiiHvwjfff6I2zz33kXBEfpavZmVmD_7Jn2CVbnYHz2XS8i4"/>
+</div>
+<div class="flex-1">
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold mb-1">Beef Tibs</h3>
+<div class="flex items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">1 serving (200g)</span>
+<span class="mx-2 text-outline-variant">•</span>
+<span class="font-body-md text-body-md font-medium text-primary">350 kcal</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container hover:bg-primary hover:text-on-primary text-primary transition-colors flex items-center justify-center flex-none ml-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<!-- Food Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-container-high relative overflow-hidden group">
+<div class="w-14 h-14 rounded-lg bg-surface-container overflow-hidden flex-none mr-4">
+<img class="w-full h-full object-cover" data-alt="A clean, appetizing shot of Misir Wot (red lentil stew) in a contemporary shallow bowl. The rich, deep red tones of the lentils are highlighted by soft, directional daylight. The background is a crisp, off-white surface, ensuring the food remains the hero element in this premium design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa0jVRdd-TQV83yowsWzQBcrUfet9fdMxSGrhdWjTcmPV9PMp-L09kS--cWFNqtOV97GNuslxUnjOMLEE5s8PmtRKQ9aK1RS0rEo7u-G3bZopyeEJ4mLzRedtJWiSayQ67qrS3Fm-zUZR7RM3fPSf5bRpj-N7Nm9BEUlVnxBcAwhZs199YIPOaf37Di18bRA10J6qpea65kniDWT5tykddN_frE-5qdeJjaIZSsbcmqh2dDS4EhAYk"/>
+</div>
+<div class="flex-1">
+<h3 class="font-body-lg text-body-lg text-on-surface font-semibold mb-1">Misir Wot</h3>
+<div class="flex items-center text-on-surface-variant">
+<span class="font-body-md text-body-md">1 cup (200g)</span>
+<span class="mx-2 text-outline-variant">•</span>
+<span class="font-body-md text-body-md font-medium text-primary">215 kcal</span>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container hover:bg-primary hover:text-on-primary text-primary transition-colors flex items-center justify-center flex-none ml-2">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Suggestions/Empty State if needed -->
+<div class="text-center py-8 opacity-60">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2" data-icon="restaurant_menu">restaurant_menu</span>
+<p class="font-body-md text-on-surface-variant">Type above to search our database.</p>
+</div>
+</main>
+</body></html>

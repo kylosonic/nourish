@@ -1,0 +1,42 @@
+# Node
+node_modules/
+dist/
+build/
+coverage/
+*.log
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+pubspec.lock
+apps/mobile/build/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/android/.gradle/
+apps/mobile/android/local.properties
+apps/mobile/android/app/release/
+apps/mobile/android/app/upload-keystore.jks
+apps/mobile/ios/Pods/
+apps/mobile/ios/.symlinks/
+apps/mobile/ios/Flutter/ephemeral/
+apps/mobile/ios/Flutter/Generated.xcconfig
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.keystore
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.iml
+
+# Release artifacts
+release/

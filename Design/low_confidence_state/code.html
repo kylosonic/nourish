@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Not Sure (Low Confidence)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#fc7c78",
+                    "inverse-surface": "#313030",
+                    "surface-bright": "#fcf9f8",
+                    "on-primary-fixed": "#002113",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#dcd9d9",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#842225",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-primary-container": "#00422b",
+                    "inverse-primary": "#4edea3",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "primary-fixed": "#6ffbbe",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "on-secondary-fixed": "#2a1700",
+                    "secondary-fixed": "#ffddb8",
+                    "on-error": "#ffffff",
+                    "on-secondary-container": "#684000",
+                    "primary-container": "#10b981",
+                    "surface-container-high": "#eae7e7",
+                    "on-surface": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#fcf9f8",
+                    "on-tertiary-fixed": "#410005",
+                    "background": "#fcf9f8",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#bbcabf",
+                    "secondary-container": "#fea619",
+                    "secondary": "#855300",
+                    "surface-tint": "#006c49",
+                    "primary": "#006c49",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-tertiary-container": "#711419",
+                    "outline": "#6c7a71",
+                    "on-background": "#1c1b1b",
+                    "on-primary-fixed-variant": "#005236",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e5e2e1",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#f0eded",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "tertiary-fixed": "#ffdad7",
+                    "tertiary": "#a43a3a",
+                    "surface-container-highest": "#e5e2e1",
+                    "on-surface-variant": "#3c4a42",
+                    "surface-container-low": "#f6f3f2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section-gap": "40px",
+                    "base": "8px",
+                    "container-margin": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "metric-xl": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "metric-xl": ["40px", {"lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { background-color: #FAF9F6; } /* Level 0 Background */
+        .glass-header { backdrop-filter: blur(10px); background-color: rgba(252, 249, 248, 0.8); }
+        .soft-shadow-level-1 { box-shadow: 0 4px 12px rgba(49, 48, 48, 0.04); }
+        .bottom-nav-shadow { box-shadow: 0 -4px 12px rgba(49, 48, 48, 0.04); }
+    </style>
+</head>
+<body class="font-body-md text-on-background antialiased pb-24 md:pb-0">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 glass-header flex justify-between items-center px-container-margin py-base max-w-[1200px] mx-auto md:hidden">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden" data-icon="account_circle">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A highly detailed, professional headshot portrait of an Ethiopian individual, soft natural lighting, elegant minimalist background, soft shadows, high-end photography style fitting a premium health app, 8k resolution, serene expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjHoVWwphTYV8NbQ5qxJOUHfmdP-kzcDAuEB-Dkki3Htqb0YLc6ecW-ob1jNN9Zz47uZnAfQU8YLJs4hnIdfaGwa6-D1nOHPv44QqpGS1cTVW_MsYRgXB0OKw5X_xbH8S_zNH1WyvURRkF1QDhpnUrWLHwQztep8rruQO9n0VUwSUg70Ro9qIaCKTWy3SBSTcZuHAbKdRE2F0PjNT3gVZW9ULdBnki-teWAdw-svieMNjIRLZOPY6N"/>
+</div>
+</div>
+<div class="font-display-lg text-display-lg text-primary tracking-tight">
+            Nourish
+        </div>
+<div class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-[1200px] mx-auto px-container-margin pt-6 md:pt-12">
+<!-- Scanning Context -->
+<section class="flex flex-col items-center text-center mb-8">
+<div class="relative w-48 h-48 md:w-64 md:h-64 mb-6 rounded-2xl overflow-hidden soft-shadow-level-1">
+<img alt="Scanned food" class="w-full h-full object-cover blur-sm opacity-80" data-alt="A top-down view of a traditional Ethiopian meal featuring injera and a reddish stew (Shiro Wot) in a clay bowl. The image is intentionally slightly out of focus or blurred, simulating a quick snapshot, but still retains rich, warm colors. Premium minimalist lighting context, soft shadows, natural styling." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe7c__LnPwNoJ-xw2-GQQsRsMCCBPDSKqV5ef5v8YsUkYdcy9bzBF_QEbECTjItiX5yU3WLMU-VJEhb221054HJ7uhvtTLZypa3MwYE43vyUZqfrtGvw-LXU-Azmp9WHaA0zUdfEqhW7s2COc47U2IPmIgh9A0gipDQbhRTOmTDoB7sBlOSHuwf6GU6Ts70na2dWdk4AnW5y6vdRnNl_RcuJhELMhotrGoN8n5b4yguEz17rl0Tf4y"/>
+<div class="absolute inset-0 border-4 border-dashed border-primary/30 rounded-2xl"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-surface/90 backdrop-blur px-4 py-2 rounded-lg text-error font-label-caps text-label-caps shadow-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">warning</span> Low Confidence
+                </div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background mb-3">
+                We're not completely sure.
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-md">
+                Which one of these looks right?
+            </p>
+</section>
+<!-- Possible Matches -->
+<section class="mb-10 space-y-4">
+<!-- Match Option 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 soft-shadow-level-1 flex items-center gap-4 transition-transform active:scale-[0.98]">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+<img alt="Shiro Wot" class="w-full h-full object-cover" data-alt="A pristine, high-resolution, appetizing close-up of Shiro Wot, a smooth, rich reddish-orange Ethiopian chickpea stew, served gracefully on fresh injera. Professional food photography, top-tier lighting, macro details, deep earthy tones, premium minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9GoOCCJx-Z84Tt8iZ3ku08QvmEi6Dv_Rp5ZErTzlelQr1AMl2DX36URgT9GS0KwI4g6TsGkA9AfKCpV66eKxJI3XDVpdy_H-ddmKHCsKoaqQmSRV-a9ztjzCSFp8kcy1ly8OkHYP-r8mconx1pX0O8CpXzngpPkDhXJDeFL4ypHBUIWQk3-95BgzMn54FWnnWrv2RfM0MGyOykWzjA6h6rONWSsHTYoe1wxlCTq_ly83Qrnl8fZsz"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-background leading-tight mb-1">Shiro Wot</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Classic chickpea stew</p>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-lg hover:bg-surface-tint active:scale-95 transition-all">
+                    SELECT
+                </button>
+</div>
+<!-- Match Option 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 soft-shadow-level-1 flex items-center gap-4 transition-transform active:scale-[0.98]">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+<img alt="Misir Wot" class="w-full h-full object-cover" data-alt="A flawless, mouth-watering close-up of Misir Wot, a vibrant spicy red lentil Ethiopian stew, beautifully plated on delicate injera. Professional studio food photography, crisp macro focus, rich crimson and earthy colors, sophisticated minimalist lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdwihTchIhMxgQFWSgr4ebgGULzN0CA3QwuXOS2ftonc2idnxCLtamwjNcw6NW3ktA9OtDaqEK9oaeAL2F8qxLs46ZIy5a7_HsyaG22piOYNjARRBRbKakwZXci5U5-UrRoLQ3bQRTmwnK0cXrigkG4u1xPExHTMYCkIDCR8rIqixOfEzSvko1e17y8qV4Z_QN2_NDqSL2qsQE7aEAw7Hza5TtVkSVOSqNPUPnm55q2A3xZbpfsTeU"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-background leading-tight mb-1">Misir Wot</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Spicy red lentil stew</p>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-lg hover:bg-surface-tint active:scale-95 transition-all">
+                    SELECT
+                </button>
+</div>
+<!-- Match Option 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 soft-shadow-level-1 flex items-center gap-4 transition-transform active:scale-[0.98]">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0">
+<img alt="Kik Alicha" class="w-full h-full object-cover" data-alt="An elegant, high-definition macro shot of Kik Alicha, a mild yellow split pea Ethiopian stew, presented neatly on a bed of fresh injera. Luminous, soft natural lighting, high-end culinary photography, warm golden and ivory tones, clean minimalist background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9UCnZ8cNnsolJ6225Kb1hz2raRibe22WWCB8y0B6KY-gt3IB3nUN6Ks4-beEWWiAAcww4q9Hgu2jalUQ42ByACy-7zXBLHSApPYevQoerL7KtXBSuAr6iISP2po7ahRJYDkiPMUbybHGU1fYhnbMSJNi3gzw6JdAVGPC13lZ4QktcyR7y7g7kC8V0AFQ0zHVrGZZe7LiW-7Z5qt6MgIAwg9fUkmcK3RzV0aSVw9rK1yFONymD62S9"/>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline-md text-headline-md text-on-background leading-tight mb-1">Kik Alicha</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Yellow split pea stew</p>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-lg hover:bg-surface-tint active:scale-95 transition-all">
+                    SELECT
+                </button>
+</div>
+</section>
+<!-- Secondary Action -->
+<section class="flex justify-center pb-section-gap">
+<button class="flex items-center gap-2 px-6 py-3 border-2 border-outline rounded-lg text-on-surface font-label-caps text-label-caps hover:bg-surface-container-low transition-colors active:scale-95">
+<span class="material-symbols-outlined text-sm">search</span>
+                SEARCH MANUALLY
+            </button>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 right-0 flex justify-around items-center px-gutter pb-6 pt-2 bg-surface z-50 rounded-t-xl bottom-nav-shadow glass-header md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-container-low transition-colors active:scale-90 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-container-low transition-colors active:scale-90 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">query_stats</span>
+<span class="font-label-caps text-label-caps">Progress</span>
+</a>
+<!-- Active Tab: Scan -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1 hover:bg-surface-container-low transition-colors active:scale-90 duration-150 shadow-sm" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+<span class="font-label-caps text-label-caps">Scan</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-container-low transition-colors active:scale-90 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">lightbulb</span>
+<span class="font-label-caps text-label-caps">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1 hover:bg-surface-container-low transition-colors active:scale-90 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nourish - Onboarding</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-container": "#711419",
+                    "on-secondary-fixed": "#2a1700",
+                    "secondary-container": "#fea619",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "on-primary-fixed-variant": "#005236",
+                    "primary-container": "#10b981",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed": "#410005",
+                    "surface-variant": "#e5e2e1",
+                    "error-container": "#ffdad6",
+                    "surface": "#fcf9f8",
+                    "surface-bright": "#fcf9f8",
+                    "tertiary-container": "#fc7c78",
+                    "surface-container-highest": "#e5e2e1",
+                    "primary-fixed": "#6ffbbe",
+                    "secondary": "#855300",
+                    "surface-container-low": "#f6f3f2",
+                    "inverse-on-surface": "#f3f0ef",
+                    "surface-dim": "#dcd9d9",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffdad7",
+                    "on-primary-fixed": "#002113",
+                    "on-background": "#1c1b1b",
+                    "inverse-surface": "#313030",
+                    "surface-tint": "#006c49",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-tertiary-fixed-variant": "#842225",
+                    "outline": "#6c7a71",
+                    "on-surface-variant": "#3c4a42",
+                    "primary": "#006c49",
+                    "background": "#fcf9f8",
+                    "on-surface": "#1c1b1b",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary": "#a43a3a",
+                    "secondary-fixed": "#ffddb8",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-primary-container": "#00422b",
+                    "inverse-primary": "#4edea3",
+                    "surface-container": "#f0eded",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#bbcabf",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#eae7e7",
+                    "on-secondary-container": "#684000"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "section-gap": "40px",
+                    "gutter": "16px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "metric-xl": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "metric-xl": ["40px", {"lineHeight": "40px", "letterSpacing": "-0.03em", "fontWeight": "700"}]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        /* Custom styles for subtle animations */
+        .card-transition {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .icon-transition {
+            transition: font-variation-settings 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen flex flex-col font-sans text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Progress Top Bar -->
+<header class="w-full px-container-margin py-6 sticky top-0 bg-background/90 backdrop-blur-md z-10 flex flex-col gap-4">
+<!-- Optional back button space could go here, but kept minimal for linear flow -->
+<div class="w-full max-w-[600px] mx-auto">
+<div class="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500 ease-out" style="width: 25%;"></div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-container-margin pt-6 pb-32 max-w-[600px] mx-auto w-full flex flex-col">
+<div class="mb-10 text-center md:text-left">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-background mb-2">What is your goal?</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Select one to help us personalize your plan.</p>
+</div>
+<!-- Options Grid -->
+<div class="flex flex-col gap-4 w-full">
+<!-- Option: Lose weight -->
+<button class="goal-card card-transition w-full flex items-center p-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(28,27,27,0.04)] border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-low focus:outline-none text-left relative overflow-hidden group">
+<div class="h-12 w-12 rounded-full bg-primary-container/20 text-primary flex items-center justify-center mr-5 flex-shrink-0 group-hover:bg-primary-container/30 card-transition">
+<span class="material-symbols-outlined icon-transition text-[28px]" style="font-variation-settings: 'FILL' 0;">trending_down</span>
+</div>
+<div class="flex-1">
+<span class="block font-headline-md text-headline-md text-on-surface">Lose weight</span>
+</div>
+</button>
+<!-- Option: Build muscle -->
+<button class="goal-card card-transition w-full flex items-center p-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(28,27,27,0.04)] border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-low focus:outline-none text-left relative overflow-hidden group">
+<div class="h-12 w-12 rounded-full bg-secondary-container/20 text-on-secondary-fixed flex items-center justify-center mr-5 flex-shrink-0 group-hover:bg-secondary-container/30 card-transition">
+<span class="material-symbols-outlined icon-transition text-[28px]" style="font-variation-settings: 'FILL' 0;">fitness_center</span>
+</div>
+<div class="flex-1">
+<span class="block font-headline-md text-headline-md text-on-surface">Build muscle</span>
+</div>
+</button>
+<!-- Option: Maintain weight -->
+<button class="goal-card card-transition w-full flex items-center p-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(28,27,27,0.04)] border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-low focus:outline-none text-left relative overflow-hidden group">
+<div class="h-12 w-12 rounded-full bg-tertiary-container/20 text-tertiary flex items-center justify-center mr-5 flex-shrink-0 group-hover:bg-tertiary-container/30 card-transition">
+<span class="material-symbols-outlined icon-transition text-[28px]" style="font-variation-settings: 'FILL' 0;">monitor_weight</span>
+</div>
+<div class="flex-1">
+<span class="block font-headline-md text-headline-md text-on-surface">Maintain weight</span>
+</div>
+</button>
+<!-- Option: Eat healthier -->
+<button class="goal-card card-transition w-full flex items-center p-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_12px_rgba(28,27,27,0.04)] border-2 border-transparent hover:border-outline-variant hover:bg-surface-container-low focus:outline-none text-left relative overflow-hidden group">
+<div class="h-12 w-12 rounded-full bg-surface-tint/10 text-primary flex items-center justify-center mr-5 flex-shrink-0 group-hover:bg-surface-tint/20 card-transition">
+<span class="material-symbols-outlined icon-transition text-[28px]" style="font-variation-settings: 'FILL' 0;">eco</span>
+</div>
+<div class="flex-1">
+<span class="block font-headline-md text-headline-md text-on-surface">Eat healthier</span>
+</div>
+</button>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<div class="fixed bottom-0 left-0 right-0 p-container-margin bg-background/90 backdrop-blur-md z-20 flex justify-center">
+<div class="max-w-[600px] w-full">
+<button class="w-full bg-primary text-on-primary font-headline-md text-headline-md py-4 rounded-xl shadow-md hover:bg-surface-tint active:scale-[0.98] transition-all opacity-50 cursor-not-allowed" disabled="" id="next-btn">
+                Next
+            </button>
+</div>
+</div>
+<!-- Interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.goal-card');
+            const nextBtn = document.getElementById('next-btn');
+            
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Reset all cards
+                    cards.forEach(c => {
+                        // Remove active styling classes
+                        c.classList.remove('border-primary', 'bg-primary-container/5', 'shadow-sm');
+                        c.classList.add('border-transparent', 'bg-surface-container-lowest', 'shadow-[0_4px_12px_rgba(28,27,27,0.04)]');
+                        
+                        // Reset icon fill
+                        const icon = c.querySelector('.material-symbols-outlined');
+                        if(icon) icon.style.fontVariationSettings = "'FILL' 0";
+                    });
+
+                    // Set active card
+                    card.classList.remove('border-transparent', 'bg-surface-container-lowest', 'shadow-[0_4px_12px_rgba(28,27,27,0.04)]');
+                    card.classList.add('border-primary', 'bg-primary-container/5', 'shadow-sm');
+                    
+                    // Fill icon on active
+                    const activeIcon = card.querySelector('.material-symbols-outlined');
+                    if(activeIcon) activeIcon.style.fontVariationSettings = "'FILL' 1";
+
+                    // Enable Next button
+                    nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    nextBtn.disabled = false;
+                });
+            });
+        });
+    </script>
+</body></html>

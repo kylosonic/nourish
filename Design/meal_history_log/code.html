@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Nourish - Meal History Log</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#fea619",
+                    "surface-bright": "#fcf9f8",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#00422b",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "primary-container": "#10b981",
+                    "surface-container": "#f0eded",
+                    "on-error": "#ffffff",
+                    "on-surface": "#1c1b1b",
+                    "on-secondary-fixed": "#2a1700",
+                    "outline-variant": "#bbcabf",
+                    "on-tertiary-fixed-variant": "#842225",
+                    "error-container": "#ffdad6",
+                    "surface": "#fcf9f8",
+                    "surface-tint": "#006c49",
+                    "surface-variant": "#e5e2e1",
+                    "surface-dim": "#dcd9d9",
+                    "inverse-on-surface": "#f3f0ef",
+                    "on-tertiary-container": "#711419",
+                    "secondary": "#855300",
+                    "tertiary-fixed": "#ffdad7",
+                    "tertiary-fixed-dim": "#ffb3af",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-high": "#eae7e7",
+                    "on-tertiary-fixed": "#410005",
+                    "secondary-fixed": "#ffddb8",
+                    "on-surface-variant": "#3c4a42",
+                    "inverse-primary": "#4edea3",
+                    "on-background": "#1c1b1b",
+                    "tertiary": "#a43a3a",
+                    "outline": "#6c7a71",
+                    "inverse-surface": "#313030",
+                    "tertiary-container": "#fc7c78",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-primary-fixed-variant": "#005236",
+                    "surface-container-highest": "#e5e2e1",
+                    "background": "#fcf9f8",
+                    "on-secondary-container": "#684000",
+                    "surface-container-low": "#f6f3f2",
+                    "primary": "#006c49",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "primary-fixed": "#6ffbbe",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#4edea3",
+                    "on-primary-fixed": "#002113"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "section-gap": "40px",
+                    "base": "8px",
+                    "container-margin": "24px"
+            },
+            "fontFamily": {
+                    "metric-xl": [
+                            "Inter"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "headline-lg-mobile": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "display-lg": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "metric-xl": [
+                            "40px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.03em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "56px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Custom scrollbar for horizontal scroll */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-sm">
+<div class="flex items-center justify-between px-container-margin h-16 w-full max-w-[1200px] mx-auto">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a modern Ethiopian professional smiling slightly, wearing sleek minimalist clothing in a brightly lit modern office environment. High contrast, clean aesthetic, emerald green subtle accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPrvUqr-rvdMwHH44BfVNx4939ImoOOzraiGXGLQyAmn00kvwEGAywvw0LLWr_fnqgd8dQFA4gWWeUN5d5qxOUbZC2pdfryANtdtFj0hHkj8fEGj9YIwspintPx3iHSxZADysshEskTlf-Kap9bLAJ3Riw7mPBHxDs-xQGq2juqCCWLAUDhakPW3c-OH2dH-Buo6vMdY6YabAF6WrjmPcvOa-BxM5m9qxh-ML1AQ5-5IzPG_s_MwtS"/>
+</div>
+</div>
+<div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim text-center absolute left-1/2 -translate-x-1/2">
+                Nourish
+            </div>
+<div class="flex items-center">
+<button class="text-on-surface-variant dark:text-outline-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform p-2">
+<span class="material-symbols-outlined">calendar_today</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-container-margin max-w-[1200px] mx-auto space-y-section-gap">
+<!-- Date Picker Strip -->
+<section class="mt-4">
+<div class="flex overflow-x-auto hide-scrollbar gap-4 py-2">
+<div class="flex flex-col items-center justify-center min-w-[64px] h-[80px] rounded-xl bg-surface-container-highest opacity-70">
+<span class="font-label-caps text-label-caps text-on-surface-variant">TUE</span>
+<span class="font-headline-md text-headline-md text-on-surface-variant mt-1">22</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[64px] h-[80px] rounded-xl bg-surface-container-highest opacity-70">
+<span class="font-label-caps text-label-caps text-on-surface-variant">WED</span>
+<span class="font-headline-md text-headline-md text-on-surface-variant mt-1">23</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[64px] h-[80px] rounded-xl bg-primary-container text-on-primary-container shadow-[0_4px_12px_rgba(16,185,129,0.2)]">
+<span class="font-label-caps text-label-caps">THU</span>
+<span class="font-headline-md text-headline-md mt-1">24</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[64px] h-[80px] rounded-xl bg-surface-container-lowest border border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface">FRI</span>
+<span class="font-headline-md text-headline-md text-on-surface mt-1">25</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[64px] h-[80px] rounded-xl bg-surface-container-lowest border border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface">SAT</span>
+<span class="font-headline-md text-headline-md text-on-surface mt-1">26</span>
+</div>
+</div>
+</section>
+<!-- Daily Summary Bento -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Daily Summary</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Calories Card -->
+<div class="col-span-2 md:col-span-1 bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CALORIES</span>
+<span class="material-symbols-outlined text-primary-container text-[20px]">local_fire_department</span>
+</div>
+<div class="mt-4">
+<div class="flex items-baseline gap-1">
+<span class="font-metric-xl text-metric-xl text-on-surface">1,840</span>
+<span class="font-body-md text-body-md text-on-surface-variant">kcal</span>
+</div>
+<div class="mt-3 w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 75%"></div>
+</div>
+<div class="font-label-caps text-label-caps text-outline text-right mt-1">OF 2,400</div>
+</div>
+</div>
+<!-- Protein -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">PROTEIN</span>
+<div class="mt-2">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">82<span class="font-body-md text-body-md text-on-surface-variant">g</span></div>
+<div class="mt-2 w-full bg-surface-container h-[6px] rounded-full overflow-hidden">
+<div class="bg-primary-fixed-dim h-full rounded-full" style="width: 68%"></div>
+</div>
+</div>
+</div>
+<!-- Carbs -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CARBS</span>
+<div class="mt-2">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">190<span class="font-body-md text-body-md text-on-surface-variant">g</span></div>
+<div class="mt-2 w-full bg-surface-container h-[6px] rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full rounded-full" style="width: 85%"></div>
+</div>
+</div>
+</div>
+<!-- Fat -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex flex-col justify-between">
+<span class="font-label-caps text-label-caps text-on-surface-variant">FAT</span>
+<div class="mt-2">
+<div class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">45<span class="font-body-md text-body-md text-on-surface-variant">g</span></div>
+<div class="mt-2 w-full bg-surface-container h-[6px] rounded-full overflow-hidden">
+<div class="bg-tertiary-container h-full rounded-full" style="width: 50%"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Meal Log List -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Today's Meals</h2>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-2 rounded-lg flex items-center gap-1 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    LOG MEAL
+                </button>
+</div>
+<div class="space-y-4">
+<!-- Breakfast Entry -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A beautifully plated traditional Ethiopian breakfast dish of Chechebsa, flatbread torn into small pieces and mixed with berbere and niter kibbeh, served on a modern white ceramic plate on a light wood table, bright natural morning light, high contrast editorial photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBefI5PHhc8bflsvrf6S1mPC-uWd3QDvNBeXg19AJiGxlq_kciQtQl8KMirZ0tEy_3ytxY87-yw8ZTiJ-a8004EDVQ5L58-HbCzlSiHRQV3DtzpzBIwWprl-PMDbT22M4dqT25U_yzpZCYyzCdw_8axqzPUhZCA5r7G7iL-GSsNvhobIn2y6qL4Ti70cnNUGVPdD2yZuWDpag3fXrw1gmJtDoL2REvu-GVwN5_bPR2KvXQMNSMlAtPC"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-label-caps text-label-caps text-outline block mb-1">BREAKFAST • 08:30 AM</span>
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Chechebsa with Honey</h3>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface">420</div>
+</div>
+<div class="flex gap-3 mt-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">P: 8g</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">C: 65g</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">F: 14g</span>
+</div>
+</div>
+</div>
+<!-- Lunch Entry -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="Top down view of a premium modern presentation of Injera topped with Shiro wot, vibrant orange and red hues of the stew contrasting with the pale spongy bread, served on a slate grey minimalist dish, bright diffuse lighting, premium food photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxoMO38Q2F_us-d0x_qcPT5AL1hospqMVxEV5iPmnnI0s17nuEokGLQtBWxQl7uUzMpxe4eAG-AWOuumJa7Wyhae0sMtJlQ3ZZQuB1l1KUBockCyu02rF2__ToaKYiiX1UMnhtAb26RWfPZyFuYrguU3ZR3qZTY3AO5YZhRt07JNLrJ2eRRYHMNH_sOyvtFSq5tMQsc7tu6o_XZoyLtYsZauE1C71cX3Tdx0BI77zw6xQ4mDpHhf0d"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-label-caps text-label-caps text-outline block mb-1">LUNCH • 01:15 PM</span>
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Injera with Shiro Wot</h3>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface">650</div>
+</div>
+<div class="flex gap-3 mt-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">P: 22g</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">C: 110g</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">F: 18g</span>
+</div>
+</div>
+</div>
+<!-- Snack Entry -->
+<div class="bg-surface-container-lowest rounded-xl p-4 shadow-[0_4px_12px_rgba(0,0,0,0.04)] border border-surface-variant flex gap-4">
+<div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[32px]">local_cafe</span>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<div>
+<span class="font-label-caps text-label-caps text-outline block mb-1">SNACK • 04:00 PM</span>
+<h3 class="font-body-lg text-body-lg font-bold text-on-surface leading-tight">Buna (Ethiopian Coffee)</h3>
+</div>
+<div class="font-headline-md text-headline-md text-on-surface">15</div>
+</div>
+<div class="flex gap-3 mt-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">P: 0g</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">C: 3g</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant bg-surface-container px-2 py-1 rounded">F: 0g</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md shadow-[0_-4px_12px_rgba(0,0,0,0.04)] z-50 md:hidden">
+<button class="flex flex-col items-center justify-center bg-primary-container/20 dark:bg-on-primary-container/40 text-primary dark:text-primary-fixed-dim rounded-xl px-3 py-1 hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="font-label-caps text-label-caps">Log</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform">
+<span class="material-symbols-outlined mb-1">leaderboard</span>
+<span class="font-label-caps text-label-caps">Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform">
+<span class="material-symbols-outlined mb-1">menu_book</span>
+<span class="font-label-caps text-label-caps">Kitchen</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-3 py-1 hover:text-primary dark:hover:text-primary-fixed-dim active:scale-90 transition-transform">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</button>
+</nav>
+<!-- Spacer for desktop to avoid content hidden behind bottom bar on resize, though hidden normally -->
+<div class="h-20 md:hidden"></div>
+</body></html>
