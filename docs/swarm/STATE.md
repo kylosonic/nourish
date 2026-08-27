@@ -8,12 +8,12 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `UAT (S0) — all engineering gates complete; awaiting human hands-on approval` |
+| Phase | `IMPLEMENTING (S1) — Gate B WIP, SESSION CHECKPOINT saved` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S0 (Foundation + Onboarding + Manual Logging) |
-| Active gate | UAT STOP (awaiting explicit human approval; no merge before it) |
-| Retry count | 1 (implementation retry used). No further retries consumed. |
+| Active slice | S1 (Backend + Canonical Food API — ADR-0002) |
+| Active gate | Gate B (S1) — Track A not executed (re-dispatch pending); Track B interrupted mid-flight, UNVERIFIED WIP on disk (see Resume Instructions) |
+| Retry count | 1 (implementation retry used). Track A non-execution is NOT a retry (zero output); Track B WIP must be verified/finished on resume. |
 
 ## Gates
 
@@ -69,13 +69,58 @@ agent's exact approval.
   Pre-commit hygiene: 0 forbidden artifacts staged (no
   build/.dart_tool/ephemeral/.idea/.env); ephemeral iOS env artifact
   confirmed gitignored.
+- **UAT (S0)** — APPROVED by human, 2026-08-26 (explicit "i approve" after
+  hands-on review offer; PPA-1..8 surfaced with the offer, incl. PPA-7
+  slot-row question for `@vision` — human approval is recorded as covering
+  the slice as built; PPA items remain tracked for product-level refinement).
+- **Release (S0)** — `v0.1.0-s0` released by `@devops`: `master`
+  fast-forwarded `25e27c8 → 1c16902` (ff-only, 240 files); annotated tag
+  `v0.1.0-s0` → commit `1c16902`; both branch tips identical at `1c16902`;
+  working tree clean; repo left on `feat/nourish-mvp`. Deployment: NONE this
+  phase — no remotes configured; store release infra is S5 (no unsigned
+  artifacts). Rollback path documented:
+  `git checkout master && git reset --hard 25e27c8 && git tag -d v0.1.0-s0`.
+- **Gate A (S1)** — APPROVED by @architect 2026-08-26. Blueprint
+  `docs/plans/slice-s1-blueprint.md` (status PLANNED, 525 lines, A1–A22
+  acceptance criteria); ADR-0006 accepted (D1/D3/D5 data authority). Architect
+  decisions D1–D5 recorded in blueprint §Decisions requested — RESOLVED (D1
+  conditional attribution; D2 no Redis queue code in S1; D3 nourish-standard
+  portion provenance; D4 Sentry API-only DSN-gated; D5 fixture-subset fallback
+  with open-blocker + coverage-statement conditions). Test-DB strategy
+  amendment included (§15).
 
 ### Active
 
-- **UAT** — pending explicit human approval. The human must sign off
-  PPA-1..8 (from `docs/plans/provisional-product-assumptions.md`) and
-  `@vision` should confirm QA MINOR #4 (Home shows 4 slot rows incl. Snack
-  vs design's 3; PPA-7).
+- **Gate B (S1)** — dispatched 2026-08-26 as two parallel tracks; SESSION
+  CHECKPOINT saved mid-flight (architect-verified facts):
+  - **Track A (`apps/api`)** — DID NOT EXECUTE. The `@build` subagent returned
+    without building, citing its charter (`.opencode/agents/build.md` denies
+    task delegation except qa/security) and a misinterpreted delegation
+    instruction. Verified: ZERO files under `apps/api/` created/modified.
+    Track A must be RE-DISPATCHED with a self-contained brief that explicitly
+    forbids any subagent delegation (build agent does all work in-process;
+    scribe/STATE updates are architect's job).
+  - **Track B (`apps/mobile`)** — INTERRUPTED mid-flight (user-initiated
+    session save). WIP state UNVERIFIED. Exact working-tree state: MODIFIED
+    `lib/bootstrap/bootstrap.dart`, `lib/core/date_utils.dart`,
+    `lib/data/daos/{food,meal,profile,target,water}_dao.g.dart`,
+    `lib/data/database.dart`, `lib/data/database.g.dart`,
+    `lib/data/repositories/food_repository.dart`,
+    `lib/data/seed/seed_catalog.dart`, `lib/data/seed/seed_importer.dart`,
+    `lib/data/tables/tables.dart`,
+    `lib/features/onboarding/onboarding_controller.dart`,
+    `lib/features/search/food_search_screen.dart`,
+    `lib/features/welcome/welcome_screen.dart`, `lib/l10n/strings.dart`,
+    `lib/main.dart`, `lib/providers.dart`, `pubspec.yaml`, `pubspec.lock`,
+    `test/food_repository_test.dart`, `test/meal_repository_test.dart`,
+    `test/seed_importer_test.dart`,
+    `windows/flutter/generated_plugin_registrant.*`; NEW/UNTRACKED
+    `lib/core/clock.dart`, `lib/data/sources/`, `lib/data/sync/`,
+    `test/catalog_sync_test.dart`, `test/clock_provider_test.dart`,
+    `test/home_meals_totals_test.dart`, `test/offline_search_fallback_test.dart`,
+    `test/welcome_scroll_test.dart`, `test/widget/notifications_void_test.dart`.
+    NONE of this is committed and none is verified.
+  - No S1 gate beyond Gate A is marked complete.
 
 ### Failed
 
@@ -86,13 +131,24 @@ agent's exact approval.
 
 ## Resume Instructions (next session — follow in order)
 
-1. Human performs hands-on UAT of the S0 build on `feat/nourish-mvp` (commit
-   `80800d4`). No merge/deploy without explicit approval.
-2. On approval: transition phase to `IMPLEMENTING (S1)` and run Gate A for
-   S1 (Ethiopian FCT 2025 import, backend scaffold) — S1 blueprint to be
-   planned per ADR-0002.
-3. Deferred S1+ polish backlog: QA MINOR findings 1–7 already recorded under
-   Unresolved Risks — fold into S1 planning.
+1. **Verify Track B WIP:** run `flutter analyze` + `flutter test` in
+   `apps/mobile` (expect 87 + new). If green AND all blueprint §6 mobile
+   deltas present (CatalogDataSource seam, sync service, Drift v2, clock
+   provider, M1/M2/M3/M5/M6/M7, footer copy swap, egress confinement) →
+   record evidence, Track B DONE. If broken/incomplete → finish remaining
+   deltas or revert per architect decision (bounded retries: 2).
+2. **Re-dispatch Track A** (`@build`, `apps/api` only) with a corrected
+   self-contained brief: T0 preflight (start Docker Desktop, poll
+   `docker info` ≤180s), scaffold, Prisma, FCT acquisition (D1/D5 rules),
+   import pipeline, API (§8), tests (§15), CI. EXPLICITLY: no subagent
+   delegation of any kind — all work in-process; escalation by report only.
+3. Gates C (QA), D (SECURITY REQUIRED — checklist §13), E, F, then UAT with
+   D5(c) data-coverage statement.
+4. **Environment quirks learned (recorded for all future sessions):** nested
+   subagent dispatches fail at depth 1; `@build` charter allows task
+   delegation ONLY to qa/security; `@plan` blocks file writes (use @scribe to
+   materialize plan artifacts); top-level architect dispatches to
+   designer/qa/scribe/devops/plan/build work.
 
 ## Unresolved Risks
 
@@ -246,6 +302,64 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
   - Pre-commit hygiene: 0 forbidden artifacts staged (no
     build/.dart_tool/ephemeral/.idea/.env); ephemeral iOS env artifact
     confirmed gitignored.
+- **2026-08-26 — UAT + Release (S0)**:
+  - UAT (S0): APPROVED by human (explicit "i approve" after hands-on review
+    offer; PPA-1..8 surfaced, incl. PPA-7 slot-row question for `@vision`;
+    approval recorded as covering the slice as built; PPA items remain
+    tracked for product-level refinement).
+  - Release (S0): `@devops` evidence — `master` fast-forwarded
+    `25e27c8 → 1c16902` (ff-only, 240 files); annotated tag `v0.1.0-s0` →
+    commit `1c16902`; both branch tips identical at `1c16902`; working tree
+    clean; repo left on `feat/nourish-mvp`; rollback documented
+    (`git checkout master && git reset --hard 25e27c8 && git tag -d
+    v0.1.0-s0`).
+  - Deployment: NONE this phase — no remotes configured; store release infra
+    is S5 (no unsigned artifacts).
+- **Gate A (S1)** — APPROVED 2026-08-26: plan research (FCT 2025 publicly
+  obtainable via EPHI/FAO; Docker CLI present, daemon off; environment
+  reconfirmed); blueprint + ADR-0006 written by @scribe from @plan's
+  architect-approved content (plan agent's mode blocked writes — recorded
+  limitation); architect decisions D1–D5.
+- **2026-08-26 — S1 Gate B dispatch SESSION CHECKPOINT** (architect-verified
+  facts, scribe-recorded):
+  - S0 remains fully complete and RELEASED (`v0.1.0-s0`, `master`
+    fast-forwarded at `1c16902`) — NO changes.
+  - S1 Gate A COMPLETE: `docs/plans/slice-s1-blueprint.md` (525 lines) +
+    `docs/adr/0006-fct-import-and-catalog-authority.md` approved; D1–D5
+    resolved.
+  - Track A (`apps/api`) — DID NOT EXECUTE: `@build` subagent returned without
+    building, citing its charter (`.opencode/agents/build.md` denies task
+    delegation except qa/security) and a misinterpreted delegation
+    instruction. Verified: ZERO files under `apps/api/` created/modified.
+    Re-dispatch required with a self-contained brief explicitly forbidding
+    any subagent delegation.
+  - Track B (`apps/mobile`) — INTERRUPTED mid-flight (user-initiated session
+    save); WIP UNVERIFIED. MODIFIED: `lib/bootstrap/bootstrap.dart`,
+    `lib/core/date_utils.dart`,
+    `lib/data/daos/{food,meal,profile,target,water}_dao.g.dart`,
+    `lib/data/database.dart`, `lib/data/database.g.dart`,
+    `lib/data/repositories/food_repository.dart`,
+    `lib/data/seed/seed_catalog.dart`, `lib/data/seed/seed_importer.dart`,
+    `lib/data/tables/tables.dart`,
+    `lib/features/onboarding/onboarding_controller.dart`,
+    `lib/features/search/food_search_screen.dart`,
+    `lib/features/welcome/welcome_screen.dart`, `lib/l10n/strings.dart`,
+    `lib/main.dart`, `lib/providers.dart`, `pubspec.yaml`, `pubspec.lock`,
+    `test/food_repository_test.dart`, `test/meal_repository_test.dart`,
+    `test/seed_importer_test.dart`,
+    `windows/flutter/generated_plugin_registrant.*`. NEW/UNTRACKED:
+    `lib/core/clock.dart`, `lib/data/sources/`, `lib/data/sync/`,
+    `test/catalog_sync_test.dart`, `test/clock_provider_test.dart`,
+    `test/home_meals_totals_test.dart`, `test/offline_search_fallback_test.dart`,
+    `test/welcome_scroll_test.dart`, `test/widget/notifications_void_test.dart`.
+    NONE committed; NONE verified.
+  - T0 Docker preflight: STILL PENDING — Docker Desktop installed
+    (`C:\Program Files\Docker\Docker\Docker Desktop.exe`) but daemon NOT
+    running at last check; no native Postgres.
+  - Git status summary: uncommitted — `docs/plans/slice-s1-blueprint.md`,
+    `docs/adr/0006-*`, mobile Track B WIP set (above); S0 released state
+    unchanged (`master` @ `1c16902`).
+  - **Gate B (S1) NOT complete — nothing beyond S1 Gate A is closed.**
 
 ## GraphSync Note
 
