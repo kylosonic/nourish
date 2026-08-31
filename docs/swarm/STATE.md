@@ -8,12 +8,12 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING (S1) — Gate B WIP, SESSION CHECKPOINT saved` |
+| Phase | `IMPLEMENTING (S1) — Gate B COMPLETE, Gate D PASS, F1/F3 CLOSED (architect-verified), Gate C STILL NOT RUN (2 re-dispatch attempts failed/cancelled, zero evidence), SESSION SAVED` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
 | Active slice | S1 (Backend + Canonical Food API — ADR-0002) |
-| Active gate | Gate B (S1) — Track A not executed (re-dispatch pending); Track B interrupted mid-flight, UNVERIFIED WIP on disk (see Resume Instructions) |
-| Retry count | 1 (implementation retry used). Track A non-execution is NOT a retry (zero output); Track B WIP must be verified/finished on resume. |
+| Active gate | Gate C (QA) — re-dispatch (attempt 3); then Gates E, F, UAT |
+| Retry count | 0 gate-retries used. Gate C dispatch attempts: 2 (both environment-level: harness failure + session-save cancellation — NOT QA failures, no evidence produced). |
 
 ## Gates
 
@@ -88,39 +88,67 @@ agent's exact approval.
   portion provenance; D4 Sentry API-only DSN-gated; D5 fixture-subset fallback
   with open-blocker + coverage-statement conditions). Test-DB strategy
   amendment included (§15).
+- **Gate B (S1)** — COMPLETE 2026-08-27. Track B (mobile):
+  architect-verified `flutter analyze` `No issues found!` + `flutter test`
+  `+107: All tests passed!`; 5-file finish-fix list + 2 ACCEPTABLE deviations
+  already recorded in the 2026-08-27 Track B resume block. Track A (api):
+  `@build` delivered 65 files (64 under `apps/api/` +
+  `.github/workflows/api-ci.yml`); Docker daemon started (containers reused
+  non-destructively from planning session); stale spike schema reset via
+  blueprint §16 `prisma migrate reset` then `init_food_layer` migration
+  generated. FCT 2025 acquisition SUCCESS — FAO openknowledge bitstream
+  (handle `20.500.14283/cd9308en`), PDF sha256
+  `66A1EBF351C09212F323E33019AE47CA60232D84344EB98CAF3A55C90936CF97`,
+  license determinable CC BY 4.0 (FAO record metadata, stated factually),
+  extraction 722/722 rows of the published condensed table (coverage stated
+  "722 of 727" — 5 rows exist only in the Excel datasheet distribution;
+  never presented as full catalog); 23 rows lack usable kcal (20 kJ-only +
+  3 malformed) — documented in fixtures README; fixture subset 18/18
+  double-entry verified with page citations; 18/20 S0 foods matched to FCT
+  entries (avocado 050003 + banana 050005 excluded — kJ-only cells; remain
+  seed-bootstrap, documented). Stack: NestJS ^11.2.3, Prisma pinned 6.12.0
+  (deepmerge-ts CVE avoidance), pdfjs-dist ^6.2.108, @sentry/node ^10.71,
+  throttler ^6.5.0 (manual APP_GUARD), helmet ^8.3, no Redis client (D2).
+  Gates: lint/build/prisma-validate clean; `npm test` 19/19; `npm run
+  test:e2e` 31/31 (against Docker Postgres, `nourish_test`
+  auto-provisioned); `npm audit` 0 vulnerabilities. A1–A11 + A22 evidenced
+  green; A12–A21 are Track B (verified above). 9 API deviations all accepted
+  with rationale (see build report summary: CVE pins ×3, FoodCategory
+  back-relation (Prisma-required), throttler v6 APP_GUARD, carbsG=CHOAVLDF
+  documented, tsx CLI direct wiring, blueprint portion standards,
+  app.setup.ts/prisma module/db-utils extras). Working tree uncommitted.
+- **Gate D (security)** — SECURITY PASS 2026-08-27 (independent @security;
+  full checklist evidence: 5 GET routes only / 0 mutation decorators, schema
+  = 5 food-layer models only (A11), 0 raw-SQL/$queryRaw, DTO whitelist +
+  global ValidationPipe + bounds empirically 400-tested, throttler 60/min/IP
+  + healthz exempt + no XFF trust-proxy, CORS allowlist no-wildcard, helmet +
+  100kb body limit + sanitized 5xx, requestId envelopes, .env gitignored
+  verified, `npm audit` 0/0/0/0/0 with all 3 CVE pins confirmed installed,
+  mobile egress = exactly ONE import
+  (`lib/data/sources/api_catalog_data_source.dart:4`), search never touches
+  network, base URL via String.fromEnvironment, import pipeline bounded +
+  transactional + idempotent + CLI-only, fixtures README provenance complete,
+  PDF not committed, CI has no secrets + audit gate). Findings: F1 MEDIUM, F2
+  LOW, F3 LOW, F4 LOW — details under Unresolved Risks below. 31/31 e2e
+  re-run green by security.
+- **F1/F3 fixes (S1 Gate D follow-up)** — CLOSED 2026-08-31, architect-verified
+  (evidence under Last Verification Evidence): compose loopback binds +
+  `.dockerignore` in place; runtime containers now loopback-only under compose
+  project `api`; 18 foods survived the volume migration. F1/F3 entries under
+  Unresolved Risks updated to CLOSED. F2/F4 remain S3-deferred.
+- **Gate C (QA)** — NOT RUN (see Active). 2026-08-27 dispatch cancelled during
+  session save; 2026-08-31 re-dispatches: attempt 1 harness-failed ("Cannot
+  connect to API" — subagent runtime), attempt 2 cancelled by session save.
+  ZERO QA evidence exists. NOT gate retries (environment-level).
 
 ### Active
 
-- **Gate B (S1)** — dispatched 2026-08-26 as two parallel tracks; SESSION
-  CHECKPOINT saved mid-flight (architect-verified facts):
-  - **Track A (`apps/api`)** — DID NOT EXECUTE. The `@build` subagent returned
-    without building, citing its charter (`.opencode/agents/build.md` denies
-    task delegation except qa/security) and a misinterpreted delegation
-    instruction. Verified: ZERO files under `apps/api/` created/modified.
-    Track A must be RE-DISPATCHED with a self-contained brief that explicitly
-    forbids any subagent delegation (build agent does all work in-process;
-    scribe/STATE updates are architect's job).
-  - **Track B (`apps/mobile`)** — INTERRUPTED mid-flight (user-initiated
-    session save). WIP state UNVERIFIED. Exact working-tree state: MODIFIED
-    `lib/bootstrap/bootstrap.dart`, `lib/core/date_utils.dart`,
-    `lib/data/daos/{food,meal,profile,target,water}_dao.g.dart`,
-    `lib/data/database.dart`, `lib/data/database.g.dart`,
-    `lib/data/repositories/food_repository.dart`,
-    `lib/data/seed/seed_catalog.dart`, `lib/data/seed/seed_importer.dart`,
-    `lib/data/tables/tables.dart`,
-    `lib/features/onboarding/onboarding_controller.dart`,
-    `lib/features/search/food_search_screen.dart`,
-    `lib/features/welcome/welcome_screen.dart`, `lib/l10n/strings.dart`,
-    `lib/main.dart`, `lib/providers.dart`, `pubspec.yaml`, `pubspec.lock`,
-    `test/food_repository_test.dart`, `test/meal_repository_test.dart`,
-    `test/seed_importer_test.dart`,
-    `windows/flutter/generated_plugin_registrant.*`; NEW/UNTRACKED
-    `lib/core/clock.dart`, `lib/data/sources/`, `lib/data/sync/`,
-    `test/catalog_sync_test.dart`, `test/clock_provider_test.dart`,
-    `test/home_meals_totals_test.dart`, `test/offline_search_fallback_test.dart`,
-    `test/welcome_scroll_test.dart`, `test/widget/notifications_void_test.dart`.
-    NONE of this is committed and none is verified.
-  - No S1 gate beyond Gate A is marked complete.
+- **Gate C (QA)** — STILL NOT RUN (zero evidence). 2026-08-31: dispatch
+  attempt 1 harness-failed ("Cannot connect to API" — subagent runtime
+  connectivity); attempt 2 cancelled by user-initiated session save. Both
+  environment-level; NOT gate retries. Re-dispatch on resume (attempt 3).
+  F1/F3 are now CLOSED, so Gate C runs against the fixed state. Next: Gate E
+  (architect) → Gate F → UAT.
 
 ### Failed
 
@@ -129,26 +157,59 @@ agent's exact approval.
   retried with reduced, checkpointed scope; succeeded (27/27 domain tests).
 - None other.
 
-## Resume Instructions (next session — follow in order)
+## Resume Instructions — SESSION SAVE 2026-08-31 (previous list fully consumed)
 
-1. **Verify Track B WIP:** run `flutter analyze` + `flutter test` in
-   `apps/mobile` (expect 87 + new). If green AND all blueprint §6 mobile
-   deltas present (CatalogDataSource seam, sync service, Drift v2, clock
-   provider, M1/M2/M3/M5/M6/M7, footer copy swap, egress confinement) →
-   record evidence, Track B DONE. If broken/incomplete → finish remaining
-   deltas or revert per architect decision (bounded retries: 2).
-2. **Re-dispatch Track A** (`@build`, `apps/api` only) with a corrected
-   self-contained brief: T0 preflight (start Docker Desktop, poll
-   `docker info` ≤180s), scaffold, Prisma, FCT acquisition (D1/D5 rules),
-   import pipeline, API (§8), tests (§15), CI. EXPLICITLY: no subagent
-   delegation of any kind — all work in-process; escalation by report only.
-3. Gates C (QA), D (SECURITY REQUIRED — checklist §13), E, F, then UAT with
-   D5(c) data-coverage statement.
-4. **Environment quirks learned (recorded for all future sessions):** nested
-   subagent dispatches fail at depth 1; `@build` charter allows task
-   delegation ONLY to qa/security; `@plan` blocks file writes (use @scribe to
-   materialize plan artifacts); top-level architect dispatches to
-   designer/qa/scribe/devops/plan/build work.
+> Previous checklist (saved 2026-08-27) is fully consumed this session:
+> F1/F3 are CLOSED (architect-verified); Gate C was re-dispatched twice but
+> produced zero evidence (harness failure + session-save cancellation). The
+> ordered list below is the new authoritative checklist.
+
+1. **Environment sanity (T0):** `git status` — expect HEAD at the session-save
+   checkpoint (chore commit of STATE.md, 2026-08-31) on `feat/nourish-mvp`,
+   ~39 uncommitted S1 implementation paths (unchanged since 2026-08-27).
+   `docker ps` — expect `nourish-postgres`/`nourish-redis` healthy,
+   loopback-only binds. If the machine rebooted again: start Docker Desktop,
+   poll `docker info` ≤180s, then **`docker compose up -d` from `apps/api`**
+   (containers are now compose-project-`api` managed — do NOT use
+   `docker start` anymore). Verify `docker exec nourish-postgres psql -U
+   nourish -d nourish -tAc 'SELECT COUNT(*) FROM "Food";'` = 18.
+2. **Re-dispatch Gate C (QA)** to `@qa` (top-level, read-only, no commits) —
+   same brief as the 2026-08-31 dispatch: S1 blueprint matrix A1–A22,
+   both-track verification (mobile analyze/+107, domain +27, design-system
+   +13, api lint/build/validate/19 unit/31 e2e, npm audit 0), live smoke
+   curls (healthz, doro wet EN+AM A6, categories, catalog 304, 404/400
+   envelopes), `nourish` DB still 18 foods after e2e, data-honesty + D5(c)
+   coverage checks, §6 file-tree conformance, deviation adjudications (9 API
+   + 2 mobile), grep gates (A14 egress, raw-SQL, STUB/TODO, secrets),
+   F1/F3 fixed-state check. If the subagent dispatch fails at the harness
+   level, retry once; if it fails again, architect escalates per the
+   Failure Escalation protocol (do NOT silently substitute architect
+   self-verification for independent QA — record the limitation instead).
+3. **Gate E (integration)** — architect: api↔mobile contract compatibility
+   (catalog JSON ↔ mobile CatalogFood mapper), migrations compatible, no
+   unresolved TODO/STUB, branch clean except intentional changes, graphify
+   limitation re-recorded.
+4. **Gate F** — atomic commit on `feat/nourish-mvp` (apps/api + CI + mobile
+   + docs; package-lock.json + pubspec.lock committed).
+5. **UAT** — architect handoff with D5(c) coverage statement: "722 of 727
+   foods (condensed table); 23 rows without usable kcal excluded;
+   avocado/banana remain bootstrap-only". Human approval required before
+   merge/release.
+6. S3-tracked: F2 (CORS), F4 (validator bounds), plus existing S3 deferred
+   items.
+
+**Environment quirks learned (permanent learning block — applies to all
+future sessions):** nested subagent dispatches fail at depth 1; `@build`
+charter allows task delegation ONLY to qa/security; `@plan` blocks file
+writes (use @scribe to materialize plan artifacts); top-level architect
+dispatches to designer/qa/scribe/devops/plan/build work; **subagent dispatch
+is UNRELIABLE in this environment — 2026-08-31: @fixer failed ("Failed to
+execute statement"), @qa failed twice (harness connectivity, then
+session-save cancellation), @build succeeded; keep briefs self-contained,
+dispatch sequentially, and the architect must personally verify on-disk
+end-state after any agent reports completion; session saves cancel in-flight
+subagent tasks; for time-critical saves the architect may write STATE.md
+directly (scribe dispatch adds failure risk).**
 
 ## Unresolved Risks
 
@@ -206,6 +267,33 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
    copy) — cosmetic.
 7. ONB-01: welcome content non-scrollable; could clip on very short
    viewports.
+
+### S1 Gate D security findings (architect decisions recorded 2026-08-27)
+
+- **F1 MEDIUM** — CLOSED 2026-08-31. `apps/api/docker-compose.yml` now binds
+  `127.0.0.1:5432:5432` / `127.0.0.1:6379:6379` (architect-read verified);
+  runtime containers loopback-only under compose project `api` (formerly
+  orphan `infra`-project containers; data preserved via volume copy, infra
+  volumes left intact as rollback). Evidence under Last Verification Evidence.
+- **F2 LOW** — CORS prefix matcher (`env.ts` `origin.startsWith(prefix)`)
+  allows lookalike origins (`http://localhost.evil.com`) with
+  `http://localhost:*` config. No impact while API is unauthenticated
+  read-only. **Architect decision: DEFER to S3** (must fix before S3 auth
+  arrives — becomes an exploitable cross-origin boundary). Remediation
+  recorded: exact URL protocol+hostname compare with port-wildcard only +
+  e2e case.
+- **F3 LOW** — CLOSED 2026-08-31. `apps/api/.dockerignore` added (`.env`,
+  `.env.*`, `node_modules`, `dist`, `fct-downloads/`, `test/`); build-stage
+  verification `NO_ENV` (ignore list honored; local `.env` exists and was
+  excluded). Evidence under Last Verification Evidence.
+- **F4 LOW** — validator lacks upper bounds on optional numeric
+  fields/extraNutrients (defense-in-depth only; CLI-only import, committed
+  reviewed data). **Architect decision: DEFER to S3** (thresholds need care;
+  no invented numbers).
+- INFO notes for the record: throttler in-memory storage (per-instance
+  budgets — S3 deployment consideration); healthz unthrottled DB count
+  (accepted tradeoff); Prisma LIKE wildcards in `q` (public data, bounded by
+  limit); dev-log raw `q` echo (no PII in S1).
 
 ## Artifact Paths
 
@@ -360,6 +448,106 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
     `docs/adr/0006-*`, mobile Track B WIP set (above); S0 released state
     unchanged (`master` @ `1c16902`).
   - **Gate B (S1) NOT complete — nothing beyond S1 Gate A is closed.**
+- **2026-08-27 — S1 Track B resume verification (architect)**:
+  - Track B (`apps/mobile`) finished by a @build finish-dispatch
+    (architect-scoped); architect-verified COMPLETE. Fixes applied:
+    - (a) `lib/providers.dart` — added missing
+      `import 'data/sources/catalog_data_source.dart';` (interface
+      unresolved).
+    - (b) `test/offline_search_fallback_test.dart` — removed unused
+      api_catalog_data_source import; `PortionUnit.handful` →
+      `PortionUnit.serving` (2 spots; `handful` is not in the locked domain
+      enum); removed `const` from `NutritionPer100g(...)` (domain class is
+      deliberately non-const).
+    - (c) `test/welcome_scroll_test.dart` — removed unused test_helpers
+      import.
+    - (d) `test/catalog_sync_test.dart` — fixture unit strings `'handful'` →
+      `'serving'` (4 occurrences) + expected portion list updated —
+      test-contract fix forced by locked domain (mapper correctly skips
+      unknown units per blueprint §8, never crashes).
+    - (e) `lib/features/voids/honest_void_screen.dart` — wrapped in
+      LayoutBuilder → SingleChildScrollView → ConstrainedBox(minHeight:
+      viewport) → IntrinsicHeight → Center; fixed a real 44px RenderFlex
+      overflow at 320×480 hit by the M7 welcome test; no behavior change on
+      tall screens.
+  - Deviations adjudicated ACCEPTABLE by architect: (d) test-contract fix
+    forced by locked domain enum; (e) honest-void scroll wrapper.
+  - Verification (architect-run):
+    - `flutter analyze` `apps/mobile` → `No issues found!` (ran in 5.8s)
+    - `flutter test` `apps/mobile` → `+107: All tests passed!` (107 total)
+  - Blueprint §6 mobile deltas verified present by @build and accepted by
+    architect: CatalogDataSource seam, local/api implementations,
+    FoodRepository consuming the seam, catalog_sync_service/state wired into
+    providers + bootstrap (fire-and-forget), clock.dart + clockProvider
+    (M3), footer copy swap seedDisclaimer→fctCitationFooter (M6), M7 welcome
+    scroll.
+  - `packages/domain` and `apps/api` untouched (git status/diff verified —
+    zero paths outside apps/mobile). Working tree uncommitted per commit
+    policy.
+- **2026-08-27 — S1 Gate B (Track A) + Gate D evidence + session save**:
+  - Track A gate outputs: lint/build/prisma-validate clean; `npm test`
+    19/19; `npm run test:e2e` 31/31; `npm audit` 0 vulnerabilities; live
+    smoke list evidenced green (healthz, doro wet EN+AM A6, categories,
+    catalog 304, 404/400 envelopes).
+  - FCT acquisition: FAO openknowledge bitstream (handle
+    `20.500.14283/cd9308en`); PDF sha256
+    `66A1EBF351C09212F323E33019AE47CA60232D84344EB98CAF3A55C90936CF97`;
+    license CC BY 4.0 (FAO record metadata); coverage 722 of 727 condensed
+    rows (5 Excel-only rows never presented as full catalog); 23 rows
+    without usable kcal excluded; 18/20 S0 foods matched (avocado/banana
+    kJ-only, remain seed-bootstrap).
+  - Gate D verdict: SECURITY PASS (independent @security). F1 MEDIUM
+    (compose `0.0.0.0` bind — fix before Gate F); F2 LOW (CORS prefix
+    lookalike — defer S3); F3 LOW (no .dockerignore — fix before Gate F);
+    F4 LOW (validator upper bounds — defer S3).
+  - Gate C (QA): cancelled mid-run during session save; zero evidence
+    produced; re-dispatch on resume.
+  - Docker: `nourish-postgres` (postgres:16-alpine) + `nourish-redis`
+    (redis:7-alpine) UP healthy (4+ hours), bound `0.0.0.0:5432/6379` (F1
+    tracked). E2E infra ready on resume; no T0 preflight needed unless the
+    machine reboots (then: start Docker Desktop, poll `docker info` ≤180s,
+    `docker start nourish-postgres nourish-redis`).
+  - Git: HEAD `56a6a6b` (`chore: checkpoint S1 planning (Gate A) + Gate B
+    WIP state (session save)`); ~40 uncommitted paths (Track B mobile set +
+    `apps/api/**` + `.github/workflows/api-ci.yml` + docs); nothing
+    committed since the last checkpoint.
+- **2026-08-31 — S1 resume: F1/F3 closure + Gate C re-dispatch attempts (session save)**:
+  - T0 preflight: machine had rebooted (daemon down). Started Docker
+    Desktop, polled ≤180s, containers started. `docker ps` showed orphan
+    `infra`-project containers still on `0.0.0.0` binds.
+  - Dispatch 1 (@fixer, F1/F3 exact scope) — HARNESS FAILED ("Failed to
+    execute statement"), zero evidence.
+  - Dispatch 2 (@build, same brief) — SUCCEEDED. Report: both files already
+    in required end-state at its arrival; runtime remediation required
+    (stopped orphan containers, copied volumes `infra_nourish_pg_data` →
+    `api_nourish-pgdata` / `infra_nourish_redis_data` →
+    `api_nourish-redisdata` with ro sources, removed orphan containers,
+    `docker compose up -d` from apps/api). Report evidence: docker ps
+    loopback-only; Food count 18; F3 build-stage `NO_ENV`; e2e 31/31; git
+    status only the 2 intended files.
+  - **Architect independent verification:** docker-compose.yml read —
+    `127.0.0.1:5432:5432` / `127.0.0.1:6379:6379` ✓; `.dockerignore` read —
+    6 patterns exactly ✓; docker ps loopback-only ✓; compose project label
+    `api` → `apps/api/docker-compose.yml` ✓; Food count 18 ✓; `infra/` dir
+    absent ✓.
+  - **PROVENANCE NOTE (evidence-integrity, permanent):** architect's
+    pre-dispatch read of docker-compose.yml showed wildcard binds; @build
+    claimed both files were already fixed before it started; file mtimes
+    (14:01:54–56) fall inside the @build run window. Either the failed
+    @fixer dispatch wrote the files before its harness failure (making
+    @build's claim true from its perspective), or @build misrepresented its
+    own edits. Indistinguishable from timestamps; material end-state
+    independently verified correct either way. Lesson: always verify
+    on-disk state personally after agent claims.
+  - Gate C dispatch attempt 1 — HARNESS FAILED ("Cannot connect to API" —
+    subagent runtime connectivity), zero evidence. Attempt 2 — CANCELLED by
+    user-initiated session save. Gate C remains ZERO-evidence; NOT gate
+    retries (environment-level).
+  - Docker state for next resume: containers compose-managed (project
+    `api`); restart via `docker compose up -d` from `apps/api` (NOT
+    `docker start`).
+  - Git: unchanged — HEAD `56a6a6b`, ~40 uncommitted S1 paths + this
+    STATE.md update. Nothing committed (Gate F still pending).
 
 ## GraphSync Note
 
