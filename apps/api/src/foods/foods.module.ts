@@ -6,6 +6,8 @@ import { FoodsPrismaRepository } from './foods.prisma-repository';
 @Module({
   controllers: [FoodsController],
   providers: [FoodsService, FoodsPrismaRepository],
-  exports: [FoodsService],
+  // The S2 analysis pipeline resolves model labels through the same repository
+  // the public catalog API reads from, so both share one food layer.
+  exports: [FoodsService, FoodsPrismaRepository],
 })
 export class FoodsModule {}

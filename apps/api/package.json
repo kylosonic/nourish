@@ -27,7 +27,8 @@
     "import:fct:acquire": "tsx src/cli/import-fct.ts acquire",
     "import:fct:fixture": "tsx src/cli/import-fct.ts import --fixture",
     "import:fct:file": "tsx src/cli/import-fct.ts import --file",
-    "import:fct:status": "tsx src/cli/import-fct.ts status"
+    "import:fct:status": "tsx src/cli/import-fct.ts status",
+    "analysis:purge": "tsx src/cli/purge-analyses.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

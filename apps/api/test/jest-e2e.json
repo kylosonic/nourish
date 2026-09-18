@@ -6,6 +6,7 @@
     "^.+\\.ts$": ["ts-jest", { "tsconfig": "tsconfig.json" }]
   },
   "testEnvironment": "node",
+  "setupFiles": ["<rootDir>/test/env.setup.ts"],
   "globalSetup": "<rootDir>/test/setup.ts",
   "testTimeout": 30000
 }

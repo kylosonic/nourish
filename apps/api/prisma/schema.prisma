@@ -119,3 +119,124 @@ model FoodCategory {
   label String
   foods Food[]
 }
+
+// ── S2: AI analysis layer (ADR-0007) ─────────────────────────────────────────
+// Anonymous by construction: no user identity is stored. `userId` is a nullable
+// reservation for the S3 account link and is always null in S2. No imagery is
+// persisted anywhere — uploaded bytes live in memory for one request only, so
+// SAFE-05's retention rule is satisfied structurally rather than by a policy.
+
+enum AnalysisStatus {
+  Completed
+  Failed
+}
+
+enum AnalysisInputKind {
+  Photo
+  Text
+}
+
+enum ConfidenceState {
+  High
+  Medium
+  Low
+}
+
+/** How a model-supplied label was resolved against the canonical food layer. */
+enum MatchKind {
+  exact
+  alias
+  fuzzy
+  none
+}
+
+model AnalysisRun {
+  id                String            @id @default(cuid())
+  status            AnalysisStatus
+  inputKind         AnalysisInputKind
+  overallConfidence Float
+  confidenceState   ConfidenceState
+  modelVersion      String
+  promptVersion     String
+  /// Human-readable reasons: unresolved candidates, no food detected, etc.
+  notes             Json?
+  /// Machine-readable failure code when status = Failed (never a provider body).
+  failureCode       String?
+  /// Reserved for S3; null throughout S2.
+  userId            String?
+  createdAt         DateTime          @default(now())
+
+  items       AnalysisItem[]
+  candidates  AnalysisCandidate[]
+  corrections AnalysisCorrection[]
+
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model AnalysisItem {
+  id               String        @id @default(cuid())
+  runId            String
+  run              AnalysisRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
+  /// Model-supplied label, kept verbatim for correction analysis.
+  displayName      String
+  /// Canonical application id (the same namespace /v1/foods/:id uses); null when
+  /// the candidate could not be resolved — never invented (ADR-0004/ADR-0007).
+  foodId           String?
+  sourceFoodCode   String?
+  canonicalName    String?
+  matchKind        MatchKind
+  portionAmount    Float
+  portionUnit      String
+  portionGrams     Float
+  /// True when the gram weight came from the provider rather than the food
+  /// layer's portion table, i.e. it is an estimate and must be shown as one.
+  portionEstimated Boolean       @default(false)
+  portionSource    String        @default("nourish-standard")
+  /// Deterministic per-100g × grams / 100 results; null when unresolved.
+  kcal             Float?
+  proteinG         Float?
+  carbsG           Float?
+  fatG             Float?
+  fiberG           Float?
+  sodiumMg         Float?
+  confidence       Float
+  unresolved       Boolean       @default(false)
+
+  @@index([runId])
+}
+
+/** Ranked alternatives shown by the low-confidence screen (SCAN-06). */
+model AnalysisCandidate {
+  id          String      @id @default(cuid())
+  runId       String
+  run         AnalysisRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  displayName String
+  foodId      String?
+  confidence  Float
+  rank        Int
+
+  @@index([runId])
+}
+
+/**
+ * SAFE-07 correction capture without identity: the prediction, what the user
+ * chose instead, and the model/prompt versions. No user id, no imagery, no free
+ * text — quality analytics, never model training (SAFE-06 stays default-off).
+ */
+model AnalysisCorrection {
+  id             String      @id @default(cuid())
+  runId          String
+  run            AnalysisRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  itemId         String?
+  action         String // swap | portion | remove | add
+  predictedLabel String?
+  chosenFoodId   String?
+  chosenAmount   Float?
+  chosenUnit     String?
+  modelVersion   String
+  promptVersion  String
+  createdAt      DateTime    @default(now())
+
+  @@index([runId])
+}

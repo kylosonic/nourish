@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
 import { FoodsModule } from './foods/foods.module';
 import { ImportsModule } from './imports/imports.module';
+import { AnalysisModule } from './analysis/analysis.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ImportsModule } from './imports/imports.module';
     HealthModule,
     FoodsModule,
     ImportsModule,
+    AnalysisModule,
   ],
   providers: [
     // Throttler v6 does not auto-register the guard (unlike v4) — register

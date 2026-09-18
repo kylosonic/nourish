@@ -189,6 +189,10 @@ export class Canonicalizer {
 
     // 1. Seed-curated aliases (kind: alternate) — where the food matches an S0 seed.
     if (seed) {
+      // The seed's own short display name is how the app (and its users) refer to
+      // the food ("Injera", "Doro Wot"), so it must resolve as an alias rather
+      // than fall through to a substring match on the long FCT description.
+      push(seed.name, 'en', 'alternate');
       for (const en of seed.enAliases) push(en, 'en', 'alternate');
       for (const am of seed.amAliases) push(am, 'am', 'alternate');
     }

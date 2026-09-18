@@ -18,8 +18,27 @@ export function setTestEnv(): void {
   process.env.DATABASE_URL = TEST_DATABASE_URL;
 }
 
+/**
+ * Point the analysis module at the deterministic fixture provider (ADR-0007).
+ * Suites that exercise the pipeline call this before creating the Nest app; the
+ * factory refuses the fixture provider in production, so this cannot leak into a
+ * real deployment.
+ */
+export function setFixtureAiProvider(): void {
+  process.env.AI_PROVIDER = 'fixture';
+}
+
+/** Force the "no provider configured" path (503 AI_UNAVAILABLE). */
+export function setNoAiProvider(): void {
+  process.env.AI_PROVIDER = 'none';
+}
+
 /** Truncate all tables between suites (FK order). */
 export async function truncateAll(prisma: PrismaClient): Promise<void> {
+  await prisma.analysisCorrection.deleteMany();
+  await prisma.analysisCandidate.deleteMany();
+  await prisma.analysisItem.deleteMany();
+  await prisma.analysisRun.deleteMany();
   await prisma.food.deleteMany();
   await prisma.importRun.deleteMany();
   await prisma.foodCategory.deleteMany();

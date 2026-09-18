@@ -122,7 +122,7 @@ const GEEZ_TO_LATIN: Record<string, string> = {
  * idempotency key, so editing a rule re-derives the food layer instead of
  * silently keeping the output of the previous rules.
  */
-export const CANONICALIZATION_RULES_VERSION = '2026-09-19.2';
+export const CANONICALIZATION_RULES_VERSION = '2026-09-19.3';
 
 /**
  * Ingredient words that describe a *component* of a dish rather than the dish

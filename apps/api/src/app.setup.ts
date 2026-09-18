@@ -31,6 +31,14 @@ export function configureApp(app: NestExpressApplication, config: ConfigService<
     maxAge: 86400,
   });
 
+  // Analyses carry a base64 image, so that one route gets a larger body limit;
+  // every other route keeps the strict 100 kB ceiling. Registered BEFORE the
+  // global parser so it consumes the body first (S2 blueprint §5).
+  const maxImageBytes = config.get('AI_MAX_IMAGE_BYTES', { infer: true });
+  app.use(
+    '/v1/analyses',
+    json({ limit: Math.ceil((maxImageBytes * 4) / 3) + 64 * 1024 }),
+  );
   app.use(json({ limit: '100kb' }));
 
   app.useGlobalPipes(

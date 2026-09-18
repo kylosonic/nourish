@@ -1,5 +1,9 @@
 import { plainToInstance, Transform } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+
+/** Which AI provider implementation the process may use (ADR-0007 D-S2-1). */
+export const AI_PROVIDER_KINDS = ['none', 'openai-compatible', 'fixture'] as const;
+export type AiProviderKind = (typeof AI_PROVIDER_KINDS)[number];
 
 /**
  * Environment schema (validated at boot). The app refuses to start when a
@@ -40,6 +44,58 @@ export class EnvVars {
   @IsOptional()
   @IsString()
   SENTRY_DSN?: string;
+
+  // ── S2: analysis (ADR-0007) ───────────────────────────────────────────────
+
+  /** `none` (default) | `openai-compatible` | `fixture` (refused in production). */
+  @IsOptional()
+  @IsIn(AI_PROVIDER_KINDS)
+  AI_PROVIDER: AiProviderKind = 'none';
+
+  @IsOptional()
+  @IsString()
+  AI_BASE_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  AI_API_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  AI_VISION_MODEL: string = 'gpt-4o-mini';
+
+  @IsOptional()
+  @IsString()
+  AI_TEXT_MODEL: string = 'gpt-4o-mini';
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1000)
+  @Max(120000)
+  AI_TIMEOUT_MS: number = 20000;
+
+  /** Hard cap on an uploaded image; larger requests are rejected with 413. */
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1024)
+  @Max(20 * 1024 * 1024)
+  AI_MAX_IMAGE_BYTES: number = 4 * 1024 * 1024;
+
+  /** Process-wide ceiling on analyses per UTC day; 0 disables the guard. */
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(0)
+  AI_DAILY_BUDGET: number = 2000;
+
+  /** Analysis *metadata* retention; imagery is never stored at all (SAFE-05). */
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1)
+  ANALYSIS_RETENTION_DAYS: number = 30;
 }
 
 /** Validate a raw config record; throws with a precise message on failure. */

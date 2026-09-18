@@ -73,12 +73,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
         this.logger.error(`unhandled ${s} ${exception.message}`);
       }
     } else {
-      status = HttpStatus.INTERNAL_SERVER_ERROR;
-      code = ErrorCode.INTERNAL;
-      message = 'Internal server error';
-      this.logger.error(
-        `unhandled exception: ${exception instanceof Error ? exception.message : String(exception)}`,
-      );
+      // Express body-parser raises plain errors carrying an HTTP status (413 for
+      // an oversized body, 400 for malformed JSON). Honour the status so an
+      // oversized upload is an honest 413 rather than a 500 (S2 §5).
+      const carrier = exception as { status?: unknown; statusCode?: unknown; type?: unknown };
+      const carried = Number(carrier?.status ?? carrier?.statusCode);
+      if (Number.isInteger(carried) && carried >= 400 && carried < 500) {
+        status = carried;
+        code =
+          carried === 413
+            ? ErrorCode.IMAGE_TOO_LARGE
+            : carried === 429
+              ? ErrorCode.RATE_LIMITED
+              : ErrorCode.VALIDATION_ERROR;
+        message =
+          carried === 413
+            ? 'The request body is too large'
+            : 'The request could not be processed';
+      } else {
+        status = HttpStatus.INTERNAL_SERVER_ERROR;
+        code = ErrorCode.INTERNAL;
+        message = 'Internal server error';
+        this.logger.error(
+          `unhandled exception: ${exception instanceof Error ? exception.message : String(exception)}`,
+        );
+      }
     }
 
     response.status(status).json({
