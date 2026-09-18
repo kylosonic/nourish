@@ -27,6 +27,10 @@ abstract final class AppRoutes {
   static const String textLog = '/scan/text';
   static const String scanFlow = '/scan/flow';
 
+  /// Gallery/photograph acquisition (SCAN-01 → SCAN-03). Transactional: the
+  /// picker is opened on entry and cancelling returns to the origin screen.
+  static const String photoCapture = '/scan/photo';
+
   /// Parametrized honest void (ADR-0005 features: sign-in, take-photo,
   /// choose-photo, describe-meal, use-voice, scan-barcode).
   static String honestVoidFor(String feature) => '/honest-void/$feature';

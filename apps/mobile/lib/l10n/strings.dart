@@ -395,4 +395,7 @@ abstract final class Strings {
   static const String downloadUpdate = 'DOWNLOAD UPDATE';
   static const String updateOpenFailed =
       'Could not open the browser. You can download the update from the Nourish website.';
+
+  // ── S2: photo acquisition (SCAN-01 → SCAN-03) ────────────────────────────
+  static const String preparingPhoto = 'Preparing your photo…';
 }

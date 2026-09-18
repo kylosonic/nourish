@@ -51,6 +51,7 @@ dependencies:
   # (QA finding F-05). No plugin, no native code.
   crypto: ^3.0.6
   url_launcher: ^6.3.2
+  image_picker: ^1.2.3
 
 dev_dependencies:
   flutter_test:

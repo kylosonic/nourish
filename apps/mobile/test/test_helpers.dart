@@ -5,7 +5,9 @@ import 'package:nourish_mobile/core/update_launcher.dart';
 import 'package:nourish_mobile/data/database.dart';
 import 'package:nourish_mobile/data/models/release_metadata.dart';
 import 'package:nourish_mobile/data/seed/seed_importer.dart';
+import 'package:nourish_mobile/data/services/image_acquisition_service.dart';
 import 'package:nourish_mobile/data/sources/release_metadata_source.dart';
+import 'package:nourish_mobile/features/scan/photo_capture_screen.dart';
 import 'package:nourish_mobile/features/update/update_controller.dart';
 
 /// Opens an in-memory database with the seed catalog already imported.
@@ -45,16 +47,39 @@ class FakeUpdateLauncher implements UpdateLauncher {
   }
 }
 
+/// A scripted image picker: no platform channel is ever opened.
+///
+/// Defaults to "the user cancelled", which is the no-op path.
+class FakeImageAcquisitionService implements ImageAcquisitionService {
+  FakeImageAcquisitionService({this.photo});
+
+  PreparedPhoto? photo;
+  int calls = 0;
+  MealPhotoSource? lastSource;
+
+  @override
+  Future<PreparedPhoto?> pick(MealPhotoSource source) async {
+    calls++;
+    lastSource = source;
+    return photo;
+  }
+}
+
 /// The overrides every pumped app needs so no test reaches the network for a
-/// release document. Tests that care about the update notice pass their own.
+/// release document or opens a platform image picker. Tests that care about
+/// those paths pass their own fakes.
 List<Override> offlineUpdateOverrides({
   ReleaseMetadata? metadata,
   FakeUpdateLauncher? launcher,
+  FakeImageAcquisitionService? imagePicker,
 }) {
   return <Override>[
     releaseMetadataSourceProvider.overrideWithValue(
       FakeReleaseMetadataSource(metadata: metadata),
     ),
     updateLauncherProvider.overrideWithValue(launcher ?? FakeUpdateLauncher()),
+    imageAcquisitionServiceProvider.overrideWithValue(
+      imagePicker ?? FakeImageAcquisitionService(),
+    ),
   ];
 }

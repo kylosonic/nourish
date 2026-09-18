@@ -14,6 +14,7 @@ import '../features/onboarding/steps/language_step.dart';
 import '../features/onboarding/steps/pace_step.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/progress/progress_screen.dart';
+import '../features/scan/photo_capture_screen.dart';
 import '../features/scan/scan_flow_screen.dart';
 import '../features/scan/text_log_screen.dart';
 import '../features/search/food_search_screen.dart';
@@ -172,6 +173,11 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
         path: AppRoutes.scanFlow,
         builder: (BuildContext context, GoRouterState state) =>
             const ScanFlowScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.photoCapture,
+        builder: (BuildContext context, GoRouterState state) =>
+            const PhotoCaptureScreen(),
       ),
       GoRoute(
         path: AppRoutes.honestVoid,

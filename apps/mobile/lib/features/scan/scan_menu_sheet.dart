@@ -7,11 +7,12 @@ import '../../router/routes.dart';
 
 /// SCAN-01 six-option bottom sheet ("What did you eat?").
 ///
-/// Live lanes (S2): DESCRIBE MEAL → text logging (LOG-01) and SEARCH FOOD →
-/// food search. TAKE PHOTO, CHOOSE PHOTO, USE VOICE and SCAN BARCODE still open
-/// their honest voids (ADR-0005): the designed camera screen (SCAN-02) and the
-/// voice/barcode lanes are not implemented yet, and a dead button is never an
-/// option. Closing the sheet (drag down / tap outside / X) returns exactly to
+/// Live lanes (S2): CHOOSE PHOTO → gallery picker → analysis (SCAN-01 →
+/// SCAN-03), DESCRIBE MEAL → text logging (LOG-01) and SEARCH FOOD → food
+/// search. TAKE PHOTO, USE VOICE and SCAN BARCODE still open their honest voids
+/// (ADR-0005): SCAN-02's designed capture screen and the voice/barcode lanes are
+/// not implemented, and a dead button or a silently different camera UI is not
+/// an option. Closing the sheet (drag down / tap outside / X) returns exactly to
 /// the prior screen with no state change.
 Future<void> showScanMenuSheet(BuildContext context) {
   return showModalBottomSheet<void>(
@@ -23,7 +24,9 @@ Future<void> showScanMenuSheet(BuildContext context) {
     builder: (BuildContext sheetContext) {
       void open(String route) {
         Navigator.of(sheetContext).pop();
-        context.go(route);
+        // Push, so every lane can return the user exactly where they started
+        // (SCAN-01: closing or cancelling leaves the prior screen unchanged).
+        context.push(route);
       }
 
       // Scrollable so all six lanes stay reachable on short viewports.
@@ -107,8 +110,7 @@ class ScanMenuSheet extends StatelessWidget {
                     iconBackground: NourishColors.secondaryContainer.withValues(
                       alpha: 0.20,
                     ),
-                    onTap: () =>
-                        onOpen(AppRoutes.honestVoidFor('choose-photo')),
+                    onTap: () => onOpen(AppRoutes.photoCapture),
                   ),
                 ),
               ],
