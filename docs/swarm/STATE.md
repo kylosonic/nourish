@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S1, S2 (API + text lane + photo lane) and S5 COMMITTED; S3 (auth + sync) and S4 (water/weight + insights) NOT STARTED` |
+| Phase | `IMPLEMENTING — S1, S2 (API + text + photo lanes), S3 BACKEND and S5 COMMITTED; S3 mobile (auth screens + sync engine) and S4 (water/weight + insights) NOT STARTED` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S3 (auth + accounts + sync) is the next unstarted slice; S2's in-app camera screen (SCAN-02) is the remaining hole in S2 |
+| Active slice | S3 — backend complete (accounts, sessions, sync mirror); the device side is not built |
 | Active gate | none in flight — each slice was verified against its own criteria and committed |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest commit | `b5508e3` (S1 security findings F-07/F-04 closed) |
+| Latest commit | `299e830` (S3 part 2 — sync contract) |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -318,6 +318,32 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-19 — S3 backend: accounts, sessions, sync (commits `d2aeb3e`,
+  `299e830`; decisions in `docs/adr/0008-…`)**:
+  - **AUTH-01/02/03** shipped: one normalization function decides identity (the
+    contract's own example `0911 23 45 67` → `+251911234567`), six-digit codes
+    stored only as salted hashes for their validity window, `SmsProvider` seam
+    (`none` → 503, `console` refused in production, `http` gateway), rotating
+    refresh chains with reuse detection, and server-owned entitlement/consent.
+  - **OFF-02** shipped: `POST /v1/sync` applies the device's queue in order
+    (idempotent by client id, device-clock last-write-wins, tombstones, per-op
+    rejection instead of a dropped batch); `GET /v1/sync/changes` returns what
+    the device has not seen, tombstones included.
+  - Evidence: api lint clean, build clean, `prisma validate` valid, unit 91/91,
+    e2e 83/83, `npm audit` 0. Live over HTTP with the console gateway: request →
+    code from the dev log → verify → account `plan=FREE`,
+    `aiImprovementConsent=false` → `GET /v1/me` → push a meal → pull it back
+    (`kcal=350`) → rotate the refresh token → replaying the old one returns
+    `TOKEN_REUSED`.
+  - **Not built**: the device side (sign-in screens P-AUTH-1 undesigned, secure
+    token storage, the offline queue and its sync engine). S3 is therefore
+    *backend-complete, product-incomplete*, and nothing syncs yet in the app.
+  - **Not verified anywhere**: real SMS delivery — no gateway credential exists
+    in this environment, so the flow is tested with a capturing provider and the
+    `http` gateway is configuration rather than exercised code.
+  - Bug found by running the suite: `@nestjs/jwt` v12 ships ESM-only and breaks
+    the CommonJS test and runtime path; pinned to the v11 line.
 
 - **2026-09-19 — S2 photo lane, S5, and the deferred S1 security findings**:
   - **S2 photo lane** (`a785d51`): `ImageAcquisitionService` seam over the
