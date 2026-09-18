@@ -21,6 +21,12 @@ abstract final class AppRoutes {
   static const String searchFood = '/search-food';
   static const String honestVoid = '/honest-void/:feature';
 
+  /// S2 transactional scan flow (SCAN-01..07, LOG-01). These screens suppress
+  /// the navigation shell: the user is inside one task until it is done or
+  /// discarded.
+  static const String textLog = '/scan/text';
+  static const String scanFlow = '/scan/flow';
+
   /// Parametrized honest void (ADR-0005 features: sign-in, take-photo,
   /// choose-photo, describe-meal, use-voice, scan-barcode).
   static String honestVoidFor(String feature) => '/honest-void/$feature';

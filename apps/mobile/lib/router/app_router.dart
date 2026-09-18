@@ -14,6 +14,8 @@ import '../features/onboarding/steps/language_step.dart';
 import '../features/onboarding/steps/pace_step.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/progress/progress_screen.dart';
+import '../features/scan/scan_flow_screen.dart';
+import '../features/scan/text_log_screen.dart';
 import '../features/search/food_search_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/voids/honest_void_screen.dart';
@@ -159,6 +161,17 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
         path: AppRoutes.searchFood,
         builder: (BuildContext context, GoRouterState state) =>
             const FoodSearchScreen(),
+      ),
+      // S2 scan flow: transactional screens, the navigation shell is suppressed.
+      GoRoute(
+        path: AppRoutes.textLog,
+        builder: (BuildContext context, GoRouterState state) =>
+            const TextLogScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.scanFlow,
+        builder: (BuildContext context, GoRouterState state) =>
+            const ScanFlowScreen(),
       ),
       GoRoute(
         path: AppRoutes.honestVoid,

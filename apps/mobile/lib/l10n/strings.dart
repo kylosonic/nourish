@@ -291,4 +291,94 @@ abstract final class Strings {
   static const String profileComingBody =
       'Your details, targets and settings will live here. Everything '
       'stays on your phone.';
+
+  // ── S2: scan / analysis flow (SCAN-04..07, LOG-01) ────────────────────────
+
+  // SCAN-04 analysis progression. Each label names a stage that really ran.
+  static const String analysisTitle = 'Analysing your meal';
+  static const String analysisStageFoods = 'Finding foods...';
+  static const String analysisStagePortions = 'Estimating portions...';
+  static const String analysisStageNutrition = 'Calculating nutrition...';
+  static const String analysisPoweredBy = 'POWERED BY NOURISH INTELLIGENCE';
+
+  // SCAN-04 failure states — plain language, never a fabricated result.
+  static const String analysisFailedTitle = "We couldn't analyze this";
+  static const String analysisFailed = 'Something went wrong. You can try again.';
+  static const String analysisUnavailable =
+      'Meal analysis is not available yet on this build. You can still '
+      'search and log your food manually.';
+  static const String analysisTimedOut =
+      'The analysis took too long. Check your connection and try again.';
+  static const String analysisMalformed =
+      'The analysis came back in a form we could not trust, so nothing was '
+      'saved. Please try again.';
+  static const String analysisNoFood =
+      'We could not find any food in that. Try a clearer photo, a shorter '
+      'description, or search for the food instead.';
+  static const String analysisUnreadableImage =
+      'That image could not be read. Please choose a different photo.';
+  static const String analysisImageTooLarge = 'That image is too large. Try a smaller one.';
+  static const String analysisBusy = 'Too many analyses right now. Please try again shortly.';
+  static const String retry = 'RETRY';
+  static const String cancel = 'CANCEL';
+
+  // SCAN-05 result.
+  static const String scanComplete = 'SCAN COMPLETE';
+  static const String aiConfidence = 'AI CONFIDENCE';
+  static const String adjust = 'ADJUST';
+  static const String mealSummary = 'Meal Summary';
+  static const String detectedIngredients = 'DETECTED INGREDIENTS';
+  static const String confirmMeal = 'CONFIRM MEAL';
+  static const String edit = 'EDIT';
+  static const String mealSaved = 'Meal saved';
+  static const String saving = 'SAVING...';
+  static const String estimateTooltip =
+      'Estimated from your portion and the food database.';
+
+  /// Confidence row copy: "AI CONFIDENCE — HIGH (94%)".
+  static String confidenceLine(String state, int percent) =>
+      '$aiConfidence — ${state.toUpperCase()} ($percent%)';
+
+  /// "~ kcal" is the honest-estimate affordance (master §71).
+  static String approximateKcal(int kcal) => '~ $kcal kcal';
+
+  static String grams(double grams) =>
+      grams >= 10 ? '${grams.round()} g' : '${grams.toStringAsFixed(1)} g';
+
+  /// Warning row for an analysis item the local catalog could not resolve.
+  static const String itemUnresolved =
+      'Not in your offline food list — replace it or remove it before saving.';
+  static const String replaceItem = 'REPLACE';
+
+  // SCAN-05 discard prompt.
+  static const String discardAnalysisTitle = 'Discard this analysis?';
+  static const String discardAnalysisBody =
+      'Nothing has been saved yet. Discarding loses the result.';
+  static const String keepEditing = 'KEEP';
+  static const String discard = 'DISCARD';
+
+  // SCAN-06 low confidence.
+  static const String lowConfidenceBadge = 'Low Confidence';
+  static const String lowConfidenceTitle = "We're not completely sure.";
+  static const String lowConfidenceBody = 'Which one of these looks right?';
+  static const String select = 'SELECT';
+  static const String searchManually = 'SEARCH MANUALLY';
+  static const String noCandidates =
+      'No close matches were found. Search for the food instead.';
+
+  // SCAN-07 edit sheet.
+  static const String editMealTitle = 'Edit meal';
+  static const String portionLabel = 'PORTION';
+  static const String addItemLabel = 'ADD ITEM';
+  static const String removeItemTooltip = 'Remove item';
+  static const String done = 'DONE';
+
+  // LOG-01 text logging.
+  static const String describeMealTitle = 'Describe your meal';
+  static const String describeMealHint = 'e.g. 2 injera with shiro and an orange';
+  static const String describeMealHelp =
+      'Name the foods and rough amounts. Nourish matches them to the Ethiopian '
+      'food database and shows you the result before anything is saved.';
+  static const String analyseMeal = 'ANALYSE MEAL';
+  static const String describeMealEmpty = 'Describe what you ate first.';
 }

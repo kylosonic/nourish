@@ -12,11 +12,13 @@ import 'data/repositories/onboarding_repository.dart';
 import 'data/repositories/target_repository.dart';
 import 'data/repositories/water_repository.dart';
 import 'data/sources/api_catalog_data_source.dart';
+import 'data/sources/analysis_api_client.dart';
 import 'data/sources/catalog_data_source.dart';
 import 'data/sources/local_catalog_data_source.dart';
 import 'data/sync/catalog_sync_service.dart';
 import 'data/sync/catalog_sync_state.dart';
 import 'features/onboarding/onboarding_controller.dart';
+import 'features/scan/analysis_controller.dart';
 
 /// Riverpod provider graph (blueprint §11). Strictly top-down: widgets
 /// consume streams, controllers own mutations, every write flows through
@@ -354,3 +356,16 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>(
   (Ref<GoRouter> ref) =>
       throw UnimplementedError('routerProvider is overridden during bootstrap'),
 );
+
+/// The analysis transport (S2). The only egress path besides the catalog sync;
+/// tests override it with a fake so no socket is ever opened.
+final Provider<AnalysisApi> analysisApiProvider = Provider<AnalysisApi>(
+  (Ref<AnalysisApi> ref) => AnalysisApi(),
+);
+
+/// One scan/log run: submit → resolve → edit → confirm (SCAN-04..07, LOG-01).
+final NotifierProvider<AnalysisController, AnalysisFlowState>
+    analysisControllerProvider =
+    NotifierProvider<AnalysisController, AnalysisFlowState>(
+      AnalysisController.new,
+    );

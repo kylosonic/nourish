@@ -7,10 +7,12 @@ import '../../router/routes.dart';
 
 /// SCAN-01 six-option bottom sheet ("What did you eat?").
 ///
-/// SEARCH FOOD is the live S0 lane → `/search-food`; the other five
-/// lanes route to their parametrized honest voids. Closing the sheet
-/// (drag down / tap outside / X) returns exactly to the prior screen
-/// with no state change.
+/// Live lanes (S2): DESCRIBE MEAL → text logging (LOG-01) and SEARCH FOOD →
+/// food search. TAKE PHOTO, CHOOSE PHOTO, USE VOICE and SCAN BARCODE still open
+/// their honest voids (ADR-0005): the designed camera screen (SCAN-02) and the
+/// voice/barcode lanes are not implemented yet, and a dead button is never an
+/// option. Closing the sheet (drag down / tap outside / X) returns exactly to
+/// the prior screen with no state change.
 Future<void> showScanMenuSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
@@ -122,8 +124,7 @@ class ScanMenuSheet extends StatelessWidget {
                     iconBackground: NourishColors.tertiaryContainer.withValues(
                       alpha: 0.20,
                     ),
-                    onTap: () =>
-                        onOpen(AppRoutes.honestVoidFor('describe-meal')),
+                    onTap: () => onOpen(AppRoutes.textLog),
                   ),
                 ),
                 const SizedBox(width: NourishSpacing.gutter),
