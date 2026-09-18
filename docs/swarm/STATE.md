@@ -8,12 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S1 COMMITTED, S2 COMMITTED (API + text lane); photo lane, S3, S4, S5 NOT STARTED` |
+| Phase | `IMPLEMENTING — S1, S2 (API + text lane + photo lane) and S5 COMMITTED; S3 (auth + sync) and S4 (water/weight + insights) NOT STARTED` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S2 (photo scan AI loop) — text lane shipped; camera/gallery lane open |
-| Active gate | none in flight — S1 and S2 were each verified and committed |
+| Active slice | S3 (auth + accounts + sync) is the next unstarted slice; S2's in-app camera screen (SCAN-02) is the remaining hole in S2 |
+| Active gate | none in flight — each slice was verified against its own criteria and committed |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
+| Latest commit | `b5508e3` (S1 security findings F-07/F-04 closed) |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -317,6 +318,43 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-19 — S2 photo lane, S5, and the deferred S1 security findings**:
+  - **S2 photo lane** (`a785d51`): `ImageAcquisitionService` seam over the
+    platform picker (downscale ≤1280 px + JPEG re-encode + metadata capture
+    disabled = SCAN-03 done natively before the bytes reach Dart);
+    `PhotoCaptureScreen` opens the picker, runs the existing pipeline and shows
+    the result; cancelling changes nothing and returns to the origin. The scan
+    sheet now *pushes* its lanes so "back" is meaningful for every one of them.
+    TAKE PHOTO / USE VOICE / SCAN BARCODE remain honest voids — SCAN-02's
+    designed capture screen is not built and substituting the system camera UI
+    would be a silent redesign. Mobile 137/137 (3 new). The real picker is only
+    exercised through a fake: opening a gallery needs a device.
+  - **S5** (`9aae4a6`): `releases/latest.json` + a validating generator
+    (`scripts/`), the static website (`apps/website`, 6 pages, no cookies, no
+    analytics, bundled fonts and approved Stitch screens), three workflows
+    (`build-release.yml`, `android-ci.yml`, `website.yml`) and the in-app update
+    check (REL-03) with a tested launcher seam. Evidence: 21 node tests across
+    the release metadata, the download rules and the generator↔website contract;
+    `--check` OK; html-validate clean on all 6 pages; all four workflow files
+    parse; mobile 134/134 at that commit. **The pipeline itself has never run** —
+    it needs a remote and the secrets in `docs/release-process.md`.
+  - **S1 findings closed** (`b5508e3`): F-07 (CORS prefix match admitted
+    `http://localhost.evil.com`) and F-04 (unbounded optional nutrients) — both
+    recorded by the S1 security review as "must fix before S3". Verified against
+    the running API: legitimate localhost origins allowed, lookalikes blocked.
+    API unit 67/67, e2e 56/56.
+  - **Still open**: S3 (auth, OTP, token rotation, server-side meals, offline
+    queue sync) and S4 (dedicated water/weight screens, insights,
+    recommendations, entitlements UI). Their designs: auth screens (P-AUTH-1),
+    water/weight (P-WW-1/2), paywall (P-SUB-1) do not exist, so those slices need
+    either provisional designs (the PPA pattern) or the missing Stitch screens.
+    `insights_dashboard` **is** designed and is the natural first piece of S4.
+  - **Environment reality for the next session**: no AI provider key exists, so
+    the real recognition path is implemented and unit-tested against a mock but
+    has never been exercised against a model; Docker containers
+    (`nourish-postgres`, `nourish-redis`, compose project `api`) are left
+    running, loopback-only.
 
 - **2026-09-19 — S1 completed, QA blockers fixed, committed (`c61c996`)**:
   - Independent QA (`docs/swarm/qa-report-s1.md`) returned `QA REJECTED` with 2
