@@ -39,5 +39,10 @@ Thumbs.db
 .vscode/
 *.iml
 
+# Source datasets: the FCT 2025 publication and its FAO text layer are
+# downloaded, never committed (redistribution + size; provenance, citation and
+# sha256 are recorded in apps/api/prisma/fixtures/README.md instead).
+apps/api/fct-downloads/
+
 # Release artifacts
 release/

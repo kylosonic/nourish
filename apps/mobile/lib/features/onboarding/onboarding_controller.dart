@@ -5,7 +5,6 @@ import 'package:nourish_domain/domain.dart';
 import '../../data/repositories/onboarding_repository.dart';
 import '../../data/repositories/target_repository.dart';
 import '../../l10n/strings.dart';
-import '../../providers.dart';
 
 /// The counted onboarding steps in canonical order (blueprint §10).
 ///
@@ -61,12 +60,22 @@ class OnboardingState {
 /// persist-on-continue via [OnboardingRepository], resume support
 /// (ONB-09), and daily-target derivation once the last counted step is
 /// answered.
-class OnboardingController extends Notifier<OnboardingState> {
-  OnboardingRepository get _repository => ref.read(onboardingRepositoryProvider);
-  TargetRepository get _targets => ref.read(targetRepositoryProvider);
+///
+/// M1: dependencies are constructor-injected by the provider graph — the
+/// controller no longer imports `providers.dart` (the file-level cycle is
+/// gone). [profileNotifier] is the router's live profile view, injected
+/// so the redirect stays live for the session (nullable in plain unit
+/// containers).
+class OnboardingController extends StateNotifier<OnboardingState> {
+  OnboardingController(
+    this._repository,
+    this._targets,
+    this._profileNotifier,
+  ) : super(const OnboardingState());
 
-  @override
-  OnboardingState build() => const OnboardingState();
+  final OnboardingRepository _repository;
+  final TargetRepository _targets;
+  final ValueNotifier<UserProfile>? _profileNotifier;
 
   /// Counted steps for a goal (pace only for weight loss, PPA-2).
   static List<OnboardingStep> countedStepsFor(Goal? goal) {
@@ -278,12 +287,9 @@ class OnboardingController extends Notifier<OnboardingState> {
   }
 
   /// Keeps the [ValueNotifier] driving GoRouter's redirect in sync with
-  /// the persisted profile (overridden during bootstrap and in tests;
+  /// the persisted profile (injected during bootstrap and in tests;
   /// nullable so plain unit containers can run without it).
   void _syncProfileNotifier(UserProfile profile) {
-    final ValueNotifier<UserProfile>? notifier = ref.read(
-      profileNotifierProvider,
-    );
-    notifier?.value = profile;
+    _profileNotifier?.value = profile;
   }
 }

@@ -10,10 +10,12 @@ import 'tables/tables.dart';
 
 part 'database.g.dart';
 
-/// The single local SQLite database for Nourish (schema version 1).
+/// The single local SQLite database for Nourish (schema version 2).
 ///
-/// Future slices add tables through versioned Drift migrations; the seed
-/// catalog re-import is guarded separately by `seed_meta` (blueprint §17).
+/// v1→v2 adds the FCT provenance columns to [Foods] (additive, nullable,
+/// on-device upgrade safe — blueprint S1 §11). Future slices add tables
+/// through versioned Drift migrations; the seed catalog re-import is
+/// guarded separately by `seed_meta` (blueprint §17).
 @DriftDatabase(
   tables: [
     UserProfileTable,
@@ -38,5 +40,20 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        // Additive nullable columns only: seed rows keep null values.
+        await m.addColumn(foods, foods.sourceFoodCode);
+        await m.addColumn(foods, foods.sourceReference);
+        await m.addColumn(foods, foods.importDate);
+      }
+    },
+  );
 }

@@ -14,6 +14,7 @@ Future<void> main() async {
         driftDatabaseProvider.overrideWithValue(result.database),
         routerProvider.overrideWithValue(result.router),
         profileNotifierProvider.overrideWithValue(result.profileNotifier),
+        catalogSyncServiceProvider.overrideWithValue(result.catalogSync),
       ],
       child: const NourishApp(),
     ),

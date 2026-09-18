@@ -1,6 +1,8 @@
 /// Calendar-day keys and greeting buckets (blueprint §6 core utils).
 library;
 
+import 'clock.dart';
+
 /// Local calendar day as `yyyy-MM-dd`.
 String dateKeyFor(DateTime date) {
   final String y = date.year.toString().padLeft(4, '0');
@@ -9,8 +11,9 @@ String dateKeyFor(DateTime date) {
   return '$y-$m-$d';
 }
 
-/// Today's date key (local time).
-String todayDateKey() => dateKeyFor(DateTime.now());
+/// Today's date key (local time), read through the injectable [clock]
+/// seam (M3). Passing a fixed clock recomputes the key for that instant.
+String todayDateKey([Clock? clock]) => dateKeyFor((clock ?? systemClock)());
 
 /// Home-screen greeting buckets (HOME-01).
 enum GreetingBucket { morning, afternoon, evening }

@@ -992,6 +992,39 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, FoodsRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _sourceFoodCodeMeta = const VerificationMeta(
+    'sourceFoodCode',
+  );
+  @override
+  late final GeneratedColumn<String> sourceFoodCode = GeneratedColumn<String>(
+    'source_food_code',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceReferenceMeta = const VerificationMeta(
+    'sourceReference',
+  );
+  @override
+  late final GeneratedColumn<String> sourceReference = GeneratedColumn<String>(
+    'source_reference',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importDateMeta = const VerificationMeta(
+    'importDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> importDate = GeneratedColumn<DateTime>(
+    'import_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isSeedMeta = const VerificationMeta('isSeed');
   @override
   late final GeneratedColumn<bool> isSeed = GeneratedColumn<bool>(
@@ -1021,6 +1054,9 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, FoodsRow> {
     per100gSodium,
     sourceName,
     sourceVersion,
+    sourceFoodCode,
+    sourceReference,
+    importDate,
     isSeed,
   ];
   @override
@@ -1166,6 +1202,30 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, FoodsRow> {
         ),
       );
     }
+    if (data.containsKey('source_food_code')) {
+      context.handle(
+        _sourceFoodCodeMeta,
+        sourceFoodCode.isAcceptableOrUnknown(
+          data['source_food_code']!,
+          _sourceFoodCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_reference')) {
+      context.handle(
+        _sourceReferenceMeta,
+        sourceReference.isAcceptableOrUnknown(
+          data['source_reference']!,
+          _sourceReferenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('import_date')) {
+      context.handle(
+        _importDateMeta,
+        importDate.isAcceptableOrUnknown(data['import_date']!, _importDateMeta),
+      );
+    }
     if (data.containsKey('is_seed')) {
       context.handle(
         _isSeedMeta,
@@ -1237,6 +1297,18 @@ class $FoodsTable extends Foods with TableInfo<$FoodsTable, FoodsRow> {
         DriftSqlType.string,
         data['${effectivePrefix}source_version'],
       ),
+      sourceFoodCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_food_code'],
+      ),
+      sourceReference: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_reference'],
+      ),
+      importDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}import_date'],
+      ),
       isSeed: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_seed'],
@@ -1268,6 +1340,16 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
   final double? per100gSodium;
   final String sourceName;
   final String? sourceVersion;
+
+  /// Food code within the source dataset (FCT rows; null for seed rows).
+  final String? sourceFoodCode;
+
+  /// Human-readable citation/reference of the source row (FCT rows;
+  /// null for seed rows).
+  final String? sourceReference;
+
+  /// When the source row was imported (FCT rows; null for seed rows).
+  final DateTime? importDate;
   final bool isSeed;
   const FoodsRow({
     required this.id,
@@ -1284,6 +1366,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
     this.per100gSodium,
     required this.sourceName,
     this.sourceVersion,
+    this.sourceFoodCode,
+    this.sourceReference,
+    this.importDate,
     required this.isSeed,
   });
   @override
@@ -1308,6 +1393,15 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
     map['source_name'] = Variable<String>(sourceName);
     if (!nullToAbsent || sourceVersion != null) {
       map['source_version'] = Variable<String>(sourceVersion);
+    }
+    if (!nullToAbsent || sourceFoodCode != null) {
+      map['source_food_code'] = Variable<String>(sourceFoodCode);
+    }
+    if (!nullToAbsent || sourceReference != null) {
+      map['source_reference'] = Variable<String>(sourceReference);
+    }
+    if (!nullToAbsent || importDate != null) {
+      map['import_date'] = Variable<DateTime>(importDate);
     }
     map['is_seed'] = Variable<bool>(isSeed);
     return map;
@@ -1335,6 +1429,15 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
       sourceVersion: sourceVersion == null && nullToAbsent
           ? const Value.absent()
           : Value(sourceVersion),
+      sourceFoodCode: sourceFoodCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceFoodCode),
+      sourceReference: sourceReference == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceReference),
+      importDate: importDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(importDate),
       isSeed: Value(isSeed),
     );
   }
@@ -1363,6 +1466,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
       per100gSodium: serializer.fromJson<double?>(json['per100gSodium']),
       sourceName: serializer.fromJson<String>(json['sourceName']),
       sourceVersion: serializer.fromJson<String?>(json['sourceVersion']),
+      sourceFoodCode: serializer.fromJson<String?>(json['sourceFoodCode']),
+      sourceReference: serializer.fromJson<String?>(json['sourceReference']),
+      importDate: serializer.fromJson<DateTime?>(json['importDate']),
       isSeed: serializer.fromJson<bool>(json['isSeed']),
     );
   }
@@ -1384,6 +1490,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
       'per100gSodium': serializer.toJson<double?>(per100gSodium),
       'sourceName': serializer.toJson<String>(sourceName),
       'sourceVersion': serializer.toJson<String?>(sourceVersion),
+      'sourceFoodCode': serializer.toJson<String?>(sourceFoodCode),
+      'sourceReference': serializer.toJson<String?>(sourceReference),
+      'importDate': serializer.toJson<DateTime?>(importDate),
       'isSeed': serializer.toJson<bool>(isSeed),
     };
   }
@@ -1403,6 +1512,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
     Value<double?> per100gSodium = const Value.absent(),
     String? sourceName,
     Value<String?> sourceVersion = const Value.absent(),
+    Value<String?> sourceFoodCode = const Value.absent(),
+    Value<String?> sourceReference = const Value.absent(),
+    Value<DateTime?> importDate = const Value.absent(),
     bool? isSeed,
   }) => FoodsRow(
     id: id ?? this.id,
@@ -1423,6 +1535,13 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
     sourceVersion: sourceVersion.present
         ? sourceVersion.value
         : this.sourceVersion,
+    sourceFoodCode: sourceFoodCode.present
+        ? sourceFoodCode.value
+        : this.sourceFoodCode,
+    sourceReference: sourceReference.present
+        ? sourceReference.value
+        : this.sourceReference,
+    importDate: importDate.present ? importDate.value : this.importDate,
     isSeed: isSeed ?? this.isSeed,
   );
   FoodsRow copyWithCompanion(FoodsCompanion data) {
@@ -1465,6 +1584,15 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
       sourceVersion: data.sourceVersion.present
           ? data.sourceVersion.value
           : this.sourceVersion,
+      sourceFoodCode: data.sourceFoodCode.present
+          ? data.sourceFoodCode.value
+          : this.sourceFoodCode,
+      sourceReference: data.sourceReference.present
+          ? data.sourceReference.value
+          : this.sourceReference,
+      importDate: data.importDate.present
+          ? data.importDate.value
+          : this.importDate,
       isSeed: data.isSeed.present ? data.isSeed.value : this.isSeed,
     );
   }
@@ -1486,6 +1614,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
           ..write('per100gSodium: $per100gSodium, ')
           ..write('sourceName: $sourceName, ')
           ..write('sourceVersion: $sourceVersion, ')
+          ..write('sourceFoodCode: $sourceFoodCode, ')
+          ..write('sourceReference: $sourceReference, ')
+          ..write('importDate: $importDate, ')
           ..write('isSeed: $isSeed')
           ..write(')'))
         .toString();
@@ -1507,6 +1638,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
     per100gSodium,
     sourceName,
     sourceVersion,
+    sourceFoodCode,
+    sourceReference,
+    importDate,
     isSeed,
   );
   @override
@@ -1527,6 +1661,9 @@ class FoodsRow extends DataClass implements Insertable<FoodsRow> {
           other.per100gSodium == this.per100gSodium &&
           other.sourceName == this.sourceName &&
           other.sourceVersion == this.sourceVersion &&
+          other.sourceFoodCode == this.sourceFoodCode &&
+          other.sourceReference == this.sourceReference &&
+          other.importDate == this.importDate &&
           other.isSeed == this.isSeed);
 }
 
@@ -1545,6 +1682,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
   final Value<double?> per100gSodium;
   final Value<String> sourceName;
   final Value<String?> sourceVersion;
+  final Value<String?> sourceFoodCode;
+  final Value<String?> sourceReference;
+  final Value<DateTime?> importDate;
   final Value<bool> isSeed;
   final Value<int> rowid;
   const FoodsCompanion({
@@ -1562,6 +1702,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
     this.per100gSodium = const Value.absent(),
     this.sourceName = const Value.absent(),
     this.sourceVersion = const Value.absent(),
+    this.sourceFoodCode = const Value.absent(),
+    this.sourceReference = const Value.absent(),
+    this.importDate = const Value.absent(),
     this.isSeed = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1580,6 +1723,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
     this.per100gSodium = const Value.absent(),
     required String sourceName,
     this.sourceVersion = const Value.absent(),
+    this.sourceFoodCode = const Value.absent(),
+    this.sourceReference = const Value.absent(),
+    this.importDate = const Value.absent(),
     this.isSeed = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1607,6 +1753,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
     Expression<double>? per100gSodium,
     Expression<String>? sourceName,
     Expression<String>? sourceVersion,
+    Expression<String>? sourceFoodCode,
+    Expression<String>? sourceReference,
+    Expression<DateTime>? importDate,
     Expression<bool>? isSeed,
     Expression<int>? rowid,
   }) {
@@ -1627,6 +1776,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
       if (per100gSodium != null) 'per100g_sodium': per100gSodium,
       if (sourceName != null) 'source_name': sourceName,
       if (sourceVersion != null) 'source_version': sourceVersion,
+      if (sourceFoodCode != null) 'source_food_code': sourceFoodCode,
+      if (sourceReference != null) 'source_reference': sourceReference,
+      if (importDate != null) 'import_date': importDate,
       if (isSeed != null) 'is_seed': isSeed,
       if (rowid != null) 'rowid': rowid,
     });
@@ -1647,6 +1799,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
     Value<double?>? per100gSodium,
     Value<String>? sourceName,
     Value<String?>? sourceVersion,
+    Value<String?>? sourceFoodCode,
+    Value<String?>? sourceReference,
+    Value<DateTime?>? importDate,
     Value<bool>? isSeed,
     Value<int>? rowid,
   }) {
@@ -1665,6 +1820,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
       per100gSodium: per100gSodium ?? this.per100gSodium,
       sourceName: sourceName ?? this.sourceName,
       sourceVersion: sourceVersion ?? this.sourceVersion,
+      sourceFoodCode: sourceFoodCode ?? this.sourceFoodCode,
+      sourceReference: sourceReference ?? this.sourceReference,
+      importDate: importDate ?? this.importDate,
       isSeed: isSeed ?? this.isSeed,
       rowid: rowid ?? this.rowid,
     );
@@ -1717,6 +1875,15 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
     if (sourceVersion.present) {
       map['source_version'] = Variable<String>(sourceVersion.value);
     }
+    if (sourceFoodCode.present) {
+      map['source_food_code'] = Variable<String>(sourceFoodCode.value);
+    }
+    if (sourceReference.present) {
+      map['source_reference'] = Variable<String>(sourceReference.value);
+    }
+    if (importDate.present) {
+      map['import_date'] = Variable<DateTime>(importDate.value);
+    }
     if (isSeed.present) {
       map['is_seed'] = Variable<bool>(isSeed.value);
     }
@@ -1743,6 +1910,9 @@ class FoodsCompanion extends UpdateCompanion<FoodsRow> {
           ..write('per100gSodium: $per100gSodium, ')
           ..write('sourceName: $sourceName, ')
           ..write('sourceVersion: $sourceVersion, ')
+          ..write('sourceFoodCode: $sourceFoodCode, ')
+          ..write('sourceReference: $sourceReference, ')
+          ..write('importDate: $importDate, ')
           ..write('isSeed: $isSeed, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5087,6 +5257,9 @@ typedef $$FoodsTableCreateCompanionBuilder =
       Value<double?> per100gSodium,
       required String sourceName,
       Value<String?> sourceVersion,
+      Value<String?> sourceFoodCode,
+      Value<String?> sourceReference,
+      Value<DateTime?> importDate,
       Value<bool> isSeed,
       Value<int> rowid,
     });
@@ -5106,6 +5279,9 @@ typedef $$FoodsTableUpdateCompanionBuilder =
       Value<double?> per100gSodium,
       Value<String> sourceName,
       Value<String?> sourceVersion,
+      Value<String?> sourceFoodCode,
+      Value<String?> sourceReference,
+      Value<DateTime?> importDate,
       Value<bool> isSeed,
       Value<int> rowid,
     });
@@ -5226,6 +5402,21 @@ class $$FoodsTableFilterComposer extends Composer<_$AppDatabase, $FoodsTable> {
 
   ColumnFilters<String> get sourceVersion => $composableBuilder(
     column: $table.sourceVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceFoodCode => $composableBuilder(
+    column: $table.sourceFoodCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceReference => $composableBuilder(
+    column: $table.sourceReference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get importDate => $composableBuilder(
+    column: $table.importDate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5364,6 +5555,21 @@ class $$FoodsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get sourceFoodCode => $composableBuilder(
+    column: $table.sourceFoodCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceReference => $composableBuilder(
+    column: $table.sourceReference,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get importDate => $composableBuilder(
+    column: $table.importDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isSeed => $composableBuilder(
     column: $table.isSeed,
     builder: (column) => ColumnOrderings(column),
@@ -5442,6 +5648,21 @@ class $$FoodsTableAnnotationComposer
 
   GeneratedColumn<String> get sourceVersion => $composableBuilder(
     column: $table.sourceVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceFoodCode => $composableBuilder(
+    column: $table.sourceFoodCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceReference => $composableBuilder(
+    column: $table.sourceReference,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get importDate => $composableBuilder(
+    column: $table.importDate,
     builder: (column) => column,
   );
 
@@ -5541,6 +5762,9 @@ class $$FoodsTableTableManager
                 Value<double?> per100gSodium = const Value.absent(),
                 Value<String> sourceName = const Value.absent(),
                 Value<String?> sourceVersion = const Value.absent(),
+                Value<String?> sourceFoodCode = const Value.absent(),
+                Value<String?> sourceReference = const Value.absent(),
+                Value<DateTime?> importDate = const Value.absent(),
                 Value<bool> isSeed = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => FoodsCompanion(
@@ -5558,6 +5782,9 @@ class $$FoodsTableTableManager
                 per100gSodium: per100gSodium,
                 sourceName: sourceName,
                 sourceVersion: sourceVersion,
+                sourceFoodCode: sourceFoodCode,
+                sourceReference: sourceReference,
+                importDate: importDate,
                 isSeed: isSeed,
                 rowid: rowid,
               ),
@@ -5577,6 +5804,9 @@ class $$FoodsTableTableManager
                 Value<double?> per100gSodium = const Value.absent(),
                 required String sourceName,
                 Value<String?> sourceVersion = const Value.absent(),
+                Value<String?> sourceFoodCode = const Value.absent(),
+                Value<String?> sourceReference = const Value.absent(),
+                Value<DateTime?> importDate = const Value.absent(),
                 Value<bool> isSeed = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => FoodsCompanion.insert(
@@ -5594,6 +5824,9 @@ class $$FoodsTableTableManager
                 per100gSodium: per100gSodium,
                 sourceName: sourceName,
                 sourceVersion: sourceVersion,
+                sourceFoodCode: sourceFoodCode,
+                sourceReference: sourceReference,
+                importDate: importDate,
                 isSeed: isSeed,
                 rowid: rowid,
               ),

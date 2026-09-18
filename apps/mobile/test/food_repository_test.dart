@@ -3,6 +3,7 @@ import 'package:nourish_domain/domain.dart';
 
 import 'package:nourish_mobile/data/database.dart';
 import 'package:nourish_mobile/data/repositories/food_repository.dart';
+import 'package:nourish_mobile/data/sources/local_catalog_data_source.dart';
 
 import 'test_helpers.dart';
 
@@ -12,7 +13,7 @@ void main() {
 
   setUp(() async {
     db = await openSeededDb();
-    repository = FoodRepository(db);
+    repository = FoodRepository(LocalCatalogDataSource(db));
   });
 
   tearDown(() async => db.close());
@@ -83,7 +84,7 @@ void main() {
         expect(injera.defaultPortion.grams, 150);
         expect(injera.defaultPortion.unit, PortionUnit.injera);
         expect(injera.per100g.kcal, 150);
-        expect(injera.source.name, 'provisional-seed');
+        expect(injera.source.name, 'provisional-seed-bootstrap');
       },
     );
   });

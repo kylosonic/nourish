@@ -14,6 +14,15 @@ class FoodDao extends DatabaseAccessor<AppDatabase> with _$FoodDaoMixin {
 
   Future<List<FoodsRow>> allFoodRows() => select(foods).get();
 
+  /// Number of cached foods — used by the catalog durability guard
+  /// (QA finding F-05).
+  Future<int> countAll() async {
+    final countExp = foods.id.count();
+    final query = selectOnly(foods)..addColumns([countExp]);
+    final row = await query.getSingle();
+    return row.read(countExp) ?? 0;
+  }
+
   Future<List<FoodsRow>> categoryRows(String category) =>
       (select(foods)..where((Foods f) => f.category.equals(category))).get();
 

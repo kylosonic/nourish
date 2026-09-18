@@ -4,6 +4,7 @@ import 'package:nourish_domain/domain.dart';
 import 'package:nourish_mobile/data/database.dart';
 import 'package:nourish_mobile/data/repositories/food_repository.dart';
 import 'package:nourish_mobile/data/repositories/meal_repository.dart';
+import 'package:nourish_mobile/data/sources/local_catalog_data_source.dart';
 
 import 'test_helpers.dart';
 
@@ -16,7 +17,7 @@ void main() {
 
   setUp(() async {
     db = await openSeededDb();
-    foodRepository = FoodRepository(db);
+    foodRepository = FoodRepository(LocalCatalogDataSource(db));
     mealRepository = MealRepository(db);
   });
 

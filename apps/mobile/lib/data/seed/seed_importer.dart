@@ -13,7 +13,12 @@ const String seedVersion = 's0-1';
 /// SeedMeta key guarding the one-shot import (blueprint §17).
 const String seedVersionKey = 'seed_version';
 
-/// First-run import of the provisional 20-food catalog.
+/// First-run import of the 20-food bootstrap catalog
+/// (`provisional-seed-bootstrap`): the first cache the app ships with
+/// (OFF-01). The sync service replaces it with the Ethiopian FCT 2025
+/// catalog on the first successful sync; until then (or whenever sync
+/// fails) this cache is what search serves, with the provisional-values
+/// disclaimer shown.
 ///
 /// Idempotent: guarded by a `seed_meta` row (`seed_version` == [seedVersion]).
 /// Row inserts use replace semantics so a crash mid-import cannot leave a

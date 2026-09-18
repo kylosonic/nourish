@@ -1,0 +1,36 @@
+# S1 dev services: Postgres (food-layer DB) + Redis (provisioned for parity only —
+# no queue code in S1, see ADR-0006 / D2). No host secrets: dev-only credentials.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nourish-postgres
+    environment:
+      POSTGRES_USER: nourish
+      POSTGRES_PASSWORD: nourish
+      POSTGRES_DB: nourish
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - nourish-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nourish -d nourish"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    container_name: nourish-redis
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - nourish-redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  nourish-pgdata:
+  nourish-redisdata:

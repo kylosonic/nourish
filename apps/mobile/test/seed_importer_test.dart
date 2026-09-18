@@ -5,6 +5,7 @@ import 'package:nourish_mobile/data/database.dart';
 import 'package:nourish_mobile/data/repositories/food_repository.dart';
 import 'package:nourish_mobile/data/seed/seed_catalog.dart';
 import 'package:nourish_mobile/data/seed/seed_importer.dart';
+import 'package:nourish_mobile/data/sources/local_catalog_data_source.dart';
 
 void main() {
   late AppDatabase db;
@@ -57,13 +58,17 @@ void main() {
   group('Seed alias resolution (LOG-05)', () {
     test('"doro wet" resolves to Doro Wot', () async {
       await SeedImporter(db).run();
-      final results = await FoodRepository(db).search('doro wet');
+      final results = await FoodRepository(
+        LocalCatalogDataSource(db),
+      ).search('doro wet');
       expect(results.single.canonicalName, 'Doro Wot');
     });
 
     test('"ዶሮ ወጥ" (Amharic) resolves to Doro Wot', () async {
       await SeedImporter(db).run();
-      final results = await FoodRepository(db).search('ዶሮ ወጥ');
+      final results = await FoodRepository(
+        LocalCatalogDataSource(db),
+      ).search('ዶሮ ወጥ');
       expect(results.single.canonicalName, 'Doro Wot');
     });
   });

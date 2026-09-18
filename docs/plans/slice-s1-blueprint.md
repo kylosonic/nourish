@@ -377,9 +377,17 @@ correction records intact across upgrades (TGT-04 server-side guarantee once mea
   ALWAYS reads the local datasource (LOG-05/OFF-01); the API is only ever written INTO the cache.
 - **Seed relabel:** `provisional-seed` → `provisional-seed-bootstrap`; search footer copy swaps
   post-sync from the provisional disclaimer to the FCT citation (honest voids pattern).
-- **Id stability:** FCT foods whose canonical name matches a bootstrap seed food keep the seed
-  slug as id (e.g. `injera`) so S0 meal-item `foodId` references stay resolvable; new foods get
-  `fct-<code>`.
+- **Id stability (AMENDED at Gate C — QA finding Q1):** the server's canonical `id` is
+  authoritative whenever the payload carries one, because the server's canonicalizer already
+  assigns the seed slug to every food whose name matches a bootstrap seed food. The original
+  rule below is retained only as the **fallback** for payloads with no usable `id`: FCT foods
+  whose canonical name matches a bootstrap seed food keep the seed slug as id (e.g. `injera`) so
+  S0 meal-item `foodId` references stay resolvable; new foods get `fct-<code>`. Rationale for the
+  amendment: FCT `canonicalName` values are long descriptions ("Chicken, meat, without skin,
+  stew, …") which never match a seed short name, so the fallback-only implementation made 18/18
+  ids diverge from the canonical application id. Contract is locked by
+  `apps/mobile/test/catalog_mapper_contract_test.dart` against a real captured `/v1/catalog`
+  payload (`test/fixtures/catalog_response.json`).
 - **Drift v2 migration:** add nullable `sourceFoodCode`, `sourceReference`, `importDate` to
   `Foods` (additive; on-device upgrade safe). `SeedMeta` reused for catalog keys (no new table).
 - **Zero-egress guarantee (revised):** S0 paths stay egress-free; network calls are confined to

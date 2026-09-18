@@ -1,0 +1,121 @@
+// Nourish S1 — canonical food layer (blueprint §9).
+// Food-layer models ONLY. No user/profile/meal tables in S1 (A11).
+// Nutrition values: Ethiopian FCT 2025 (EPHI & FAO), per-100g edible portion.
+// Portion gram weights are Nourish standard measures (portionSource: nourish-standard) — NOT FCT data.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ImportStatus {
+  Pending
+  Committed
+  Failed
+}
+
+enum FoodStatus {
+  Active
+  Deprecated
+  Merged
+}
+
+enum AliasKind {
+  alternate
+  transliteration
+  misspelling
+  appTransliteration
+}
+
+model ImportRun {
+  id              String        @id @default(cuid())
+  sourceName      String // "ethiopian-fct-2025"
+  sourceVersion   String // "2025"
+  sourceReference String // full EPHI/FAO citation (ADR-0004)
+  sourceUrl       String?
+  fileName        String
+  fileSha256      String
+  extractSha256   String?
+  /// Version of the local canonicalization rules (aliases, transliteration,
+  /// categories, portions) that produced this run's derived fields. The source
+  /// file hash alone cannot express "same data, different rules", so a rule
+  /// change must create a new run instead of an idempotent no-op. Nullable for
+  /// runs imported before this column existed.
+  rulesVersion    String?
+  rowCount        Int
+  status          ImportStatus @default(Pending)
+  notes           String?
+  startedAt       DateTime     @default(now())
+  finishedAt      DateTime?
+  foods           Food[]
+
+  @@unique([sourceName, sourceVersion, fileSha256, rulesVersion]) // idempotency gate
+}
+
+model Food {
+  id                 String         @id // stable: seed slug when name-matches a bootstrap food, else "fct-<sourceFoodCode>"
+  canonicalName      String
+  categoryCode       String
+  category           FoodCategory   @relation(fields: [categoryCode], references: [code])
+  description        String?
+  region             String?
+  preparation        String? // master §11
+  status             FoodStatus     @default(Active)
+  verification       String?
+  confidence         Float? // master §11 (S2+ semantics; schema-ready)
+  defaultPortionUnit String
+  defaultPortionQty  Float          @default(1)
+  defaultPortionGrams Float
+  per100gKcal        Float
+  per100gProtein     Float
+  per100gCarbs       Float
+  per100gFat         Float
+  per100gFiber       Float?
+  per100gSodiumMg    Float?
+  extraNutrients     Json? // documented keys (energyKj, ashG, calciumMg, ironMg, vitaminA_ug, ...); row-level provenance still applies
+  importId           String
+  import             ImportRun      @relation(fields: [importId], references: [id])
+  sourceFoodCode     String         @unique // upsert key across re-imports
+  aliases            FoodAlias[]
+  portions           FoodPortion[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@index([canonicalName])
+  @@index([categoryCode])
+}
+
+model FoodAlias {
+  id         String    @id @default(cuid())
+  foodId     String
+  food       Food      @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  alias      String
+  language   String // "en"|"am"|"om"
+  kind       AliasKind @default(alternate)
+  normalized String // lower + collapse whitespace; searched via ILIKE
+
+  @@unique([foodId, alias, language])
+  @@index([normalized])
+}
+
+model FoodPortion {
+  id            String  @id @default(cuid())
+  foodId        String
+  food          Food    @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  unit          String // PortionUnit.name
+  quantity      Float   @default(1)
+  grams         Float
+  portionSource String  @default("nourish-standard") // honesty: gram weights are NOT FCT data
+
+  @@unique([foodId, unit])
+}
+
+model FoodCategory {
+  code  String @id
+  label String
+  foods Food[]
+}

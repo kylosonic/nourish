@@ -5,6 +5,7 @@ import 'package:nourish_design_system/nourish_design_system.dart';
 import 'package:nourish_domain/domain.dart';
 
 import '../../data/repositories/meal_repository.dart';
+import '../../data/sync/catalog_sync_state.dart';
 import '../../l10n/strings.dart';
 import '../../providers.dart';
 import '../../router/routes.dart';
@@ -15,8 +16,11 @@ import 'widgets/food_card.dart';
 /// repository), category chips, food cards with default portion + kcal,
 /// and quick-add into the active meal slot
 /// ([activeMealContextProvider]). If no slot is scoped the + control
-/// asks for one honestly (no invented slot). Provisional seed values
-/// carry the disclaimer footer.
+/// asks for one honestly (no invented slot).
+///
+/// Footer honesty (S1 §11): the bootstrap disclaimer shows until a
+/// catalog sync lands; once synced the footer carries the FCT 2025
+/// citation instead.
 class FoodSearchScreen extends ConsumerWidget {
   const FoodSearchScreen({super.key});
 
@@ -30,6 +34,10 @@ class FoodSearchScreen extends ConsumerWidget {
     final AsyncValue<List<Food>> results = ref.watch(
       foodSearchResultsProvider,
     );
+    final CatalogSyncState syncState = ref.watch(catalogSyncStateProvider);
+    final bool catalogSynced = syncState is CatalogSyncSynced ||
+        (syncState is CatalogSyncFailed &&
+            syncState.previousVersion != null);
 
     return Scaffold(
       appBar: AppBar(
@@ -127,7 +135,9 @@ class FoodSearchScreen extends ConsumerWidget {
                 NourishSpacing.base,
               ),
               child: Text(
-                Strings.seedDisclaimer,
+                catalogSynced
+                    ? Strings.fctCitationFooter
+                    : Strings.seedDisclaimer,
                 textAlign: TextAlign.center,
                 style: NourishTextStyles.labelCaps.copyWith(
                   color: NourishColors.onSurfaceVariant,

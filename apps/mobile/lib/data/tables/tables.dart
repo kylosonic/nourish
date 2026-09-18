@@ -79,6 +79,16 @@ class Foods extends Table {
 
   TextColumn get sourceVersion => text().nullable()();
 
+  /// Food code within the source dataset (FCT rows; null for seed rows).
+  TextColumn get sourceFoodCode => text().nullable()();
+
+  /// Human-readable citation/reference of the source row (FCT rows;
+  /// null for seed rows).
+  TextColumn get sourceReference => text().nullable()();
+
+  /// When the source row was imported (FCT rows; null for seed rows).
+  DateTimeColumn get importDate => dateTime().nullable()();
+
   BoolColumn get isSeed => boolean().withDefault(const Constant(false))();
 
   @override

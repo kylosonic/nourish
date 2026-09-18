@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nourish_domain/domain.dart';
 
+import 'core/clock.dart';
 import 'core/date_utils.dart';
 import 'data/database.dart';
 import 'data/repositories/food_repository.dart';
@@ -10,6 +11,11 @@ import 'data/repositories/meal_repository.dart';
 import 'data/repositories/onboarding_repository.dart';
 import 'data/repositories/target_repository.dart';
 import 'data/repositories/water_repository.dart';
+import 'data/sources/api_catalog_data_source.dart';
+import 'data/sources/catalog_data_source.dart';
+import 'data/sources/local_catalog_data_source.dart';
+import 'data/sync/catalog_sync_service.dart';
+import 'data/sync/catalog_sync_state.dart';
 import 'features/onboarding/onboarding_controller.dart';
 
 /// Riverpod provider graph (blueprint §11). Strictly top-down: widgets
@@ -23,6 +29,12 @@ final Provider<AppDatabase> driftDatabaseProvider = Provider<AppDatabase>(
   ),
 );
 
+/// M3: injectable wall clock — every "today" derivation reads the
+/// current time through this provider (overridable in tests).
+final Provider<Clock> clockProvider = Provider<Clock>(
+  (Ref<Clock> ref) => DateTime.now,
+);
+
 final Provider<TargetEngine> targetEngineProvider = Provider<TargetEngine>(
   (Ref<TargetEngine> ref) => TargetEngine(),
 );
@@ -33,10 +45,55 @@ final Provider<OnboardingRepository> onboardingRepositoryProvider =
           OnboardingRepository(ref.watch(driftDatabaseProvider)),
     );
 
+final Provider<LocalCatalogDataSource> localCatalogDataSourceProvider =
+    Provider<LocalCatalogDataSource>(
+      (Ref<LocalCatalogDataSource> ref) =>
+          LocalCatalogDataSource(ref.watch(driftDatabaseProvider)),
+    );
+
+final Provider<CatalogDataSource> apiCatalogDataSourceProvider =
+    Provider<CatalogDataSource>(
+      (Ref<CatalogDataSource> ref) => ApiCatalogDataSource(),
+    );
+
+final Provider<CatalogSyncService> catalogSyncServiceProvider =
+    Provider<CatalogSyncService>(
+      (Ref<CatalogSyncService> ref) => CatalogSyncService(
+        local: ref.watch(localCatalogDataSourceProvider),
+        api: ref.watch(apiCatalogDataSourceProvider),
+      ),
+    );
+
+/// The sync lifecycle the search footer reads (idle → syncing →
+/// synced | failed). `main()` overrides [catalogSyncServiceProvider]
+/// with the bootstrap-created service; tests drive syncs via
+/// [CatalogSyncStateNotifier.runSync].
+final NotifierProvider<CatalogSyncStateNotifier, CatalogSyncState>
+    catalogSyncStateProvider =
+    NotifierProvider<CatalogSyncStateNotifier, CatalogSyncState>(
+      CatalogSyncStateNotifier.new,
+    );
+
+/// Mirrors the [CatalogSyncService]'s live state into the provider graph.
+class CatalogSyncStateNotifier extends Notifier<CatalogSyncState> {
+  @override
+  CatalogSyncState build() {
+    final CatalogSyncService service = ref.watch(catalogSyncServiceProvider);
+    void listener() => state = service.state.value;
+    service.state.addListener(listener);
+    ref.onDispose(() => service.state.removeListener(listener));
+    return service.state.value;
+  }
+
+  /// Runs a sync through the provider graph (tests; future S2+
+  /// triggers). Production boots via the bootstrap fire-and-forget path.
+  Future<void> runSync() => ref.read(catalogSyncServiceProvider).sync();
+}
+
 final Provider<FoodRepository> foodRepositoryProvider =
     Provider<FoodRepository>(
       (Ref<FoodRepository> ref) =>
-          FoodRepository(ref.watch(driftDatabaseProvider)),
+          FoodRepository(ref.watch(localCatalogDataSourceProvider)),
     );
 
 final Provider<MealRepository> mealRepositoryProvider =
@@ -73,11 +130,13 @@ final StreamProvider<DailyTarget?> activeDailyTargetProvider =
           ref.watch(targetRepositoryProvider).watchLatest(),
     );
 
-/// Today's meals with their frozen item snapshots.
+/// Today's meals with their frozen item snapshots. "Today" reads the
+/// injectable clock (M3) so midnight crossings recompute the day key.
 final StreamProvider<List<Meal>> todayMealsProvider =
     StreamProvider<List<Meal>>(
-      (Ref<AsyncValue<List<Meal>>> ref) =>
-          ref.watch(mealRepositoryProvider).watchMealsForDate(todayDateKey()),
+      (Ref<AsyncValue<List<Meal>>> ref) => ref
+          .watch(mealRepositoryProvider)
+          .watchMealsForDate(todayDateKey(ref.watch(clockProvider))),
     );
 
 /// Today's consumed totals (domain aggregation over snapshots).
@@ -104,7 +163,7 @@ class WaterDay {
 final StreamProvider<WaterDay> todayWaterProvider = StreamProvider<WaterDay>(
   (Ref<AsyncValue<WaterDay>> ref) => ref
       .watch(waterRepositoryProvider)
-      .watchDailyTotalMl(todayDateKey())
+      .watchDailyTotalMl(todayDateKey(ref.watch(clockProvider)))
       .map((int ml) => WaterDay(consumedMl: ml)),
 );
 
@@ -178,10 +237,18 @@ final Provider<ValueNotifier<UserProfile>?> profileNotifierProvider =
 /// The transactional onboarding controller (blueprint §11): step list
 /// per goal, draft answers, field validation, persist-on-continue and
 /// resume-at-first-unanswered (ONB-09).
-final NotifierProvider<OnboardingController, OnboardingState>
+///
+/// M1: the controller constructor-injects its repositories and the
+/// profile notifier — no `providers.dart` import in the controller, no
+/// file-level cycle.
+final StateNotifierProvider<OnboardingController, OnboardingState>
     onboardingControllerProvider =
-    NotifierProvider<OnboardingController, OnboardingState>(
-      OnboardingController.new,
+    StateNotifierProvider<OnboardingController, OnboardingState>(
+      (Ref<OnboardingState> ref) => OnboardingController(
+        ref.watch(onboardingRepositoryProvider),
+        ref.watch(targetRepositoryProvider),
+        ref.watch(profileNotifierProvider),
+      ),
     );
 
 /// Slot scoping for quick-add (HOME-03 / LOG-05): the scan sheet or a
@@ -259,9 +326,9 @@ class SelectedHistoryDate extends Notifier<DateTime> {
 }
 
 final NotifierProvider<SelectedHistoryDate, DateTime>
-selectedHistoryDateProvider = NotifierProvider<SelectedHistoryDate, DateTime>(
-  SelectedHistoryDate.new,
-);
+    selectedHistoryDateProvider = NotifierProvider<SelectedHistoryDate, DateTime>(
+      SelectedHistoryDate.new,
+    );
 
 /// Meals for the history strip's selected date (LOG-06).
 final StreamProvider<List<Meal>> historyMealsProvider =

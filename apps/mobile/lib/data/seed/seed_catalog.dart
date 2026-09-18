@@ -1,11 +1,12 @@
 import 'package:nourish_domain/domain.dart';
 
 /// Provenance label for every S0 seed value (PPA-8 / ADR-0004(e)):
-/// provisional placeholders, superseded by the Ethiopian FCT 2025 import
-/// in S1. Search UI must carry the provisional-values disclaimer.
-const String seedSourceName = 'provisional-seed';
+/// first-cache bootstrap data, replaced by the Ethiopian FCT 2025
+/// catalog on the first successful sync (blueprint S1 §11). The search
+/// UI carries the provisional-values disclaimer until that sync lands.
+const String seedSourceName = 'provisional-seed-bootstrap';
 
-/// One provisional seed food with its portions and aliases.
+/// One bootstrap seed food with its portions and aliases.
 class SeedFood {
   const SeedFood({
     required this.id,

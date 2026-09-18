@@ -22,59 +22,77 @@ class HonestVoidScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(Strings.honestVoidTitle(featureId))),
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(NourishSpacing.containerMargin),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: NourishColors.primary.withValues(alpha: 0.10),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome,
-                      size: 32,
-                      color: NourishColors.primary,
+        // Short-viewport safety (S1 M7 test rides through here): the
+        // content centers when it fits and scrolls when it does not, so
+        // no RenderFlex overflow at 320×480.
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(
+                        NourishSpacing.containerMargin,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                color: NourishColors.primary.withValues(
+                                  alpha: 0.10,
+                                ),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.auto_awesome,
+                                size: 32,
+                                color: NourishColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              Strings.honestVoidTitle(featureId),
+                              textAlign: TextAlign.center,
+                              style: NourishTextStyles.headlineMd.copyWith(
+                                color: NourishColors.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              Strings.honestVoidBody(featureId),
+                              textAlign: TextAlign.center,
+                              style: NourishTextStyles.bodyMd.copyWith(
+                                color: NourishColors.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            NourishButton(
+                              label: isSignIn
+                                  ? Strings.continueWithoutAccount
+                                  : Strings.searchFoodInstead,
+                              icon: isSignIn ? null : Icons.search,
+                              onPressed: () => context.go(
+                                isSignIn
+                                    ? AppRoutes.onboardingLanguage
+                                    : AppRoutes.searchFood,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    Strings.honestVoidTitle(featureId),
-                    textAlign: TextAlign.center,
-                    style: NourishTextStyles.headlineMd.copyWith(
-                      color: NourishColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    Strings.honestVoidBody(featureId),
-                    textAlign: TextAlign.center,
-                    style: NourishTextStyles.bodyMd.copyWith(
-                      color: NourishColors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  NourishButton(
-                    label: isSignIn
-                        ? Strings.continueWithoutAccount
-                        : Strings.searchFoodInstead,
-                    icon: isSignIn ? null : Icons.search,
-                    onPressed: () => context.go(
-                      isSignIn
-                          ? AppRoutes.onboardingLanguage
-                          : AppRoutes.searchFood,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );

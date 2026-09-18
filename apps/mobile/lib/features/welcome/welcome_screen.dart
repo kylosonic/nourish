@@ -68,62 +68,81 @@ class WelcomeScreen extends StatelessWidget {
             ),
           ),
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: NourishSpacing.containerMargin,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: NourishColors.surfaceContainerHighest.withValues(
-                        alpha: 0.8,
+            // M7: the content scrolls on short viewports (320×480) so
+            // both buttons stay reachable; on tall screens the column
+            // keeps its bottom-anchored layout via the min-height
+            // constraint + IntrinsicHeight.
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: NourishSpacing.containerMargin,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: NourishColors.surfaceContainerHighest
+                                    .withValues(alpha: 0.8),
+                                shape: BoxShape.circle,
+                                boxShadow: NourishElevation.level1,
+                              ),
+                              child: const Icon(
+                                Icons.eco,
+                                size: 32,
+                                color: NourishColors.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              Strings.welcomeTitle,
+                              textAlign: TextAlign.center,
+                              style: NourishTextStyles.headlineLgMobile
+                                  .copyWith(color: NourishColors.onSurface),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              Strings.welcomeSubtitle,
+                              textAlign: TextAlign.center,
+                              style: NourishTextStyles.bodyLg.copyWith(
+                                color: NourishColors.onSurfaceVariant,
+                              ),
+                            ),
+                            const SizedBox(height: NourishSpacing.sectionGap),
+                            NourishButton(
+                              label: Strings.getStarted,
+                              icon: Icons.arrow_forward,
+                              onPressed: () => context.go(
+                                AppRoutes.onboardingLanguage,
+                              ),
+                            ),
+                            const SizedBox(height: NourishSpacing.base),
+                            NourishButton(
+                              label: Strings.alreadyHaveAccount,
+                              variant: NourishButtonVariant.secondary,
+                              onPressed: () => context.go(
+                                AppRoutes.honestVoidFor('sign-in'),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: NourishSpacing.containerMargin,
+                            ),
+                          ],
+                        ),
                       ),
-                      shape: BoxShape.circle,
-                      boxShadow: NourishElevation.level1,
-                    ),
-                    child: const Icon(
-                      Icons.eco,
-                      size: 32,
-                      color: NourishColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    Strings.welcomeTitle,
-                    textAlign: TextAlign.center,
-                    style: NourishTextStyles.headlineLgMobile.copyWith(
-                      color: NourishColors.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    Strings.welcomeSubtitle,
-                    textAlign: TextAlign.center,
-                    style: NourishTextStyles.bodyLg.copyWith(
-                      color: NourishColors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: NourishSpacing.sectionGap),
-                  NourishButton(
-                    label: Strings.getStarted,
-                    icon: Icons.arrow_forward,
-                    onPressed: () =>
-                        context.go(AppRoutes.onboardingLanguage),
-                  ),
-                  const SizedBox(height: NourishSpacing.base),
-                  NourishButton(
-                    label: Strings.alreadyHaveAccount,
-                    variant: NourishButtonVariant.secondary,
-                    onPressed: () =>
-                        context.go(AppRoutes.honestVoidFor('sign-in')),
-                  ),
-                  const SizedBox(height: NourishSpacing.containerMargin),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ],

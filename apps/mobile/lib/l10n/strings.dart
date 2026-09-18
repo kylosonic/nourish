@@ -9,11 +9,20 @@ abstract final class Strings {
   static const String appName = 'Nourish';
   static const String tagline = 'Nutrition, understood.';
 
-  /// Provisional seed disclaimer (ADR-0004(e), blueprint §11): seed
-  /// values are never presented as authoritative.
+  /// Bootstrap-cache disclaimer (ADR-0004(e), blueprint §11): shown until
+  /// the first successful catalog sync; bootstrap values are never
+  /// presented as authoritative.
   static const String seedDisclaimer =
       'Provisional values — authoritative Ethiopian FCT 2025 data ships '
       'in a coming update.';
+
+  /// FCT 2025 citation footer (ADR-0006/D1 attribution), shown once the
+  /// catalog has been synced to the authoritative data.
+  static const String fctCitationFooter =
+      'Nutrition values: Ethiopian Public Health Institute (EPHI) and '
+      'Food and Agriculture Organization of the United Nations (FAO) '
+      '2025. The Ethiopian Food Composition Table 2025. Addis Ababa, '
+      'Ethiopia.';
 
   // Shared action labels.
   static const String continueLabel = 'Continue';
@@ -222,14 +231,6 @@ abstract final class Strings {
   static const String calendarTooltip = 'Calendar';
 
   // Honest voids (ADR-0005).
-  static const Set<String> honestVoidFeatures = {
-    'sign-in',
-    'take-photo',
-    'choose-photo',
-    'describe-meal',
-    'use-voice',
-    'scan-barcode',
-  };
 
   /// Title-cased honest-void heading, e.g. `take-photo` → `Take photo`.
   static String honestVoidTitle(String feature) => feature
@@ -262,6 +263,9 @@ abstract final class Strings {
       case 'scan-barcode':
         return 'Barcode scanning is coming soon. Search works today, '
             'fully offline.';
+      case 'notifications':
+        return 'Notifications are coming soon. Everything still works '
+            'fully offline — your data stays on this phone.';
       case 'calendar':
         return 'The calendar picker is coming soon. The 7-day strip '
             'below covers the last few days.';
