@@ -68,4 +68,62 @@ describe('FctRowValidator', () => {
       expect(result.errors.some((e) => e.field === 'fatG')).toBe(true);
     }
   });
+
+  // QA F-04 (deferred to S3 by the S1 security record): optional numeric fields
+  // had no upper bound, so a corrupted extract could carry an absurd magnitude
+  // into the database and out to the API.
+  it('rejects an absurd optional nutrient magnitude', () => {
+    const result = validator.validate([
+      row({
+        per100g: {
+          kcal: 152,
+          proteinG: 4.2,
+          carbsG: 30.4,
+          fatG: 1.3,
+          sodiumMg: 99_999_999,
+        },
+      }),
+    ]);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.field === 'sodiumMg')).toBe(true);
+    }
+  });
+
+  it('bounds every remaining published nutrient in the row', () => {
+    const result = validator.validate([
+      row({
+        per100g: {
+          kcal: 152,
+          proteinG: 4.2,
+          carbsG: 30.4,
+          fatG: 1.3,
+          ironMg: 1e9, // a mineral the extract carries but the schema does not type
+        },
+      }),
+    ]);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.errors.some((e) => e.field === 'ironMg')).toBe(true);
+    }
+  });
+
+  it('accepts the real published values at the top of their range', () => {
+    // shiro wot's sodium is the highest the condensed table contains.
+    const result = validator.validate([
+      row({
+        per100g: {
+          kcal: 146,
+          proteinG: 3.2,
+          carbsG: 6.7,
+          fatG: 11.4,
+          fiberG: 1.8,
+          sodiumMg: 672,
+          phytateMg: 292,
+          cholesterolMg: 292,
+        },
+      }),
+    ]);
+    expect(result).toEqual({ valid: true });
+  });
 });

@@ -121,17 +121,50 @@ export function parseCorsOrigins(raw: string): string[] {
     .filter((o) => o.length > 0);
 }
 
-/** Origin allowlist check. Supports exact entries and "scheme://host:*" entries. */
+/**
+ * Origin allowlist check. Supports exact entries and `scheme://host:*` entries
+ * where only the PORT is wildcarded.
+ *
+ * QA finding F-07 (S1 Gate C, deferred to S3 by the security record): the
+ * previous implementation used `origin.startsWith(prefix)`, so an allowlist
+ * entry of `http://localhost:*` also admitted `http://localhost.evil.com` —
+ * defeating the exact-match entries as well. Origins are now parsed and
+ * compared by protocol and hostname, with the port wildcarded only where the
+ * entry says so. A lookalike host can no longer match.
+ */
 export function isOriginAllowed(origin: string, allowlist: string[]): boolean {
   if (!origin) return false;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(origin);
+  } catch {
+    return false; // an unparseable origin is never allowed
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+
   for (const entry of allowlist) {
     if (entry === '*') return false; // never wildcard (blueprint §13)
-    if (entry.endsWith(':*')) {
-      const prefix = entry.slice(0, -2);
-      if (origin.startsWith(prefix)) return true;
-    } else if (origin === entry) {
-      return true;
+
+    const wildcardPort = entry.endsWith(':*');
+    const candidate = wildcardPort ? entry.slice(0, -2) : entry;
+
+    let expected: URL;
+    try {
+      expected = new URL(candidate);
+    } catch {
+      continue; // a malformed allowlist entry matches nothing
     }
+
+    if (expected.protocol !== parsed.protocol) continue;
+    if (expected.hostname !== parsed.hostname) continue;
+
+    if (wildcardPort) return true;
+    // An exact entry must also match the port: the default port when the entry
+    // omits it, otherwise the port the entry names.
+    const expectedPort = expected.port || (expected.protocol === 'https:' ? '443' : '80');
+    const actualPort = parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
+    if (expectedPort === actualPort) return true;
   }
   return false;
 }
