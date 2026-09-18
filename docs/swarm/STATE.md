@@ -8,12 +8,22 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING (S1) — Gate B COMPLETE, Gate D PASS, F1/F3 CLOSED (architect-verified), Gate C STILL NOT RUN (2 re-dispatch attempts failed/cancelled, zero evidence), SESSION SAVED` |
+| Phase | `IMPLEMENTING — S1 COMMITTED, S2 COMMITTED (API + text lane); photo lane, S3, S4, S5 NOT STARTED` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S1 (Backend + Canonical Food API — ADR-0002) |
-| Active gate | Gate C (QA) — re-dispatch (attempt 3); then Gates E, F, UAT |
-| Retry count | 0 gate-retries used. Gate C dispatch attempts: 2 (both environment-level: harness failure + session-save cancellation — NOT QA failures, no evidence produced). |
+| Active slice | S2 (photo scan AI loop) — text lane shipped; camera/gallery lane open |
+| Active gate | none in flight — S1 and S2 were each verified and committed |
+| Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
+
+> **2026-09-19 session note (read this first).** The swarm agent dispatches
+> (the `.opencode` orchestration) were stopped at the human's instruction
+> part-way through this session; everything after that point was done directly,
+> without agent hand-offs. S1 and S2 were each taken through implementation →
+> tests → independent QA (S1 only) → security-relevant review → commit, and the
+> evidence is in the blocks at the end of this file plus the commits themselves.
+> Treat the commits and those evidence blocks as the state of record; the
+> `INTAKE → … → DEPLOYED` state machine in AGENTS.md §3 is no longer being
+> driven formally.
 
 ## Gates
 
@@ -307,6 +317,56 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-19 — S1 completed, QA blockers fixed, committed (`c61c996`)**:
+  - Independent QA (`docs/swarm/qa-report-s1.md`) returned `QA REJECTED` with 2
+    BLOCKERs, both real:
+    - **F-01** — the committed FCT extract mis-assigned the published nutrient
+      columns (a systematic one-to-two column left shift): `doro_wot` shipped
+      `sodiumMg: 0.62` where the FCT publishes Na = 332, `egg` shipped
+      `ironMg: 138` where the FCT publishes Fe = 1.8. The macro block was
+      correct 18/18; only minerals / phytate / fatty acids were shifted.
+    - **F-02** — the "double-entry verification" script spot-checked code + kcal
+      only, so it could not have caught F-01.
+  - Fixes: the extractor now assigns each printed value to the column whose
+    x-span contains it (empty cells stay empty); both JSONL files re-derived
+    from the re-acquired PDF (sha256 verified); `verify-extract.mjs` rewritten
+    to compare **every** nutrient column against FAO's published text layer.
+    Final run: 722 rows, 3 510 row/block pairs compared, 3 483 exact matches,
+    **27 571 values verified one-by-one, 0 values matching no published value**,
+    38 pairs explicitly reported as intractable for the text layer, exit 0.
+    Regression tests pin the published values for 070152 / 080001 / 010109 and
+    assert `extraNutrients` deep-equality DB↔fixture (F-06).
+  - Also fixed: mobile catalog mapper now honours the server's canonical id
+    (QA Q1 — 18/18 ids diverged, orphaning S0 meal references); catalog payload
+    integrity check + shrink guard (F-05); LIKE-wildcard escaping (F-08);
+    bounded `page` (F-09); RFC-quoted ETag with tolerant matching (F-10);
+    `npm audit` gate retry (F-15).
+  - Evidence: api lint/build clean, `prisma validate` valid, unit 21/21,
+    e2e 40/40, `npm audit` 0 vulnerabilities; domain 27/27; design-system 13/13;
+    mobile 116/116 (+4 mapper contract tests against a real captured payload).
+- **2026-09-19 — S2 API committed (`015090e`)** and **S2 mobile committed
+  (`58f8f95`)**:
+  - Provider seam (`none` | `openai-compatible` | `fixture`), the fixture
+    provider refused when `NODE_ENV=production`; off-schema AI output, including
+    output that tries to supply nutrition, fails the run with
+    `AI_INVALID_OUTPUT`; unresolved candidates stay unresolved.
+  - Endpoints: `POST /v1/analyses`, `GET /v1/analyses/:id`,
+    `POST /v1/analyses/:id/corrections` (anonymous, no imagery persisted,
+    per-route rate limit + daily budget guard, `analysis:purge` retention CLI).
+  - Mobile: text logging (LOG-01), the transactional progress → result →
+    low-confidence flow (SCAN-04/05/06), edit-before-save (SCAN-07), all
+    recomputed locally by the domain engines.
+  - Evidence: api lint/build clean, unit 56/56, e2e 56/56, `npm audit` 0;
+    mobile analyze clean, 123/123; domain 27/27; design-system 13/13; egress
+    grep shows exactly two `http` imports, both inside `lib/data/sources/`;
+    0 STUB/TODO markers; 0 raw-SQL matches.
+  - **Honest gaps (not fixed, not pretended):** no live AI provider key exists
+    in this environment, so the real recognition path is implemented and
+    unit-tested against a mock but has never been exercised against a model;
+    TAKE PHOTO / CHOOSE PHOTO / USE VOICE / SCAN BARCODE still open honest
+    voids; S3 (auth + sync), S4 (water/weight + insights) and S5 (website +
+    release infrastructure) are not started.
 
 - Gate A (blueprint): architect hand-verified the 12 target-engine cases
   (BMR/TDEE/clamps/macros).
