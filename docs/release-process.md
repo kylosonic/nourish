@@ -25,8 +25,8 @@ The pipeline then:
 
 1. **Gates.** `flutter analyze` and `flutter test` for `packages/domain`,
    `packages/design-system` and `apps/mobile`, plus the release-tooling tests
-   (`node --test scripts/release-metadata.test.mjs`,
-   `node --test apps/website/test/download-logic.test.mjs`) and
+   (`node --test "scripts/*.test.mjs"`,
+   `node --test "apps/website/test/*.test.mjs"`) and
    `generate-latest-json.mjs --check`. **Nothing is published if any of these
    fail** (master §46).
 2. **Android.** Restores the keystore from secrets when they exist, otherwise
@@ -67,8 +67,8 @@ sha256sum Nourish-v1.0.0-arm64.apk
 ## Local checks before pushing a tag
 
 ```bash
-node --test scripts/release-metadata.test.mjs
-node --test apps/website/test/download-logic.test.mjs
+node --test "scripts/*.test.mjs"
+node --test "apps/website/test/*.test.mjs"
 node scripts/generate-latest-json.mjs --check
 npx --yes html-validate@9 "apps/website/*.html"
 ```

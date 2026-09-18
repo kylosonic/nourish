@@ -40,7 +40,7 @@ degrades to the GitHub Releases link — it never shows a stale hardcoded URL.
 ## Verify it
 
 ```bash
-node --test apps/website/test/   # device + download rules
+node --test "apps/website/test/*.test.mjs"   # device + download rules
 npx --yes html-validate@9 "apps/website/*.html"          # markup
 node scripts/generate-latest-json.mjs --check            # release metadata
 ```

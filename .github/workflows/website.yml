@@ -32,7 +32,7 @@ jobs:
         run: node scripts/generate-latest-json.mjs --check
 
       - name: Download-logic tests
-        run: node --test apps/website/test/
+        run: node --test "apps/website/test/*.test.mjs"
 
       - name: HTML validation
         run: npx --yes html-validate@9 "apps/website/*.html"

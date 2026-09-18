@@ -52,8 +52,8 @@ jobs:
 
       - name: Release tooling tests
         run: |
-          node --test scripts/release-metadata.test.mjs
-          node --test apps/website/test/
+          node --test "scripts/*.test.mjs"
+          node --test "apps/website/test/*.test.mjs"
 
       - name: Release metadata is valid
         run: node scripts/generate-latest-json.mjs --check
