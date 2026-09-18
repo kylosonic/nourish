@@ -381,4 +381,18 @@ abstract final class Strings {
       'food database and shows you the result before anything is saved.';
   static const String analyseMeal = 'ANALYSE MEAL';
   static const String describeMealEmpty = 'Describe what you ate first.';
+
+  // ── S5: in-app update check (REL-03) ─────────────────────────────────────
+  static const String dismissTooltip = 'Dismiss';
+
+  /// "New version available — 1.1.0".
+  static String updateAvailableTitle(String version) =>
+      'New version available — $version';
+
+  static const String updateAvailableBody =
+      'A newer Nourish is ready. The update opens in your browser; Nourish '
+      'never installs anything by itself.';
+  static const String downloadUpdate = 'DOWNLOAD UPDATE';
+  static const String updateOpenFailed =
+      'Could not open the browser. You can download the update from the Nourish website.';
 }

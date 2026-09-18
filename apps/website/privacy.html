@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Nourish</title>
+<meta name="description" content="How Nourish handles nutrition, body metric, and meal photo data: what is collected, what is never stored, and how to delete it.">
+<link rel="canonical" href="https://nourish.app/privacy.html">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Nourish</span></a>
+    <nav class="site-nav" aria-label="Main"><a href="/">Home</a><a href="index.html#download">Download</a></nav>
+  </div>
+</header>
+
+<main class="legal">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Version 1.0 · Last updated 19 September 2026</p>
+
+  <div class="placeholder">
+    <strong>Pending business details.</strong> The legal entity name, registered address,
+    data-protection contact and governing jurisdiction must be supplied before this policy
+    is published for release. Sections marked <em>[to be supplied]</em> are placeholders,
+    not statements.
+  </div>
+
+  <h2>1. Who we are</h2>
+  <p>
+    Nourish is a nutrition tracking application. The data controller is
+    <em>[legal entity name — to be supplied]</em>, <em>[registered address — to be supplied]</em>.
+    Privacy contact: <a href="mailto:privacy@nourish.app">privacy@nourish.app</a>.
+  </p>
+
+  <h2>2. What we treat as sensitive</h2>
+  <p>
+    Your nutrition log, body metrics (age, sex, height, weight, goal, activity level) and
+    meal photographs are health-related information. We treat them as sensitive by default,
+    regardless of the legal threshold that applies where you live.
+  </p>
+
+  <h2>3. What the app stores on your device</h2>
+  <ul>
+    <li>Your onboarding answers, daily targets and their history.</li>
+    <li>Your meal log, including the nutrition values recorded at the time you saved each meal.</li>
+    <li>Water and weight entries.</li>
+    <li>A local copy of the Ethiopian food catalogue, so search works offline.</li>
+  </ul>
+  <p>
+    This data lives in the app's private storage on your phone. It is not readable by other
+    apps.
+  </p>
+
+  <h2>4. What leaves your device</h2>
+  <ul>
+    <li>
+      <strong>Meal analysis.</strong> When you ask Nourish to analyse a photo or a description,
+      that content is sent to our analysis service, which forwards it to the configured AI
+      provider to identify the foods.
+    </li>
+    <li>
+      <strong>Food catalogue updates.</strong> The app downloads the catalogue and its version.
+      No personal data is included in that request.
+    </li>
+    <li>
+      <strong>Release metadata.</strong> The app checks whether a newer version exists. That
+      request contains no personal data.
+    </li>
+  </ul>
+
+  <h2>5. Meal photos are not retained</h2>
+  <p>
+    Images sent for analysis are held in memory only for the duration of that request. Our
+    service does not write them to disk and has no database column for them, so there is no
+    retention period to state: nothing is kept. The app keeps your meal record — the foods,
+    portions and nutrition — not the photograph.
+  </p>
+  <p>
+    Before upload, the app downscales the image and re-encodes it, which removes exchangeable
+    metadata such as GPS location, device model and capture timestamp.
+  </p>
+
+  <h2>6. AI improvement is opt-in and off by default</h2>
+  <p>
+    Nourish records which corrections you make (for example, the model proposed “Shiro” and
+    you chose “Misir Wot”) so food recognition can be measured and improved. Those records
+    contain the prediction, your choice, the portion, the model and prompt versions and a
+    timestamp. They contain <strong>no account identifier and no image</strong>.
+  </p>
+  <p>
+    Your photographs and corrections are never used to train models unless you explicitly
+    enable “Help improve food recognition” in the app. If you later disable it, future data
+    stops being used.
+  </p>
+
+  <h2>7. What we do not do</h2>
+  <ul>
+    <li>We do not sell your data.</li>
+    <li>We do not send your nutrition values to third-party advertising or analytics networks.</li>
+    <li>We do not share your data with other users; there are no social features.</li>
+    <li>We do not provide medical advice or diagnosis.</li>
+  </ul>
+
+  <h2>8. Retention</h2>
+  <ul>
+    <li>Analysis records (foods detected, confidence, corrections) are kept for
+      <strong>30 days</strong> by default and then deleted by a scheduled purge.</li>
+    <li>Data on your device is kept until you delete it or uninstall the app.</li>
+    <li>Account data, once accounts exist, is kept while your account is open.</li>
+  </ul>
+
+  <h2>9. Your rights</h2>
+  <p>
+    You can request a copy of your data, correct it, or delete your account and its data.
+    In-app controls are provided for export and deletion; where they are not yet available,
+    write to <a href="mailto:privacy@nourish.app">privacy@nourish.app</a>. See
+    <a href="data-deletion.html">Data Deletion</a> for what is removed and how long it takes.
+  </p>
+
+  <h2>10. Security</h2>
+  <p>
+    Data in transit is encrypted with HTTPS. Analysis endpoints are rate limited and the
+    service stores no user identity for them. Secrets live in environment configuration and
+    are never committed to the source repository.
+  </p>
+
+  <h2>11. Children</h2>
+  <p>
+    Nourish is not intended for people under 18. The app enforces a minimum age during
+    onboarding and does not knowingly collect data from minors.
+  </p>
+
+  <h2>12. Changes</h2>
+  <p>
+    When this policy changes materially we will state what changed and when, and ask for
+    consent again where the law requires it.
+  </p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-base">
+    <p class="muted small">© <span>2026</span> Nourish · <a href="/">Home</a> · <a href="terms.html">Terms</a> · <a href="cookies.html">Cookies</a> · <a href="health-disclaimer.html">Health Disclaimer</a> · <a href="data-deletion.html">Data Deletion</a></p>
+  </div>
+</footer>
+</body>
+</html>

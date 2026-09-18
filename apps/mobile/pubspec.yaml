@@ -50,6 +50,7 @@ dependencies:
   # Pure-Dart SHA-256, used only for the catalog payload integrity check
   # (QA finding F-05). No plugin, no native code.
   crypto: ^3.0.6
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

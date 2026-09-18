@@ -1,0 +1,65 @@
+name: android-ci
+
+# Continuous verification for the Flutter side (master §67). The release
+# pipeline (build-release.yml) re-runs all of this before it publishes anything.
+
+on:
+  push:
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/**'
+      - 'scripts/**'
+      - '.github/workflows/android-ci.yml'
+  pull_request:
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/**'
+      - 'scripts/**'
+      - '.github/workflows/android-ci.yml'
+
+env:
+  FLUTTER_VERSION: '3.44.8'
+
+jobs:
+  verify:
+    name: Analyse, test and build a debug APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Packages
+        run: |
+          flutter pub get --directory packages/domain
+          flutter pub get --directory packages/design-system
+          flutter pub get --directory apps/mobile
+
+      - name: Analyse
+        run: |
+          dart analyze packages/domain
+          flutter analyze packages/design-system
+          flutter analyze apps/mobile
+
+      - name: Tests
+        run: |
+          flutter test packages/domain
+          flutter test packages/design-system
+          flutter test apps/mobile
+
+      - name: Release tooling tests
+        run: |
+          node --test scripts/release-metadata.test.mjs
+          node --test apps/website/test/
+
+      - name: Release metadata is valid
+        run: node scripts/generate-latest-json.mjs --check
+
+      # Proves the app still compiles for the target platform. Debug only: a
+      # release APK is the release pipeline's job, and it signs properly there.
+      - name: Build debug APK
+        working-directory: apps/mobile
+        run: flutter build apk --debug

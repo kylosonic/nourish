@@ -1,0 +1,99 @@
+name: website
+
+# Validates the marketing site and publishes it (master §52, §67).
+#
+# The site is static and reads releases/latest.json at runtime, so publishing a
+# new APK never requires editing or rebuilding it.
+
+on:
+  push:
+    paths:
+      - 'apps/website/**'
+      - 'releases/latest.json'
+      - '.github/workflows/website.yml'
+  pull_request:
+    paths:
+      - 'apps/website/**'
+      - 'releases/latest.json'
+      - '.github/workflows/website.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate site and release metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Release metadata is valid
+        run: node scripts/generate-latest-json.mjs --check
+
+      - name: Download-logic tests
+        run: node --test apps/website/test/
+
+      - name: HTML validation
+        run: npx --yes html-validate@9 "apps/website/*.html"
+
+      # A link to a binary without a published checksum must never ship, and an
+      # unsigned iOS artifact must never be offered (REL-04, master §65).
+      - name: No install link may exist without a signed, checksummed asset
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const doc = JSON.parse(fs.readFileSync('releases/latest.json', 'utf8'));
+          const problems = [];
+          for (const [name, asset] of Object.entries({
+            apk: doc.android?.apk,
+            universal_apk: doc.android?.universal_apk,
+            aab: doc.android?.aab,
+            ipa: doc.ios?.ipa,
+          })) {
+            if (asset && !/^[0-9a-f]{64}$/.test(asset.sha256 ?? '')) {
+              problems.push(`${name} is linked without a sha256`);
+            }
+          }
+          if (doc.ios?.installable && !doc.ios?.ipa) {
+            problems.push('ios.installable without a signed ipa');
+          }
+          if (!doc.ios?.installable && doc.ios?.ipa) {
+            problems.push('an ipa is linked while ios.installable is false');
+          }
+          if (problems.length) {
+            console.error(problems.join('\n'));
+            process.exit(1);
+          }
+          console.log('release links are consistent with their checksums and signing state');
+          NODE
+
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      # The site serves the same metadata document from its own origin, so the
+      # download area cannot drift from the published release.
+      - name: Stage the site
+        run: |
+          mkdir -p dist
+          cp -r apps/website/. dist/
+          cp releases/latest.json dist/latest.json
+
+      - name: Publish
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT }}
+        run: |
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "::warning::Cloudflare credentials are not configured — the site was validated but not deployed."
+            exit 0
+          fi
+          npx --yes wrangler@3 pages deploy dist \
+            --project-name "${CF_PAGES_PROJECT:-nourish-website}" \
+            --branch "${GITHUB_REF_NAME}"

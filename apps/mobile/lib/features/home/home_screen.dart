@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,6 +8,8 @@ import 'package:nourish_design_system/nourish_design_system.dart';
 import '../../core/date_utils.dart';
 import '../../l10n/strings.dart';
 import '../../router/routes.dart';
+import '../update/update_controller.dart';
+import '../update/widgets/update_banner.dart';
 import 'widgets/calorie_ring.dart';
 import 'widgets/hydration_card.dart';
 import 'widgets/macro_pills.dart';
@@ -14,11 +18,30 @@ import 'widgets/todays_meals_card.dart';
 /// HOME-01 dashboard: time-based greeting, Nourish mark, avatar
 /// placeholder and notifications icon (honest void); then the calorie
 /// ring, macro pills, today's meals and hydration.
-class HomeScreen extends ConsumerWidget {
+///
+/// The release notice (REL-03) renders at the top of the scroll area and only
+/// when a newer Android release exists. The update check is fired once, off the
+/// critical path, and never blocks or fails the screen.
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Fire-and-forget: an unreachable release document shows nothing at all.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(ref.read(updateControllerProvider.notifier).check());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final String greeting = Strings.greetingFor(
       greetingBucketFor(DateTime.now()),
     );
@@ -94,6 +117,7 @@ class HomeScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
+                  const UpdateBanner(),
                   const CalorieRingCard(),
                   const SizedBox(height: NourishSpacing.gutter),
                   const MacroPills(),

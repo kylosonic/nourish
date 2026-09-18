@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "published": false,
+  "version": null,
+  "release_tag": null,
+  "release_date": null,
+  "android": {
+    "available": false,
+    "apk": null,
+    "universal_apk": null,
+    "aab": null
+  },
+  "ios": {
+    "available": false,
+    "installable": false,
+    "ipa": null,
+    "note": "iOS distribution requires Apple signing and distribution approval."
+  },
+  "github_release": null,
+  "github_releases_url": "https://github.com/nourish-app/nourish/releases"
+}
