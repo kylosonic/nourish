@@ -76,6 +76,11 @@ jobs:
     env:
       DATABASE_URL: postgresql://nourish:nourish@localhost:5432/nourish_test?schema=public
       TEST_DATABASE_URL: postgresql://nourish:nourish@localhost:5432/nourish_test?schema=public
+      # Test-only values: the SMS factory refuses the console provider in
+      # production, so these cannot reach a deployment.
+      JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
+      SMS_PROVIDER: console
+      AI_PROVIDER: fixture
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

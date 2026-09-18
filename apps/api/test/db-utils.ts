@@ -35,10 +35,24 @@ export function setNoAiProvider(): void {
 
 /** Truncate all tables between suites (FK order). */
 export async function truncateAll(prisma: PrismaClient): Promise<void> {
+  // S3 account mirror (children first).
+  await prisma.mealItem.deleteMany();
+  await prisma.meal.deleteMany();
+  await prisma.waterLog.deleteMany();
+  await prisma.weightLog.deleteMany();
+  await prisma.consent.deleteMany();
+  await prisma.entitlement.deleteMany();
+  await prisma.refreshToken.deleteMany();
+  await prisma.otpChallenge.deleteMany();
+  await prisma.user.deleteMany();
+
+  // S2 analysis layer.
   await prisma.analysisCorrection.deleteMany();
   await prisma.analysisCandidate.deleteMany();
   await prisma.analysisItem.deleteMany();
   await prisma.analysisRun.deleteMany();
+
+  // S1 food layer.
   await prisma.food.deleteMany();
   await prisma.importRun.deleteMany();
   await prisma.foodCategory.deleteMany();

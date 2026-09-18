@@ -1,9 +1,22 @@
 import { plainToInstance, Transform } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Max, Min, validateSync } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  MinLength,
+  validateSync,
+} from 'class-validator';
 
 /** Which AI provider implementation the process may use (ADR-0007 D-S2-1). */
 export const AI_PROVIDER_KINDS = ['none', 'openai-compatible', 'fixture'] as const;
 export type AiProviderKind = (typeof AI_PROVIDER_KINDS)[number];
+
+/** Which SMS gateway the process may use (ADR-0008). */
+export const SMS_PROVIDER_KINDS = ['none', 'console', 'http'] as const;
+export type SmsProviderKind = (typeof SMS_PROVIDER_KINDS)[number];
 
 /**
  * Environment schema (validated at boot). The app refuses to start when a
@@ -96,6 +109,99 @@ export class EnvVars {
   @IsInt()
   @Min(1)
   ANALYSIS_RETENTION_DAYS: number = 30;
+
+  // ── S3: accounts and sessions (ADR-0008) ──────────────────────────────────
+
+  /**
+   * HMAC key for access tokens. Required: this service issues credentials, so a
+   * missing secret must stop the process at boot rather than at the first
+   * sign-in. Never commit a real value.
+   */
+  @IsString()
+  @MinLength(32, { message: 'JWT_SECRET must be at least 32 characters' })
+  JWT_SECRET!: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(60)
+  @Max(86400)
+  ACCESS_TOKEN_TTL_SECONDS: number = 900; // 15 minutes
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(3600)
+  REFRESH_TOKEN_TTL_SECONDS: number = 2592000; // 30 days
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(60)
+  @Max(1800)
+  OTP_TTL_SECONDS: number = 300; // 5 minutes
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  OTP_MAX_ATTEMPTS: number = 5;
+
+  /** Minimum gap between two code requests for the same number. */
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(15)
+  OTP_RESEND_COOLDOWN_SECONDS: number = 60;
+
+  /**
+   * Per-IP ceilings for the two sign-in routes. Deliberately far below the read
+   * bucket: every code request costs an SMS, and every verify is an online
+   * guess at a 6-digit secret.
+   */
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1)
+  OTP_REQUEST_RATE_LIMIT: number = 5;
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1)
+  OTP_VERIFY_RATE_LIMIT: number = 10;
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1000)
+  OTP_RATE_LIMIT_TTL_MS: number = 60000;
+
+  /** `none` (default) | `console` (dev only, refused in production) | `http`. */
+  @IsOptional()
+  @IsIn(SMS_PROVIDER_KINDS as readonly string[])
+  SMS_PROVIDER: SmsProviderKind = 'none';
+
+  @IsOptional()
+  @IsString()
+  SMS_API_URL?: string;
+
+  @IsOptional()
+  @IsString()
+  SMS_API_KEY?: string;
+
+  /** Sender id shown on the handset where the gateway supports one. */
+  @IsOptional()
+  @IsString()
+  SMS_SENDER: string = 'Nourish';
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1000)
+  @Max(60000)
+  SMS_TIMEOUT_MS: number = 10000;
 }
 
 /** Validate a raw config record; throws with a precise message on failure. */

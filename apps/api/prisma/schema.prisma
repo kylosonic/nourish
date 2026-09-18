@@ -1,5 +1,7 @@
-// Nourish S1 — canonical food layer (blueprint §9).
-// Food-layer models ONLY. No user/profile/meal tables in S1 (A11).
+// Nourish — Prisma schema.
+// S1: canonical food layer (blueprint §9) — food-layer models ONLY (A11).
+// S2: anonymous analysis layer (ADR-0007) — no user identity, no imagery.
+// S3: accounts, sessions and the server-side mirror of the user's log (ADR-0008).
 // Nutrition values: Ethiopian FCT 2025 (EPHI & FAO), per-100g edible portion.
 // Portion gram weights are Nourish standard measures (portionSource: nourish-standard) — NOT FCT data.
 
@@ -32,7 +34,7 @@ enum AliasKind {
 }
 
 model ImportRun {
-  id              String        @id @default(cuid())
+  id              String       @id @default(cuid())
   sourceName      String // "ethiopian-fct-2025"
   sourceVersion   String // "2025"
   sourceReference String // full EPHI/FAO citation (ADR-0004)
@@ -57,33 +59,33 @@ model ImportRun {
 }
 
 model Food {
-  id                 String         @id // stable: seed slug when name-matches a bootstrap food, else "fct-<sourceFoodCode>"
-  canonicalName      String
-  categoryCode       String
-  category           FoodCategory   @relation(fields: [categoryCode], references: [code])
-  description        String?
-  region             String?
-  preparation        String? // master §11
-  status             FoodStatus     @default(Active)
-  verification       String?
-  confidence         Float? // master §11 (S2+ semantics; schema-ready)
-  defaultPortionUnit String
-  defaultPortionQty  Float          @default(1)
+  id                  String        @id // stable: seed slug when name-matches a bootstrap food, else "fct-<sourceFoodCode>"
+  canonicalName       String
+  categoryCode        String
+  category            FoodCategory  @relation(fields: [categoryCode], references: [code])
+  description         String?
+  region              String?
+  preparation         String? // master §11
+  status              FoodStatus    @default(Active)
+  verification        String?
+  confidence          Float? // master §11 (S2+ semantics; schema-ready)
+  defaultPortionUnit  String
+  defaultPortionQty   Float         @default(1)
   defaultPortionGrams Float
-  per100gKcal        Float
-  per100gProtein     Float
-  per100gCarbs       Float
-  per100gFat         Float
-  per100gFiber       Float?
-  per100gSodiumMg    Float?
-  extraNutrients     Json? // documented keys (energyKj, ashG, calciumMg, ironMg, vitaminA_ug, ...); row-level provenance still applies
-  importId           String
-  import             ImportRun      @relation(fields: [importId], references: [id])
-  sourceFoodCode     String         @unique // upsert key across re-imports
-  aliases            FoodAlias[]
-  portions           FoodPortion[]
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  per100gKcal         Float
+  per100gProtein      Float
+  per100gCarbs        Float
+  per100gFat          Float
+  per100gFiber        Float?
+  per100gSodiumMg     Float?
+  extraNutrients      Json? // documented keys (energyKj, ashG, calciumMg, ironMg, vitaminA_ug, ...); row-level provenance still applies
+  importId            String
+  import              ImportRun     @relation(fields: [importId], references: [id])
+  sourceFoodCode      String        @unique // upsert key across re-imports
+  aliases             FoodAlias[]
+  portions            FoodPortion[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   @@index([canonicalName])
   @@index([categoryCode])
@@ -103,13 +105,13 @@ model FoodAlias {
 }
 
 model FoodPortion {
-  id            String  @id @default(cuid())
+  id            String @id @default(cuid())
   foodId        String
-  food          Food    @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  food          Food   @relation(fields: [foodId], references: [id], onDelete: Cascade)
   unit          String // PortionUnit.name
-  quantity      Float   @default(1)
+  quantity      Float  @default(1)
   grams         Float
-  portionSource String  @default("nourish-standard") // honesty: gram weights are NOT FCT data
+  portionSource String @default("nourish-standard") // honesty: gram weights are NOT FCT data
 
   @@unique([foodId, unit])
 }
@@ -142,7 +144,9 @@ enum ConfidenceState {
   Low
 }
 
-/** How a model-supplied label was resolved against the canonical food layer. */
+/**
+ * How a model-supplied label was resolved against the canonical food layer.
+ */
 enum MatchKind {
   exact
   alias
@@ -175,9 +179,9 @@ model AnalysisRun {
 }
 
 model AnalysisItem {
-  id               String        @id @default(cuid())
+  id               String      @id @default(cuid())
   runId            String
-  run              AnalysisRun   @relation(fields: [runId], references: [id], onDelete: Cascade)
+  run              AnalysisRun @relation(fields: [runId], references: [id], onDelete: Cascade)
   /// Model-supplied label, kept verbatim for correction analysis.
   displayName      String
   /// Canonical application id (the same namespace /v1/foods/:id uses); null when
@@ -191,8 +195,8 @@ model AnalysisItem {
   portionGrams     Float
   /// True when the gram weight came from the provider rather than the food
   /// layer's portion table, i.e. it is an estimate and must be shown as one.
-  portionEstimated Boolean       @default(false)
-  portionSource    String        @default("nourish-standard")
+  portionEstimated Boolean     @default(false)
+  portionSource    String      @default("nourish-standard")
   /// Deterministic per-100g × grams / 100 results; null when unresolved.
   kcal             Float?
   proteinG         Float?
@@ -201,12 +205,14 @@ model AnalysisItem {
   fiberG           Float?
   sodiumMg         Float?
   confidence       Float
-  unresolved       Boolean       @default(false)
+  unresolved       Boolean     @default(false)
 
   @@index([runId])
 }
 
-/** Ranked alternatives shown by the low-confidence screen (SCAN-06). */
+/**
+ * Ranked alternatives shown by the low-confidence screen (SCAN-06).
+ */
 model AnalysisCandidate {
   id          String      @id @default(cuid())
   runId       String
@@ -239,4 +245,195 @@ model AnalysisCorrection {
   createdAt      DateTime    @default(now())
 
   @@index([runId])
+}
+
+// ── S3: accounts, sessions and the server-side mirror of the user log ───────
+// ADR-0008. The server is a MIRROR of what the device holds, never the only
+// copy: every row carries a client-generated id so a replayed push is a no-op,
+// and deletions are tombstones so a conflict can never silently destroy data
+// (OFF-02).
+
+enum UserStatus {
+  Active
+  Deleted
+}
+
+enum ConsentKind {
+  healthDataProcessing
+  aiImprovement
+  analytics
+}
+
+enum Plan {
+  FREE
+  PLUS
+  PRO
+}
+
+/// Which entitlement grant produced the current plan (never a client claim).
+enum EntitlementSource {
+  default
+  store
+  manual
+}
+
+model User {
+  id          String     @id @default(cuid())
+  /// E.164, always +251… for this release (AUTH-01). Unique: two spellings of
+  /// the same number are one account.
+  phoneE164   String     @unique
+  status      UserStatus @default(Active)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  lastSeenAt  DateTime?
+  onboardedAt DateTime?
+
+  sessions    RefreshToken[]
+  // OtpChallenge is deliberately NOT a relation: a challenge is keyed by phone
+  // number because it can exist before the account does (the sign-up path).
+  consents    Consent[]
+  entitlement Entitlement?
+  meals       Meal[]
+  waterLogs   WaterLog[]
+  weightLogs  WeightLog[]
+
+  @@index([status])
+}
+
+/// A one-time sign-in code. The code itself is never stored: only a salted
+/// hash, and only for its validity window (AUTH-02: "never logged or stored in
+/// plain text beyond its validity window").
+model OtpChallenge {
+  id            String    @id @default(cuid())
+  phoneE164     String
+  codeHash      String
+  codeSalt      String
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(5)
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  /// Set when a resend supersedes this code (AUTH-02: resend invalidates).
+  invalidatedAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([phoneE164, createdAt])
+}
+
+/// One device's refresh chain. Rotation replaces the row's token; presenting a
+/// token that was already rotated is treated as a leak and revokes the whole
+/// family, while other devices' families are untouched (AUTH-03).
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId     String
+  /// SHA-256 of the presented token. The token itself is never stored.
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  replacedById String?
+  userAgent    String?
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+/// Consent records (SAFE-03). Absence of a row means "not granted", which is
+/// what makes the AI-improvement default off rather than on (SAFE-06).
+model Consent {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      ConsentKind
+  version   String
+  grantedAt DateTime?
+  revokedAt DateTime?
+  updatedAt DateTime    @updatedAt
+
+  @@unique([userId, kind, version])
+}
+
+/// Server-authoritative entitlement (SUB-01). The client never decides premium
+/// access; it reads this row.
+model Entitlement {
+  userId     String            @id
+  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan       Plan              @default(FREE)
+  source     EntitlementSource @default(default)
+  validUntil DateTime?
+  updatedAt  DateTime          @updatedAt
+}
+
+/// One logged eating occasion, mirrored from the device (OFF-02).
+model Meal {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Client-generated id: the idempotency key for a replayed push.
+  clientId  String
+  dateKey   String
+  slot      String
+  loggedAt  DateTime
+  /// Client-supplied write time; the last write per item wins (OFF-02).
+  updatedAt DateTime
+  /// Tombstone: a delete is a write, so it can never be a silent data loss.
+  deletedAt DateTime?
+  clientSeq Int        @default(0)
+  items     MealItem[]
+
+  @@unique([userId, clientId])
+  @@index([userId, updatedAt])
+}
+
+/// A meal item WITH its nutrition snapshot: the mirror keeps the values that
+/// were true when the user logged the meal, exactly as the device does (TGT-04).
+model MealItem {
+  id              String @id @default(cuid())
+  mealId          String
+  meal            Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  clientId        String
+  foodId          String
+  foodName        String
+  portionUnit     String
+  portionQuantity Float
+  grams           Float
+  kcal            Float
+  proteinG        Float
+  carbsG          Float
+  fatG            Float
+  fiberG          Float?
+  sodiumMg        Float?
+
+  @@unique([mealId, clientId])
+}
+
+model WaterLog {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId  String
+  dateKey   String
+  amountMl  Int
+  loggedAt  DateTime
+  updatedAt DateTime
+  deletedAt DateTime?
+
+  @@unique([userId, clientId])
+  @@index([userId, updatedAt])
+}
+
+model WeightLog {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId  String
+  dateKey   String
+  weightKg  Float
+  loggedAt  DateTime
+  updatedAt DateTime
+  deletedAt DateTime?
+
+  @@unique([userId, clientId])
+  @@index([userId, updatedAt])
 }

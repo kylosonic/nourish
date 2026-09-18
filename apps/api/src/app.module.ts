@@ -9,6 +9,7 @@ import { HealthModule } from './health/health.module';
 import { FoodsModule } from './foods/foods.module';
 import { ImportsModule } from './imports/imports.module';
 import { AnalysisModule } from './analysis/analysis.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { AnalysisModule } from './analysis/analysis.module';
     FoodsModule,
     ImportsModule,
     AnalysisModule,
+    AuthModule,
   ],
   providers: [
     // Throttler v6 does not auto-register the guard (unlike v4) — register

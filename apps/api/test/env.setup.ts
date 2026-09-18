@@ -10,3 +10,13 @@
 process.env.AI_PROVIDER = 'fixture';
 process.env.AI_RATE_LIMIT_LIMIT = '1000';
 process.env.AI_DAILY_BUDGET = '100000';
+
+// S3 accounts: a test-only secret (never a real one) and the console SMS
+// provider, so sign-in flows run without a gateway. The provider factory
+// refuses `console` in production, so this cannot leak into a deployment.
+process.env.JWT_SECRET ??= 'test-only-jwt-secret-that-is-long-enough-for-the-schema';
+process.env.SMS_PROVIDER = 'console';
+// The sign-in rate limits are asserted by their own tests; the flow tests need
+// to make many requests from one address.
+process.env.OTP_REQUEST_RATE_LIMIT = '1000';
+process.env.OTP_VERIFY_RATE_LIMIT = '1000';
