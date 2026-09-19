@@ -4,6 +4,7 @@ import 'package:nourish_design_system/nourish_design_system.dart';
 
 import '../../l10n/strings.dart';
 import '../../providers.dart';
+import '../insights/insights_providers.dart';
 import '../insights/insights_screen.dart';
 import '../profile/profile_screen.dart';
 import '../progress/progress_screen.dart';
@@ -35,7 +36,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   static const List<int> _pageForSlot = <int>[0, 1, 2, 3];
 
   void _selectTab(int slot) {
-    setState(() => _index = _pageForSlot[slot]);
+    final int page = _pageForSlot[slot];
+    // Insights is a report over the trailing week, and the IndexedStack keeps
+    // every page mounted, so the provider would otherwise keep whatever it
+    // computed when the app first built the tree. Recompute it when the user
+    // actually opens the tab.
+    if (page == 2) {
+      ref.invalidate(weeklyInsightsProvider);
+    }
+    setState(() => _index = page);
   }
 
   void _openScan() {

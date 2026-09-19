@@ -28,7 +28,11 @@ void main() {
 
       await tester.tap(find.text(Strings.insightsTab));
       await tester.pumpAndSettle();
-      expect(find.text(Strings.insightsComingTitle), findsWidgets);
+      // S4 replaced the Insights void with the real dashboard; with nothing
+      // logged yet it shows its empty state rather than a zeroed report.
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(find.text(Strings.insightsEmptyTitle), findsWidgets);
+      expect(find.text(Strings.progressComingTitle), findsNothing);
 
       await tester.tap(find.text(Strings.profileTab));
       await tester.pumpAndSettle();

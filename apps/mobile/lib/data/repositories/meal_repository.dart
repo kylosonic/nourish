@@ -80,6 +80,10 @@ class MealRepository {
   Future<List<Meal>> mealsForDate(String dateKey) =>
       _meals.mealsForDate(dateKey);
 
+  /// Meals across an inclusive date range (insights window, INS-01).
+  Future<List<Meal>> mealsInRange(String startKey, String endKey) =>
+      _meals.mealsInRange(startKey, endKey);
+
   Stream<List<Meal>> watchMealsForDate(String dateKey) =>
       _meals.watchMealsForDate(dateKey);
 

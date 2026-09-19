@@ -278,15 +278,13 @@ abstract final class Strings {
   static const String searchFoodInstead = 'Search food instead';
   static const String continueWithoutAccount = 'Continue without an account';
 
-  // Honest empty states (ADR-0005, P-HOME-3).
+  // Honest empty states (ADR-0005, P-HOME-3). Insights is no longer a void: it
+  // ships the real dashboard and has its own empty state
+  // (insightsEmptyTitle/Body), so its "coming soon" copy is gone.
   static const String progressComingTitle = 'Progress is coming soon';
   static const String progressComingBody =
       'Charts and trends over your logged meals will live here. '
       'Everything stays on your phone.';
-  static const String insightsComingTitle = 'Insights are coming soon';
-  static const String insightsComingBody =
-      'Personalized, offline insights about your eating patterns will '
-      'live here.';
   static const String profileComingTitle = 'Profile is coming soon';
   static const String profileComingBody =
       'Your details, targets and settings will live here. Everything '
@@ -398,4 +396,50 @@ abstract final class Strings {
 
   // ── S2: photo acquisition (SCAN-01 → SCAN-03) ────────────────────────────
   static const String preparingPhoto = 'Preparing your photo…';
+
+  // ── S4: weekly insights (INS-01 / INS-02) ────────────────────────────────
+  static const String insightsTitle = 'Weekly Insights';
+  static const String insightsSubtitle =
+      'Here is a breakdown of your nutrition over the past 7 days.';
+  static const String insightsCaloricBalance = 'Caloric Balance';
+  static const String insightsMacroAverages = 'Macro Averages';
+  static const String insightsHighlights = 'Highlights';
+  static const String insightsDietaryDiversity = 'Dietary Diversity';
+
+  /// Macro labels reuse the existing uppercase table entries (macroProtein,
+  /// macroCarbs, macroFat) and kcalUnit; only the average line is new.
+
+  /// "Avg. 110g / 130g" — the design's average-vs-target line.
+  static String macroAverageLine(int averageG, int targetG) =>
+      'Avg. ${averageG}g / ${targetG}g';
+
+  /// A partly elapsed window is labelled, not presented as a full week.
+  static String insightsPartialWindow(int loggedDays, int windowDays) =>
+      '$loggedDays of the last $windowDays days have meals logged';
+
+  static const String insightsLegendLogged = 'Logged';
+  static const String insightsLegendOver = 'Over target';
+  static const String insightsLegendUnlogged = 'No entry';
+
+  /// Hover/tooltip copy for a day with nothing logged (P-INS-1).
+  static String insightsUnloggedDay(String weekday) => '$weekday: nothing logged';
+
+  static const String insightsNoHighlights =
+      'Not enough logged days yet for a data-backed highlight. Keep logging and '
+      'this fills in from your own numbers.';
+
+  static const String insightsDiversityUnknown =
+      'None of your logged items could be matched to a cuisine type yet.';
+  static String insightsDiversitySummary(int ethiopianPercent) =>
+      '$ethiopianPercent% of your logged items were Ethiopian dishes.';
+  static String insightsDiversityCounts(int total) => '$total ITEMS CLASSIFIED';
+
+  static const String insightsEmptyTitle = 'No meals logged yet';
+  static const String insightsEmptyBody =
+      'Insights are built from what you log. Once you record a few meals, this '
+      'screen fills in with your own numbers — nothing here is generic advice.';
+  static const String insightsUnavailableTitle = 'Insights unavailable';
+  static const String insightsUnavailableBody =
+      'Your logged data could not be read just now. It is still on this device.';
+  static const String insightsLogAMeal = 'LOG A MEAL';
 }

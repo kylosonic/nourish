@@ -108,6 +108,21 @@ class MealDao extends DatabaseAccessor<AppDatabase> with _$MealDaoMixin {
     meals,
   )..where((Meals m) => m.dateKey.equals(dateKey))).watch().asyncMap(_compose);
 
+  /// Meals in an inclusive `yyyy-MM-dd` range, oldest first.
+  ///
+  /// The date key is a fixed-width ISO string, so a lexicographic range is the
+  /// same as a date range and needs no parsing on the SQL side.
+  Future<List<Meal>> mealsInRange(String startKey, String endKey) => _compose(
+    (select(meals)
+          ..where(
+            (Meals m) =>
+                m.dateKey.isBiggerOrEqualValue(startKey) &
+                m.dateKey.isSmallerOrEqualValue(endKey),
+          )
+          ..orderBy([(Meals m) => OrderingTerm.asc(m.createdAt)]))
+        .get(),
+  );
+
   /// All meals, newest first (meal history source).
   Future<List<Meal>> allMeals() => _compose(
     (select(
