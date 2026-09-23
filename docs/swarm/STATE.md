@@ -885,6 +885,30 @@ re-derived:
 - The account screen currently states that nothing is uploaded. That copy is
   true today and must be changed in the same commit that starts uploading.
 
+## UAT handoff (human approval required before merge)
+
+`feat/nourish-mvp` holds everything; `master` still points at the S0 release
+commit `1c16902`. Nothing has been merged, and per AGENTS.md §10 nothing will be
+without explicit human UAT approval.
+
+What a reviewer should look at, in order:
+
+1. `README.md` — the front door: what is built, what is not, and the honest
+   limits (no AI key, no SMS gateway, no store release).
+2. `apps/mobile` on a device or desktop: onboarding → log a meal (text and
+   photo lanes) → Home dashboard → Insights → weight → water goal → "what can I
+   eat" → Profile tab → sign in (needs the API running with
+   `SMS_PROVIDER=console`, or use the console code from the API log).
+3. `docs/plans/provisional-product-assumptions.md` — every undesigned screen that
+   was built provisionally (PPA-1…PPA-16). These are the product decisions
+   awaiting sign-off; overturning one reworks only the listed slice.
+4. `docs/swarm/STATE.md` — this file: gates, evidence, unresolved risks, and the
+   *Next Session* block naming the one unbuilt piece (S3 device sync).
+
+Known gaps at handoff: the device sync engine (nothing uploads), water reminders
+(WW-02), entitlements/paywall (SUB-01, needs a provider and a design), and the
+release pipeline (never run — needs a remote and secrets).
+
 ## GraphSync Note
 
 `graphify` command is not installed on this machine — recorded as a limitation
