@@ -592,6 +592,9 @@ abstract final class Strings {
       'Your session is stored on this device, but Nourish could not reach the '
       'server to confirm it. You stay signed in here; your plan and device '
       'count will refresh when the connection is back.';
+  static const String accountSessionEnded =
+      'Your session ended and this device has been signed out. Sign in again to '
+      'carry on backing up your logs.';
 
   // ── S3 OFF-02: backup/push state on the account screen ───────────────────
   static const String syncTitle = 'Backup';

@@ -247,7 +247,8 @@ void main() {
     expect(stored.refreshToken, 'refresh-rotated');
   });
 
-  test('a session that cannot be confirmed leaves the app signed out', () async {
+  test('a session the server has revoked is cleared, not left unconfirmed',
+      () async {
     final InMemoryTokenStore store = InMemoryTokenStore();
     await store.write(
       const SessionTokens(
@@ -271,9 +272,37 @@ void main() {
     );
 
     final AuthState state = await settled(container);
-    // Both the access token and its rotation were refused: no session.
+    // Both the access token and its rotation were refused: the session is over,
+    // so the dead tokens go rather than sitting there as "unconfirmed".
     expect(state.isSignedIn, isFalse);
-    expect(state.errorMessage, isNotNull);
+    expect(state.sessionStored, isFalse);
+    expect(state.errorMessage, contains('session ended'));
+    expect(await store.read(), isNull);
+  });
+
+  test('a network failure keeps the session, unconfirmed', () async {
+    final InMemoryTokenStore store = InMemoryTokenStore();
+    await store.write(
+      const SessionTokens(
+        accessToken: 'a',
+        refreshToken: 'r',
+        expiresInSeconds: 900,
+      ),
+    );
+    final ProviderContainer container = containerWith(
+      client: FakeHttpClient(throws: true),
+      store: store,
+    );
+
+    final AuthState state = await settled(container);
+    expect(state.isSignedIn, isFalse);
+    expect(
+      state.isUnconfirmed,
+      isTrue,
+      reason: 'an offline device still has a session; saying otherwise would be '
+          'false',
+    );
+    expect(await store.read(), isNotNull);
   });
 
   test('signOut clears the device even when the server cannot be reached',

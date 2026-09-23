@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/account_session.dart';
 import '../../data/services/token_store.dart';
 import '../../data/sources/auth_api_client.dart';
+import '../../l10n/strings.dart';
 import '../../providers.dart';
 
 /// Where the sign-in flow currently is.
@@ -134,12 +135,31 @@ class AuthController extends Notifier<AuthState> {
           restoring: false,
         );
       } on AuthException catch (error) {
+        // The server has already said this session is over: rotating would be
+        // pointless, and the dead tokens must not stay on the device.
+        if (error.code == 'TOKEN_REUSED' || error.code == 'ACCOUNT_DISABLED') {
+          await _forgetDeadSession();
+          return;
+        }
         if (error.code != 'TOKEN_EXPIRED' &&
             error.code != 'UNAUTHENTICATED' &&
             error.code != 'HTTP_401') {
           rethrow;
         }
-        final SessionTokens rotated = await _api.refresh(stored.refreshToken);
+        final SessionTokens rotated;
+        try {
+          rotated = await _api.refresh(stored.refreshToken);
+        } on AuthException catch (refreshError) {
+          // The server refused the rotation itself: this session is over, not
+          // merely unconfirmed. Keeping the dead tokens on disk would leave the
+          // account screen saying "signed in, not confirmed" forever and every
+          // backup failing for no visible reason.
+          if (_isSessionGone(refreshError.code)) {
+            await _forgetDeadSession();
+            return;
+          }
+          rethrow;
+        }
         await _store.write(rotated);
         final Account account = await _api.me(rotated.accessToken);
         state = state.copyWith(
@@ -257,6 +277,27 @@ class AuthController extends Notifier<AuthState> {
       }
       state = state.copyWith(resendAfterSeconds: left);
     });
+  }
+
+  /// True when the server's answer means the session is gone for good rather
+  /// than temporarily unusable (offline, or a token that just needs rotating).
+  bool _isSessionGone(String code) =>
+      code == 'TOKEN_REUSED' ||
+      code == 'TOKEN_EXPIRED' ||
+      code == 'UNAUTHENTICATED' ||
+      code == 'HTTP_401' ||
+      code == 'ACCOUNT_DISABLED';
+
+  /// Drop a session the server has already ended, and say so: leaving the user
+  /// on an account screen that cannot back anything up is worse than asking
+  /// them to sign in again.
+  Future<void> _forgetDeadSession() async {
+    await _store.clear();
+    state = state.copyWith(
+      restoring: false,
+      sessionStored: false,
+      errorMessage: Strings.accountSessionEnded,
+    );
   }
 
   /// Server messages are shown as the server wrote them, except where the app

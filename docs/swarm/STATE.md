@@ -335,6 +335,22 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-20 — session lifecycle: a dead session is cleared, not left
+  "unconfirmed" (this commit)**:
+  - The launcher's restore path now separates two cases it had been treating as
+    one. If the server refuses the session itself (`TOKEN_REUSED`,
+    `ACCOUNT_DISABLED`, or a refused rotation), the stored tokens are deleted and
+    the user is told the session ended and to sign in again. If the server simply
+    cannot be reached, the session is kept and the screen says "signed in, not
+    confirmed" — which is true, and is why the two cases must not share copy.
+    Previously a revoked session stayed on disk forever, showing an account
+    screen that could not back anything up and giving no reason.
+  - Evidence: `flutter analyze` clean; `flutter test` **269/269** (268 before:
+    the revoked-session test replaced a weaker one and an offline-session test
+    was added). Both cases are pinned: revoked → tokens gone, signed out, reason
+    shown; offline → tokens kept, `isUnconfirmed` true.
+
+
 - **2026-09-20 — full-tree verification sweep at `b6ee42f` and the UAT packet**:
   - Sweep, every suite run one after another at this commit: mobile
     `flutter analyze` clean and `flutter test` **268/268**; domain **27/27**;
