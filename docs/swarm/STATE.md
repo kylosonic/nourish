@@ -335,6 +335,25 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-20 — full-tree verification sweep at `b6ee42f` and the UAT packet**:
+  - Sweep, every suite run one after another at this commit: mobile
+    `flutter analyze` clean and `flutter test` **268/268**; domain **27/27**;
+    design-system **13/13**; API lint clean, build clean, `prisma validate`
+    valid, unit **91/91**, e2e **83/83**, `npm audit` **0 vulnerabilities**;
+    node `scripts/*.test.mjs` **9/9**; `apps/website/test/*.test.mjs` **12/12**;
+    `generate-latest-json.mjs --check` OK (`published=false, android=false,
+    ios_installable=false`); html-validate exit 0 across the website pages.
+  - `docs/uat-checklist.md` written: 30 numbered checks across onboarding,
+    logging, home/targets/water/weight, insights, account/backup and
+    safety/honesty, each with the expected result, plus the honest limits
+    (no AI key, no SMS gateway, no release pipeline run) labelled as **EXPECTED
+    LIMIT** rather than quietly skipped. **No check in that file has been
+    executed by an agent** — the UAT gate is a human's, and the file says so, and
+    check 5.12 (restore onto a fresh install) is listed as *must fail today*
+    because pull is not built.
+  - Nothing merged: `master` is still at `1c16902`.
+
+
 - **2026-09-20 — S3 offline queue and backup push (OFF-02, this commit)**:
   - Every local change now leaves a queued operation behind, written in the same
     transaction as the change itself: meal saves, meal deletes (a tombstone,
@@ -928,6 +947,8 @@ What a reviewer should look at, in order:
 
 1. `README.md` — the front door: what is built, what is not, and the honest
    limits (no AI key, no SMS gateway, no store release).
+2. `docs/uat-checklist.md` — the checks to walk, with expected results and the
+   gaps labelled. Nothing there has been executed by an agent.
 2. `apps/mobile` on a device or desktop: onboarding → log a meal (text and
    photo lanes) → Home dashboard → Insights → weight → water goal → "what can I
    eat" → Profile tab → sign in → back up (needs the API running with
