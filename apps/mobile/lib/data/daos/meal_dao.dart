@@ -123,6 +123,18 @@ class MealDao extends DatabaseAccessor<AppDatabase> with _$MealDaoMixin {
         .get(),
   );
 
+  /// The same range as a stream, so a screen derived from recent meals (for
+  /// example INS-03's variety rule) follows a meal logged elsewhere.
+  Stream<List<Meal>> watchMealsInRange(String startKey, String endKey) => (select(
+    meals,
+  )..where(
+        (Meals m) =>
+            m.dateKey.isBiggerOrEqualValue(startKey) &
+            m.dateKey.isSmallerOrEqualValue(endKey),
+      ))
+      .watch()
+      .asyncMap(_compose);
+
   /// All meals, newest first (meal history source).
   Future<List<Meal>> allMeals() => _compose(
     (select(

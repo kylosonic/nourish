@@ -493,4 +493,47 @@ abstract final class Strings {
   static const String weightUnavailableBody =
       'Your logged weights could not be read just now. They are still on this '
       'device.';
+
+  // ── INS-03: "What can I eat" (P-INS-2: screen undesigned → PPA-15) ────────
+  static const String whatCanIEatTitle = 'What can I eat';
+  static const String whatCanIEatSubtitle =
+      'Suggestions are picked from Nourish\'s own food table to fit what you '
+      'have left today. Nothing is estimated and nothing is generated.';
+  static const String whatCanIEatEntryAction = 'WHAT CAN I EAT';
+  static const String whatCanIEatKcalLabel = 'Calories I have left';
+  static const String whatCanIEatProteinLabel = 'Protein I still need';
+  static const String whatCanIEatSuggest = 'SUGGEST FOODS';
+  static const String whatCanIEatReset = 'RESET TO TODAY';
+  static const String whatCanIEatNoBudget =
+      'You have no calorie budget left today, so Nourish will not suggest '
+      'eating more. Your logged meals are unchanged.';
+  static const String whatCanIEatNoBudgetAtFloor =
+      'Your target is already at the minimum safe intake, so Nourish will not '
+      'suggest eating less. Your logged meals are unchanged.';
+  static const String whatCanIEatNothingFits =
+      'Nothing in the food table fits that budget. The closest options are '
+      'listed with how far over they are — Nourish will not invent a food that '
+      'does not exist.';
+  static const String whatCanIEatNoTarget =
+      'Your daily target is not set up yet, so there is no budget to plan '
+      'against.';
+  static const String whatCanIEatRankedTitle = 'Best fit first';
+  static const String whatCanIEatClosestTitle = 'Closest options';
+  static String whatCanIEatCovers(int proteinG, int kcal) =>
+      'These together cover $proteinG g of protein and use $kcal kcal of your '
+      'budget.';
+  static String whatCanIEatShortfall(int coveredG, int needG) =>
+      'Nothing left in the table closes the gap: these cover $coveredG g of the '
+      '$needG g you asked for.';
+  static String whatCanIEatSuggestionLine(int kcal, int proteinG) =>
+      '$kcal kcal · ${proteinG}g protein';
+  static String whatCanIEatOverBudget(int overKcal) => '$overKcal kcal over';
+  static const String whatCanIEatBadNumber =
+      'Enter a number, or leave 0 if it does not apply.';
+  static const String whatCanIEatLocalTag = 'LOCAL';
+  static const String whatCanIEatSlotTag = 'FITS THIS MEAL';
+  static const String whatCanIEatRecentTag = 'LOGGED RECENTLY';
+  static const String whatCanIEatUnavailable =
+      'Suggestions could not be built just now. Your food table is still on '
+      'this device.';
 }

@@ -84,6 +84,10 @@ class MealRepository {
   Future<List<Meal>> mealsInRange(String startKey, String endKey) =>
       _meals.mealsInRange(startKey, endKey);
 
+  /// The same range as a live stream (INS-03 variety rule).
+  Stream<List<Meal>> watchMealsInRange(String startKey, String endKey) =>
+      _meals.watchMealsInRange(startKey, endKey);
+
   Stream<List<Meal>> watchMealsForDate(String dateKey) =>
       _meals.watchMealsForDate(dateKey);
 

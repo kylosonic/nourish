@@ -23,6 +23,10 @@ abstract final class AppRoutes {
   /// WW-03 weight logging & trend (P-WW-2: dedicated screen undesigned, so the
   /// layout is provisional — PPA-13). Pushed from the Home dashboard card.
   static const String weight = '/weight';
+
+  /// INS-03 "What can I eat" (P-INS-2: screen undesigned, so the layout is
+  /// provisional — PPA-15). Pushed from the Home dashboard.
+  static const String whatCanIEat = '/what-can-i-eat';
   static const String honestVoid = '/honest-void/:feature';
 
   /// S2 transactional scan flow (SCAN-01..07, LOG-01). These screens suppress

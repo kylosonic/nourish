@@ -250,6 +250,11 @@ Tracked in `docs/plans/provisional-product-assumptions.md`:
 - **PPA-14** — WW-01's adjustable water goal sits on the Home hydration card as
   a glass-sized stepper (3.0 L default, 1.5–4.0 L, disabled at the bounds),
   because P-WW-1 (dedicated water screen) has no design.
+- **PPA-15** — INS-03's screen takes the request as two fields (calories left,
+  protein still needed) prefilled from today's remaining budget instead of the
+  free-text request the contract sketches, because parsing free text would need
+  a model and no model is allowed to choose nutrition. Its ranking rules are
+  documented in `what_can_i_eat.dart`.
 
 ### Pending behaviors blocking later slices
 
@@ -325,6 +330,35 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-20 — S4 "What can I eat" (INS-03, this commit)**:
+  - The last designed-source behaviour of S4 is now built: suggestions are drawn
+    from Nourish's own food table and constrained by the remaining calorie
+    budget, the remaining protein need, the user's food preference, the meal
+    being planned and what they logged in the last three days. Ethiopian foods
+    are prioritized unless the user chose international, exactly as INS-03 says.
+  - No model is involved anywhere in the path — the ranking is a pure function
+    pinned by 13 unit tests, and the numbers a suggestion shows are the numbers
+    logging it would record, because both go through the same domain engine.
+  - The acceptance example is a test, not a claim: with 500 kcal left and 35 g of
+    protein needed, every suggested food fits inside 500 kcal and the list
+    together covers at least 35 g (`usedKcal ≤ 500`, `coveredProteinG ≥ 35`).
+    Building the combination density-first is what makes that true — an earlier
+    rank-order greedy under-covered the gap (22 g of 35 g) and the test caught
+    it before it shipped.
+  - Both dead ends are honest: a spent budget says so and suggests nothing
+    (with distinct copy when the target is already clamped to the SAFE-01 floor,
+    so the app never nudges such a user to eat less), and when nothing fits, the
+    closest foods are listed with how far over budget they are rather than
+    inventing a food.
+  - The request is two fields (calories left, protein still needed) prefilled
+    from the user's own remaining budget — PPA-15, because the contract's
+    free-text request would need a model to parse.
+  - Evidence: `flutter analyze` clean; `flutter test` **222/222** (205 before:
+    13 INS-03 unit tests, 4 widget tests over the real seeded catalog);
+    `flutter test` for domain 27/27 and design-system 13/13 unchanged. Egress
+    confinement unchanged: the recommender reads only local Drift tables.
+
 
 - **2026-09-20 — S4 water goal (WW-01 adjustability, this commit)**:
   - The Gate A deviation that deferred the water goal ("fixed at 3.0 L in S0")

@@ -8,6 +8,7 @@ import 'package:nourish_design_system/nourish_design_system.dart';
 import '../../core/date_utils.dart';
 import '../../l10n/strings.dart';
 import '../../router/routes.dart';
+import '../recommendations/widgets/what_can_i_eat_card.dart';
 import '../update/update_controller.dart';
 import '../update/widgets/update_banner.dart';
 import '../weight/widgets/weight_card.dart';
@@ -122,6 +123,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const CalorieRingCard(),
                   const SizedBox(height: NourishSpacing.gutter),
                   const MacroPills(),
+                  const SizedBox(height: NourishSpacing.gutter),
+                  const WhatCanIEatCard(),
                   const SizedBox(height: NourishSpacing.sectionGap),
                   const TodaysMealsCard(),
                   const SizedBox(height: NourishSpacing.gutter),
