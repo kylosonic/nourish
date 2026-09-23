@@ -33,6 +33,11 @@ class UserProfileTable extends Table {
 
   TextColumn get foodPreference => text().nullable()();
 
+  /// The user's daily water goal in millilitres (WW-01). Null means "never
+  /// adjusted", which is not the same as the default value: the app can then
+  /// change its documented default without overwriting a user's own choice.
+  IntColumn get waterTargetMl => integer().nullable()();
+
   BoolColumn get onboardingComplete =>
       boolean().withDefault(const Constant(false))();
 

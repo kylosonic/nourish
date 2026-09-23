@@ -5,6 +5,7 @@ import 'package:nourish_domain/domain.dart';
 
 import 'core/clock.dart';
 import 'core/date_utils.dart';
+import 'core/water_target.dart';
 import 'data/database.dart';
 import 'data/repositories/food_repository.dart';
 import 'data/repositories/meal_repository.dart';
@@ -155,11 +156,11 @@ final Provider<NutritionTotals> todayTotalsProvider = Provider<NutritionTotals>(
       totalsFor(ref.watch(todayMealsProvider).value ?? const <Meal>[]),
 );
 
-/// One hydration day: consumed vs the S0-fixed 3.0 L target.
+/// One hydration day: consumed vs the user's goal (WW-01).
 class WaterDay {
   const WaterDay({required this.consumedMl, this.targetMl = defaultTargetMl});
 
-  /// S0 constant target (blueprint §13).
+  /// The documented default goal, used until the user sets their own.
   static const int defaultTargetMl = WaterRepository.defaultTargetMl;
 
   final int consumedMl;
@@ -170,6 +171,43 @@ class WaterDay {
   double get litersTarget => targetMl / 1000;
 }
 
+/// The user's daily water goal (WW-01).
+///
+/// The state is the goal the UI shows: it starts from the profile (the user's
+/// own value, or the documented default) and moves optimistically as the user
+/// steps it, so two quick taps accumulate instead of both being computed from
+/// the same stale value. A failed write reverts to what is actually stored.
+class WaterTarget extends Notifier<int> {
+  @override
+  int build() =>
+      ref.watch(currentUserProvider).value?.waterTargetMl ??
+      WaterDay.defaultTargetMl;
+
+  /// Move the goal by [steps] glasses. No-op at the bounds; rethrows a write
+  /// failure after reverting, so the caller can tell the user.
+  Future<void> step(int steps) async {
+    final int next = adjustWaterTargetMl(state, steps);
+    if (next == state) return;
+    state = next;
+    try {
+      await ref.read(onboardingRepositoryProvider).setWaterTargetMl(next);
+    } catch (_) {
+      state =
+          ref.read(currentUserProvider).value?.waterTargetMl ??
+          WaterDay.defaultTargetMl;
+      rethrow;
+    }
+  }
+}
+
+final NotifierProvider<WaterTarget, int> waterTargetProvider =
+    NotifierProvider<WaterTarget, int>(WaterTarget.new);
+
+/// Today's consumed water.
+///
+/// Deliberately independent of the goal: the goal lives in the profile and is
+/// read separately by the card, so adjusting it cannot recreate (and blank)
+/// this stream.
 final StreamProvider<WaterDay> todayWaterProvider = StreamProvider<WaterDay>(
   (Ref<AsyncValue<WaterDay>> ref) => ref
       .watch(waterRepositoryProvider)

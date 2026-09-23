@@ -26,6 +26,10 @@ class OnboardingRepository {
   Future<void> setCurrentOnboardingStep(int step) =>
       _profile.setCurrentOnboardingStep(step);
 
+  /// Persists the user's own daily water goal in millilitres (WW-01).
+  Future<void> setWaterTargetMl(int targetMl) =>
+      _profile.setWaterTargetMl(targetMl);
+
   /// Writes the whole profile (used by every onboarding Continue).
   Future<void> updateProfile(UserProfile profile) =>
       _profile.saveProfile(profile);

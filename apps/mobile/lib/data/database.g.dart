@@ -112,6 +112,17 @@ class $UserProfileTableTable extends UserProfileTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _waterTargetMlMeta = const VerificationMeta(
+    'waterTargetMl',
+  );
+  @override
+  late final GeneratedColumn<int> waterTargetMl = GeneratedColumn<int>(
+    'water_target_ml',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _onboardingCompleteMeta =
       const VerificationMeta('onboardingComplete');
   @override
@@ -173,6 +184,7 @@ class $UserProfileTableTable extends UserProfileTable
     activity,
     pace,
     foodPreference,
+    waterTargetMl,
     onboardingComplete,
     currentOnboardingStep,
     createdAt,
@@ -259,6 +271,15 @@ class $UserProfileTableTable extends UserProfileTable
         ),
       );
     }
+    if (data.containsKey('water_target_ml')) {
+      context.handle(
+        _waterTargetMlMeta,
+        waterTargetMl.isAcceptableOrUnknown(
+          data['water_target_ml']!,
+          _waterTargetMlMeta,
+        ),
+      );
+    }
     if (data.containsKey('onboarding_complete')) {
       context.handle(
         _onboardingCompleteMeta,
@@ -338,6 +359,10 @@ class $UserProfileTableTable extends UserProfileTable
         DriftSqlType.string,
         data['${effectivePrefix}food_preference'],
       ),
+      waterTargetMl: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}water_target_ml'],
+      ),
       onboardingComplete: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}onboarding_complete'],
@@ -374,6 +399,11 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
   final String? activity;
   final String? pace;
   final String? foodPreference;
+
+  /// The user's daily water goal in millilitres (WW-01). Null means "never
+  /// adjusted", which is not the same as the default value: the app can then
+  /// change its documented default without overwriting a user's own choice.
+  final int? waterTargetMl;
   final bool onboardingComplete;
 
   /// Number of completed counted onboarding steps (0..T), see
@@ -392,6 +422,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
     this.activity,
     this.pace,
     this.foodPreference,
+    this.waterTargetMl,
     required this.onboardingComplete,
     required this.currentOnboardingStep,
     required this.createdAt,
@@ -428,6 +459,9 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
     if (!nullToAbsent || foodPreference != null) {
       map['food_preference'] = Variable<String>(foodPreference);
     }
+    if (!nullToAbsent || waterTargetMl != null) {
+      map['water_target_ml'] = Variable<int>(waterTargetMl);
+    }
     map['onboarding_complete'] = Variable<bool>(onboardingComplete);
     map['current_onboarding_step'] = Variable<int>(currentOnboardingStep);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -457,6 +491,9 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
       foodPreference: foodPreference == null && nullToAbsent
           ? const Value.absent()
           : Value(foodPreference),
+      waterTargetMl: waterTargetMl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(waterTargetMl),
       onboardingComplete: Value(onboardingComplete),
       currentOnboardingStep: Value(currentOnboardingStep),
       createdAt: Value(createdAt),
@@ -480,6 +517,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
       activity: serializer.fromJson<String?>(json['activity']),
       pace: serializer.fromJson<String?>(json['pace']),
       foodPreference: serializer.fromJson<String?>(json['foodPreference']),
+      waterTargetMl: serializer.fromJson<int?>(json['waterTargetMl']),
       onboardingComplete: serializer.fromJson<bool>(json['onboardingComplete']),
       currentOnboardingStep: serializer.fromJson<int>(
         json['currentOnboardingStep'],
@@ -502,6 +540,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
       'activity': serializer.toJson<String?>(activity),
       'pace': serializer.toJson<String?>(pace),
       'foodPreference': serializer.toJson<String?>(foodPreference),
+      'waterTargetMl': serializer.toJson<int?>(waterTargetMl),
       'onboardingComplete': serializer.toJson<bool>(onboardingComplete),
       'currentOnboardingStep': serializer.toJson<int>(currentOnboardingStep),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -520,6 +559,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
     Value<String?> activity = const Value.absent(),
     Value<String?> pace = const Value.absent(),
     Value<String?> foodPreference = const Value.absent(),
+    Value<int?> waterTargetMl = const Value.absent(),
     bool? onboardingComplete,
     int? currentOnboardingStep,
     DateTime? createdAt,
@@ -541,6 +581,9 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
     foodPreference: foodPreference.present
         ? foodPreference.value
         : this.foodPreference,
+    waterTargetMl: waterTargetMl.present
+        ? waterTargetMl.value
+        : this.waterTargetMl,
     onboardingComplete: onboardingComplete ?? this.onboardingComplete,
     currentOnboardingStep: currentOnboardingStep ?? this.currentOnboardingStep,
     createdAt: createdAt ?? this.createdAt,
@@ -564,6 +607,9 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
       foodPreference: data.foodPreference.present
           ? data.foodPreference.value
           : this.foodPreference,
+      waterTargetMl: data.waterTargetMl.present
+          ? data.waterTargetMl.value
+          : this.waterTargetMl,
       onboardingComplete: data.onboardingComplete.present
           ? data.onboardingComplete.value
           : this.onboardingComplete,
@@ -588,6 +634,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
           ..write('activity: $activity, ')
           ..write('pace: $pace, ')
           ..write('foodPreference: $foodPreference, ')
+          ..write('waterTargetMl: $waterTargetMl, ')
           ..write('onboardingComplete: $onboardingComplete, ')
           ..write('currentOnboardingStep: $currentOnboardingStep, ')
           ..write('createdAt: $createdAt, ')
@@ -608,6 +655,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
     activity,
     pace,
     foodPreference,
+    waterTargetMl,
     onboardingComplete,
     currentOnboardingStep,
     createdAt,
@@ -627,6 +675,7 @@ class UserProfileRow extends DataClass implements Insertable<UserProfileRow> {
           other.activity == this.activity &&
           other.pace == this.pace &&
           other.foodPreference == this.foodPreference &&
+          other.waterTargetMl == this.waterTargetMl &&
           other.onboardingComplete == this.onboardingComplete &&
           other.currentOnboardingStep == this.currentOnboardingStep &&
           other.createdAt == this.createdAt &&
@@ -644,6 +693,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
   final Value<String?> activity;
   final Value<String?> pace;
   final Value<String?> foodPreference;
+  final Value<int?> waterTargetMl;
   final Value<bool> onboardingComplete;
   final Value<int> currentOnboardingStep;
   final Value<DateTime> createdAt;
@@ -660,6 +710,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
     this.activity = const Value.absent(),
     this.pace = const Value.absent(),
     this.foodPreference = const Value.absent(),
+    this.waterTargetMl = const Value.absent(),
     this.onboardingComplete = const Value.absent(),
     this.currentOnboardingStep = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -677,6 +728,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
     this.activity = const Value.absent(),
     this.pace = const Value.absent(),
     this.foodPreference = const Value.absent(),
+    this.waterTargetMl = const Value.absent(),
     this.onboardingComplete = const Value.absent(),
     this.currentOnboardingStep = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -694,6 +746,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
     Expression<String>? activity,
     Expression<String>? pace,
     Expression<String>? foodPreference,
+    Expression<int>? waterTargetMl,
     Expression<bool>? onboardingComplete,
     Expression<int>? currentOnboardingStep,
     Expression<DateTime>? createdAt,
@@ -711,6 +764,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
       if (activity != null) 'activity': activity,
       if (pace != null) 'pace': pace,
       if (foodPreference != null) 'food_preference': foodPreference,
+      if (waterTargetMl != null) 'water_target_ml': waterTargetMl,
       if (onboardingComplete != null) 'onboarding_complete': onboardingComplete,
       if (currentOnboardingStep != null)
         'current_onboarding_step': currentOnboardingStep,
@@ -731,6 +785,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
     Value<String?>? activity,
     Value<String?>? pace,
     Value<String?>? foodPreference,
+    Value<int?>? waterTargetMl,
     Value<bool>? onboardingComplete,
     Value<int>? currentOnboardingStep,
     Value<DateTime>? createdAt,
@@ -748,6 +803,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
       activity: activity ?? this.activity,
       pace: pace ?? this.pace,
       foodPreference: foodPreference ?? this.foodPreference,
+      waterTargetMl: waterTargetMl ?? this.waterTargetMl,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       currentOnboardingStep:
           currentOnboardingStep ?? this.currentOnboardingStep,
@@ -790,6 +846,9 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
     if (foodPreference.present) {
       map['food_preference'] = Variable<String>(foodPreference.value);
     }
+    if (waterTargetMl.present) {
+      map['water_target_ml'] = Variable<int>(waterTargetMl.value);
+    }
     if (onboardingComplete.present) {
       map['onboarding_complete'] = Variable<bool>(onboardingComplete.value);
     }
@@ -823,6 +882,7 @@ class UserProfileTableCompanion extends UpdateCompanion<UserProfileRow> {
           ..write('activity: $activity, ')
           ..write('pace: $pace, ')
           ..write('foodPreference: $foodPreference, ')
+          ..write('waterTargetMl: $waterTargetMl, ')
           ..write('onboardingComplete: $onboardingComplete, ')
           ..write('currentOnboardingStep: $currentOnboardingStep, ')
           ..write('createdAt: $createdAt, ')
@@ -5174,6 +5234,7 @@ typedef $$UserProfileTableTableCreateCompanionBuilder =
       Value<String?> activity,
       Value<String?> pace,
       Value<String?> foodPreference,
+      Value<int?> waterTargetMl,
       Value<bool> onboardingComplete,
       Value<int> currentOnboardingStep,
       Value<DateTime> createdAt,
@@ -5192,6 +5253,7 @@ typedef $$UserProfileTableTableUpdateCompanionBuilder =
       Value<String?> activity,
       Value<String?> pace,
       Value<String?> foodPreference,
+      Value<int?> waterTargetMl,
       Value<bool> onboardingComplete,
       Value<int> currentOnboardingStep,
       Value<DateTime> createdAt,
@@ -5255,6 +5317,11 @@ class $$UserProfileTableTableFilterComposer
 
   ColumnFilters<String> get foodPreference => $composableBuilder(
     column: $table.foodPreference,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get waterTargetMl => $composableBuilder(
+    column: $table.waterTargetMl,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5338,6 +5405,11 @@ class $$UserProfileTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get waterTargetMl => $composableBuilder(
+    column: $table.waterTargetMl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get onboardingComplete => $composableBuilder(
     column: $table.onboardingComplete,
     builder: (column) => ColumnOrderings(column),
@@ -5401,6 +5473,11 @@ class $$UserProfileTableTableAnnotationComposer
 
   GeneratedColumn<String> get foodPreference => $composableBuilder(
     column: $table.foodPreference,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get waterTargetMl => $composableBuilder(
+    column: $table.waterTargetMl,
     builder: (column) => column,
   );
 
@@ -5468,6 +5545,7 @@ class $$UserProfileTableTableTableManager
                 Value<String?> activity = const Value.absent(),
                 Value<String?> pace = const Value.absent(),
                 Value<String?> foodPreference = const Value.absent(),
+                Value<int?> waterTargetMl = const Value.absent(),
                 Value<bool> onboardingComplete = const Value.absent(),
                 Value<int> currentOnboardingStep = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -5484,6 +5562,7 @@ class $$UserProfileTableTableTableManager
                 activity: activity,
                 pace: pace,
                 foodPreference: foodPreference,
+                waterTargetMl: waterTargetMl,
                 onboardingComplete: onboardingComplete,
                 currentOnboardingStep: currentOnboardingStep,
                 createdAt: createdAt,
@@ -5502,6 +5581,7 @@ class $$UserProfileTableTableTableManager
                 Value<String?> activity = const Value.absent(),
                 Value<String?> pace = const Value.absent(),
                 Value<String?> foodPreference = const Value.absent(),
+                Value<int?> waterTargetMl = const Value.absent(),
                 Value<bool> onboardingComplete = const Value.absent(),
                 Value<int> currentOnboardingStep = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -5518,6 +5598,7 @@ class $$UserProfileTableTableTableManager
                 activity: activity,
                 pace: pace,
                 foodPreference: foodPreference,
+                waterTargetMl: waterTargetMl,
                 onboardingComplete: onboardingComplete,
                 currentOnboardingStep: currentOnboardingStep,
                 createdAt: createdAt,

@@ -18,6 +18,7 @@ class UserProfile {
     this.activity,
     this.pace,
     this.foodPreference,
+    this.waterTargetMl,
     this.onboardingComplete = false,
     this.currentOnboardingStep = 0,
   });
@@ -32,6 +33,10 @@ class UserProfile {
   final Activity? activity;
   final Pace? pace;
   final FoodPreference? foodPreference;
+
+  /// The user's own daily water goal in millilitres (WW-01), or null when they
+  /// have never changed it — the app then uses its documented default.
+  final int? waterTargetMl;
 
   /// True once onboarding has been completed at least once.
   final bool onboardingComplete;
@@ -54,6 +59,7 @@ class UserProfile {
     Activity? activity,
     Pace? pace,
     FoodPreference? foodPreference,
+    int? waterTargetMl,
     bool? onboardingComplete,
     int? currentOnboardingStep,
   }) {
@@ -68,6 +74,7 @@ class UserProfile {
       activity: activity ?? this.activity,
       pace: pace ?? this.pace,
       foodPreference: foodPreference ?? this.foodPreference,
+      waterTargetMl: waterTargetMl ?? this.waterTargetMl,
       onboardingComplete: onboardingComplete ?? this.onboardingComplete,
       currentOnboardingStep: currentOnboardingStep ?? this.currentOnboardingStep,
     );

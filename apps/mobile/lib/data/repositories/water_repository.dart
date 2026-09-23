@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 
 import '../../core/date_utils.dart';
+import '../../core/water_target.dart';
 import '../database.dart';
 import '../daos/water_dao.dart';
 
-/// Hydration quick actions (WW-01 subset).
+/// Hydration quick actions and the adjustable daily goal (WW-01).
 ///
 /// Storage convention (consistent approach, per task): logs are signed
 /// entries — removals insert a negative row — and the daily total is
@@ -16,9 +17,9 @@ class WaterRepository {
 
   final AppDatabase _db;
 
-  /// S0 constant: the daily water target is fixed at 3.0 L (blueprint
-  /// §13; adjustable settings are deferred to S3/S4).
-  static const int defaultTargetMl = 3000;
+  /// The documented default goal (3.0 L) used until the user sets their own;
+  /// the same number as [defaultWaterTargetMl], not a second copy of it.
+  static const int defaultTargetMl = defaultWaterTargetMl;
 
   WaterDao get _water => _db.waterDao;
 

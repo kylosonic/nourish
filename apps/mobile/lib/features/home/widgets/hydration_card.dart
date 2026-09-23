@@ -3,19 +3,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nourish_design_system/nourish_design_system.dart';
 
 import '../../../core/formatters.dart';
+import '../../../core/water_target.dart';
 import '../../../l10n/strings.dart';
 import '../../../providers.dart';
 
-/// HOME-04 / WW-01 hydration card: `X.X/3.0 L`, progress bar, add 250 ml
-/// and remove (floor 0). The stream is the single source of truth, so a
-/// failed persistence never alters the UI (revert) — the user gets an
-/// error snackbar and can retry.
+/// HOME-04 / WW-01 hydration card: `X.X/Y.Y L`, progress bar, add 250 ml,
+/// remove (floor 0) and the adjustable daily goal.
+///
+/// The stream is the single source of truth, so a failed persistence never
+/// alters the UI (revert) — the user gets an error snackbar and can retry.
+/// Adjusting the goal writes only the profile's water target; the day's logs
+/// are untouched (the new goal applies from today, WW-01).
 class HydrationCard extends ConsumerWidget {
   const HydrationCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<WaterDay> water = ref.watch(todayWaterProvider);
+    // The goal is a separate read so stepping it does not recreate the day's
+    // stream (which would blank the card to a spinner on every tap).
+    final int targetMl = ref.watch(waterTargetProvider);
     final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
 
     Future<void> addWater() async {
@@ -34,6 +41,16 @@ class HydrationCard extends ConsumerWidget {
       } catch (_) {
         messenger.showSnackBar(
           const SnackBar(content: Text(Strings.waterSaveFailed)),
+        );
+      }
+    }
+
+    Future<void> adjustTarget(int steps) async {
+      try {
+        await ref.read(waterTargetProvider.notifier).step(steps);
+      } catch (_) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text(Strings.waterTargetSaveFailed)),
         );
       }
     }
@@ -61,15 +78,17 @@ class HydrationCard extends ConsumerWidget {
         ),
         error: (Object error, StackTrace stack) => _WaterContent(
           consumedMl: 0,
-          targetMl: WaterDay.defaultTargetMl,
+          targetMl: targetMl,
           onAdd: addWater,
           onRemove: removeWater,
+          onAdjustTarget: adjustTarget,
         ),
         data: (WaterDay day) => _WaterContent(
           consumedMl: day.consumedMl,
-          targetMl: day.targetMl,
+          targetMl: targetMl,
           onAdd: addWater,
           onRemove: removeWater,
+          onAdjustTarget: adjustTarget,
         ),
       ),
     );
@@ -82,12 +101,14 @@ class _WaterContent extends StatelessWidget {
     required this.targetMl,
     required this.onAdd,
     required this.onRemove,
+    required this.onAdjustTarget,
   });
 
   final int consumedMl;
   final int targetMl;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
+  final ValueChanged<int> onAdjustTarget;
 
   @override
   Widget build(BuildContext context) {
@@ -155,12 +176,7 @@ class _WaterContent extends StatelessWidget {
             IconButton(
               tooltip: Strings.removeWaterTooltip,
               onPressed: atFloor ? null : onRemove,
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.white24,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.white10,
-                disabledForegroundColor: Colors.white38,
-              ),
+              style: _controlStyle,
               icon: const Icon(Icons.remove),
             ),
             const Spacer(),
@@ -177,7 +193,46 @@ class _WaterContent extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 8),
+        // The goal itself (WW-01): a glass at a time, disabled at the bounds
+        // rather than silently ignoring a tap.
+        Row(
+          children: <Widget>[
+            Text(
+              Strings.waterGoalLabel,
+              style: NourishTextStyles.labelCaps.copyWith(color: Colors.white70),
+            ),
+            const Spacer(),
+            IconButton(
+              tooltip: Strings.waterGoalDownTooltip,
+              onPressed: canAdjustWaterTargetMl(targetMl, -1)
+                  ? () => onAdjustTarget(-1)
+                  : null,
+              style: _controlStyle,
+              icon: const Icon(Icons.remove, size: 18),
+            ),
+            Text(
+              formatLiters(targetMl),
+              style: NourishTextStyles.labelCaps.copyWith(color: Colors.white),
+            ),
+            IconButton(
+              tooltip: Strings.waterGoalUpTooltip,
+              onPressed: canAdjustWaterTargetMl(targetMl, 1)
+                  ? () => onAdjustTarget(1)
+                  : null,
+              style: _controlStyle,
+              icon: const Icon(Icons.add, size: 18),
+            ),
+          ],
+        ),
       ],
     );
   }
+
+  static final ButtonStyle _controlStyle = IconButton.styleFrom(
+    backgroundColor: Colors.white24,
+    foregroundColor: Colors.white,
+    disabledBackgroundColor: Colors.white10,
+    disabledForegroundColor: Colors.white38,
+  );
 }

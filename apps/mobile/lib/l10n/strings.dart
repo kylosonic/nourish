@@ -168,6 +168,15 @@ abstract final class Strings {
   static const String removeWaterTooltip = 'Remove 250ml';
   static const String waterSaveFailed =
       'Couldn\'t update water. Please try again.';
+
+  // ── WW-01: adjustable daily water goal (P-WW-1: screen undesigned) ───────
+  /// The control is provisional (PPA-14): a glass-sized stepper on the existing
+  /// hydration card, because no dedicated water screen exists to place it in.
+  static const String waterGoalLabel = 'DAILY GOAL';
+  static const String waterGoalUpTooltip = 'Increase your daily water goal';
+  static const String waterGoalDownTooltip = 'Decrease your daily water goal';
+  static const String waterTargetSaveFailed =
+      'Couldn\'t save your water goal. It is unchanged.';
   static const String setupPromptTitle = 'Your daily target isn\'t set up yet';
   static const String setupPromptBody =
       'Finish onboarding to see your calories and macros.';

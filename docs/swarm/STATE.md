@@ -247,6 +247,9 @@ Tracked in `docs/plans/provisional-product-assumptions.md`:
   behaviour contract's contents (P-WW-2 has no design), and its INS-02 weight
   highlight is stated as a fact rather than as praise or a warning. See
   `docs/plans/provisional-product-assumptions.md`.
+- **PPA-14** — WW-01's adjustable water goal sits on the Home hydration card as
+  a glass-sized stepper (3.0 L default, 1.5–4.0 L, disabled at the bounds),
+  because P-WW-1 (dedicated water screen) has no design.
 
 ### Pending behaviors blocking later slices
 
@@ -322,6 +325,33 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-20 — S4 water goal (WW-01 adjustability, this commit)**:
+  - The Gate A deviation that deferred the water goal ("fixed at 3.0 L in S0")
+    is now closed: the goal is the user's own value, adjustable a glass at a
+    time and applied from today onward, exactly as WW-01 states.
+  - Stored on the existing profile row (Drift schema v4, additive nullable
+    column) rather than in a new table, and read through the profile stream so
+    the card updates as soon as the value changes. `NULL` means "never set" —
+    deliberately different from "set to the default", so the documented default
+    can change later without overwriting a user's own choice.
+  - Stepping is optimistic and serialized in one notifier, so two quick taps
+    accumulate instead of both computing from the same stale value, and a failed
+    write reverts to what is actually stored with a snackbar. The control is
+    disabled at its bounds rather than silently ignoring a tap.
+  - The consumed-water stream is deliberately NOT derived from the goal: an
+    earlier version recreated it on every change, which blanked the card to a
+    spinner on each tap (caught by a hanging `pumpAndSettle`, not by review).
+  - Range 1.5–4.0 L with the EFSA adequate-intake figures recorded where the
+    bounds are defined; the range rules out impossible daily goals, it does not
+    assert a recommendation. Placement and bounds are PPA-14 (P-WW-1 has no
+    design).
+  - Evidence: `flutter analyze` clean; `flutter test` **205/205** (194 before:
+    8 new water-goal unit tests, 3 new hydration-card widget tests, plus the
+    earlier weight suite); domain 27/27; design-system 13/13. Runs were
+    reproduced from a log file after a `Select-Object -Last` pipeline hid a
+    genuine hang — the hang was the bug, not the harness.
+
 
 - **2026-09-20 — S4 insights (`1db8429`, `deb9800`) and weight logging
   (WW-03, this commit)**:

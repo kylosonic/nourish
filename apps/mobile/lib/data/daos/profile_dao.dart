@@ -48,6 +48,21 @@ class ProfileDao extends DatabaseAccessor<AppDatabase> with _$ProfileDaoMixin {
     );
   }
 
+  /// Persists the user's own daily water goal (WW-01), touching nothing else.
+  ///
+  /// Ensures the singleton row exists first: a bare `UPDATE` against a missing
+  /// row would report success and change nothing, which is the one outcome the
+  /// user must never get from a settings control.
+  Future<void> setWaterTargetMl(int targetMl) async {
+    await getOrCreate();
+    await (update(userProfileTable)).write(
+      UserProfileTableCompanion(
+        waterTargetMl: Value(targetMl),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
   /// Writes every profile field (singleton row replace-by-value).
   ///
   /// Named `saveProfile` (not `update`) to avoid colliding with drift's
@@ -65,6 +80,7 @@ class ProfileDao extends DatabaseAccessor<AppDatabase> with _$ProfileDaoMixin {
         activity: Value(profile.activity?.name),
         pace: Value(profile.pace?.name),
         foodPreference: Value(profile.foodPreference?.name),
+        waterTargetMl: Value(profile.waterTargetMl),
         onboardingComplete: Value(profile.onboardingComplete),
         currentOnboardingStep: Value(profile.currentOnboardingStep),
         updatedAt: Value(DateTime.now()),
@@ -88,6 +104,7 @@ class ProfileDao extends DatabaseAccessor<AppDatabase> with _$ProfileDaoMixin {
       foodPreference: row.foodPreference == null
           ? null
           : FoodPreference.values.byName(row.foodPreference!),
+      waterTargetMl: row.waterTargetMl,
       onboardingComplete: row.onboardingComplete,
       currentOnboardingStep: row.currentOnboardingStep,
     );
