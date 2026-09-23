@@ -536,4 +536,55 @@ abstract final class Strings {
   static const String whatCanIEatUnavailable =
       'Suggestions could not be built just now. Your food table is still on '
       'this device.';
+
+  // ── S3 AUTH: sign-in (P-AUTH-1: screens undesigned → PPA-16) ─────────────
+  static const String signInTitle = 'Sign in';
+  static const String signInSubtitle =
+      'Sign in with your phone number. Nourish sends a six-digit code by SMS '
+      'and never asks for a password.';
+  static const String signInPhoneLabel = 'Mobile number';
+  static const String signInPhoneHint = '0911 23 45 67';
+  static const String signInSendCode = 'SEND CODE';
+  static const String signInCodeTitle = 'Enter your code';
+  static const String signInCodeLabel = 'Six-digit code';
+  static const String signInVerify = 'VERIFY';
+  static const String signInChangeNumber = 'USE A DIFFERENT NUMBER';
+  static const String signInResend = 'SEND A NEW CODE';
+  static String signInResendIn(int seconds) => 'Send a new code in ${seconds}s';
+  static String signInCodeSentTo(String phone) =>
+      'We sent a code to $phone. It expires in a few minutes.';
+  static const String signInLocalOnly =
+      'Your meals, water and weight stay on this device until you sign in. '
+      'Signing in does not upload anything yet — sync is not built.';
+  static const String signInChecking = 'Checking your session…';
+  static const String signInSending = 'Sending…';
+  static const String signInVerifying = 'Checking the code…';
+  static const String signInPhoneInvalid =
+      'Enter the mobile number you want the code sent to.';
+  static const String signInCodeInvalid = 'Enter the six-digit code.';
+
+  // ── S3 AUTH: the account screen (Profile tab) ────────────────────────────
+  static const String accountTitle = 'Account';
+  static const String accountSignedOutBody =
+      'You are using Nourish without an account. Everything you log is stored '
+      'on this device only.';
+  static const String accountPhone = 'Number';
+  static const String accountPlan = 'Plan';
+  static const String accountPlanFree = 'Free';
+  static const String accountPlanPremium = 'Premium';
+  static const String accountSessions = 'Devices signed in';
+  static const String accountConsent = 'AI improvement';
+  static const String accountConsentOn = 'Allowed';
+  static const String accountConsentOff = 'Not allowed';
+  static const String accountConsentNote =
+      'Consent is stored by Nourish\'s server and can be changed there. This '
+      'screen only reports what the server holds.';
+  static const String accountSyncNote =
+      'Backup and sync between devices are not built yet: this account is real, '
+      'but nothing is uploaded from this device.';
+  static const String accountSignInAction = 'SIGN IN';
+  static const String accountSignOutAction = 'SIGN OUT';
+  static const String accountSignOutFailed =
+      'Signed out on this device. The server could not be reached to end the '
+      'session there.';
 }

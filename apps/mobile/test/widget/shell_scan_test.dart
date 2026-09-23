@@ -36,7 +36,10 @@ void main() {
 
       await tester.tap(find.text(Strings.profileTab));
       await tester.pumpAndSettle();
-      expect(find.text(Strings.profileComingTitle), findsWidgets);
+      // S3 replaced the Profile void with the account surface; signed out it
+      // explains that everything stays on the device and offers sign-in.
+      expect(find.text(Strings.accountSignedOutBody), findsWidgets);
+      expect(find.text(Strings.accountSignInAction), findsWidgets);
 
       await tester.tap(find.text(Strings.homeTab));
       await tester.pumpAndSettle();

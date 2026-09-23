@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nourish_domain/domain.dart';
 
+import '../features/auth/sign_in_screen.dart';
 import '../features/history/meal_history_screen.dart';
 import '../features/home/home_shell.dart';
 import '../features/insights/insights_screen.dart';
@@ -74,6 +75,7 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
     AppRoutes.searchFood,
     AppRoutes.weight,
     AppRoutes.whatCanIEat,
+    AppRoutes.signIn,
   };
 
   return GoRouter(
@@ -176,6 +178,11 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
         path: AppRoutes.whatCanIEat,
         builder: (BuildContext context, GoRouterState state) =>
             const WhatCanIEatScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.signIn,
+        builder: (BuildContext context, GoRouterState state) =>
+            const SignInScreen(),
       ),
       // S2 scan flow: transactional screens, the navigation shell is suppressed.
       GoRoute(

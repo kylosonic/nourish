@@ -70,8 +70,10 @@ Future<AppHarness> pumpApp(
         driftDatabaseProvider.overrideWithValue(database),
         routerProvider.overrideWithValue(router),
         profileNotifierProvider.overrideWithValue(notifier),
-        // Never let a widget test reach the network for a release document.
+        // Never let a widget test reach the network for a release document or
+        // for sign-in, and never let it touch the platform keychain.
         ...offlineUpdateOverrides(),
+        ...offlineAuthOverrides(),
         ...overrides,
       ],
       child: const NourishApp(),

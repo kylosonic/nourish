@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S1, S2 (API + text + photo lanes), S3 BACKEND, S4 (insights + weight) and S5 COMMITTED; S3 mobile (auth screens + sync engine) NOT STARTED` |
+| Phase | `IMPLEMENTING — S1, S2 (API + text + photo lanes), S3 (backend + device accounts/sessions), S4 (insights, weight, water goal, recommendations) and S5 COMMITTED; only S3 device sync (offline queue + engine) is unbuilt` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S4 — insights (INS-01/02) and weight (WW-03) shipped; water-target adjustability (WW-01) and INS-03 open |
+| Active slice | S3 — the device can now sign in and hold a session; the offline queue and sync engine are not built, so nothing uploads yet |
 | Active gate | none in flight — each slice was verified against its own criteria and committed |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest commit | `deb9800` (S4 — lazy shell pages) plus the weight work on the working tree |
+| Latest commit | `1190052` (S4 — INS-03 recommendations) plus the S3 sign-in work on the working tree |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -255,6 +255,10 @@ Tracked in `docs/plans/provisional-product-assumptions.md`:
   free-text request the contract sketches, because parsing free text would need
   a model and no model is allowed to choose nutrition. Its ranking rules are
   documented in `what_can_i_eat.dart`.
+- **PPA-16** — sign-in is a two-step number-then-code screen and the Profile tab
+  is now the account surface. Signing in creates a real session but uploads
+  nothing: the offline queue and sync engine are not built, and the screen says
+  so instead of implying a backup.
 
 ### Pending behaviors blocking later slices
 
@@ -330,6 +334,47 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-20 — S3 device accounts and sessions (AUTH-01/02/03, this commit)**:
+  - The app can now sign in for real. `AuthApi` (the third and last egress seam,
+    under `lib/data/sources/`) speaks the documented endpoints; the number is
+    sent exactly as typed and the server normalizes it, because AUTH-01 says
+    identity is the server's decision, not the device's.
+  - Tokens live only in platform secure storage (Android Keystore / iOS
+    Keychain) behind a `TokenStore` seam, so the widget tests never touch a
+    keychain and there is exactly one implementation that writes to disk.
+  - Launch restores a stored session by asking the server who it is; an expired
+    access token is rotated once, and a session that cannot be confirmed leaves
+    the app signed out with the reason shown rather than a green tick over a
+    dead session. Sign-out clears the device even when the server is
+    unreachable, and says so when the server session outlived it.
+  - The Profile tab stopped being an honest void and became the account surface:
+    the normalized number, the plan, the consent flag and the device count, all
+    reported exactly as the server holds them. It also states plainly that
+    nothing is uploaded yet — because the offline queue and sync engine are not
+    built, and a screen that implied a backup would be lying.
+  - **Live verification (not a mock):** the API was started locally with the
+    console SMS gateway and the real client was driven against it by
+    `apps/mobile/tool/auth_live_check.dart` — `requestOtp` → 202 with the
+    normalized number, `verifyOtp` → tokens + account (`plan free`,
+    `consent false`, 1 session), `GET /v1/me` with the issued access token,
+    `refresh` → rotated token, replaying the old refresh token → refused with
+    `TOKEN_REUSED`, `logout` → session ended. A wrong code was then refused with
+    `OTP_INVALID — That code is not valid. 4 attempts left.`, and the app now
+    surfaces the server's own count instead of replacing it with its own copy.
+  - Evidence: `flutter analyze` clean; `flutter test` **246/246** (222 before:
+    8 API-client tests, 8 controller tests, 8 sign-in widget tests, plus the
+    shell test updated for the real Profile screen). The live check ran against
+    the API started from this checkout; the dev server was stopped afterwards
+    and Docker's containers were left up, loopback-only.
+  - **Still not built (S3 device side):** the offline queue and the sync engine.
+    Nothing is uploaded from the device: meals, water, weight and the water goal
+    remain local-only. `POST /v1/sync` and `GET /v1/sync/changes` are implemented
+    and verified server-side (see the S3 backend block) but no client calls them.
+  - **Not verified anywhere:** real SMS delivery — no gateway credential exists
+    in this environment, so the live check used the console gateway, which logs
+    the code locally.
+
 
 - **2026-09-20 — S4 "What can I eat" (INS-03, this commit)**:
   - The last designed-source behaviour of S4 is now built: suggestions are drawn

@@ -13,8 +13,10 @@ import 'data/repositories/onboarding_repository.dart';
 import 'data/repositories/target_repository.dart';
 import 'data/repositories/water_repository.dart';
 import 'data/repositories/weight_repository.dart';
+import 'data/services/token_store.dart';
 import 'data/sources/api_catalog_data_source.dart';
 import 'data/sources/analysis_api_client.dart';
+import 'data/sources/auth_api_client.dart';
 import 'data/sources/catalog_data_source.dart';
 import 'data/sources/local_catalog_data_source.dart';
 import 'data/sync/catalog_sync_service.dart';
@@ -407,6 +409,18 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>(
 /// tests override it with a fake so no socket is ever opened.
 final Provider<AnalysisApi> analysisApiProvider = Provider<AnalysisApi>(
   (Ref<AnalysisApi> ref) => AnalysisApi(),
+);
+
+/// The account transport (S3). Same rule as the analysis client: it is the only
+/// place sign-in talks to the network, and tests override it with a fake.
+final Provider<AuthApi> authApiProvider = Provider<AuthApi>(
+  (Ref<AuthApi> ref) => AuthApi(),
+);
+
+/// Where session tokens live. Platform secure storage in the app; an in-memory
+/// store in tests, so no test touches the keychain.
+final Provider<TokenStore> tokenStoreProvider = Provider<TokenStore>(
+  (Ref<TokenStore> ref) => SecureTokenStore(),
 );
 
 /// One scan/log run: submit → resolve → edit → confirm (SCAN-04..07, LOG-01).
