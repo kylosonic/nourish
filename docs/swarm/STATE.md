@@ -335,6 +335,20 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-20 — full-tree verification sweep at `79a725d` (whole repository,
+  every suite, run one after another)**:
+  - Mobile: `flutter analyze` clean, `flutter test` **246/246**. Domain
+    **27/27**, design-system **13/13**.
+  - API: lint clean, build clean, `prisma validate` valid, unit **91/91**,
+    e2e **83/83**, `npm audit` **0 vulnerabilities**.
+  - Tooling: node `scripts/*.test.mjs` **9/9**, `apps/website/test/*.test.mjs`
+    **12/12**, `generate-latest-json.mjs --check` OK
+    (`published=false, android=false, ios_installable=false`), html-validate
+    exit 0 across the six website pages.
+  - This is the state the working tree is in; nothing is merged to `master`,
+    which still points at the S0 release commit.
+
+
 - **2026-09-20 — S3 device accounts and sessions (AUTH-01/02/03, this commit)**:
   - The app can now sign in for real. `AuthApi` (the third and last egress seam,
     under `lib/data/sources/`) speaks the documented endpoints; the number is
@@ -830,6 +844,46 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
     `docker start`).
   - Git: unchanged — HEAD `56a6a6b`, ~40 uncommitted S1 paths + this
     STATE.md update. Nothing committed (Gate F still pending).
+
+## Next Session — the one unbuilt piece: S3 device sync
+
+Researched against the server code in this session, so it does not have to be
+re-derived:
+
+- **What the server accepts** (`apps/api/src/sync/dto/sync.dto.ts`):
+  `POST /v1/sync` takes `{ operations: [...] }`, max 500, each
+  `{ kind, op, clientId, clientSeq?, updatedAt, ... }` where `kind` is
+  `meal | water | weight` and `op` is `upsert | delete`. Per kind: a meal also
+  needs `dateKey`, `slot` and a non-empty `items[]` (each item: `foodId`,
+  `foodName`, `portionUnit`, `portionQuantity`, `grams`, kcal/macro grams,
+  optional fiber/sodium); water needs `dateKey`, `amountMl`, `loggedAt`; weight
+  needs `dateKey`, `weightKg`, `loggedAt`. The response reports a per-operation
+  outcome (`applied | ignored-stale | unchanged | rejected`) — a rejected
+  operation must be surfaced, never silently dropped.
+- **`dateKey` and `loggedAt` must be sent for all three kinds.** The server falls
+  back to `updatedAt` for both, which would file a back-filled weight (WW-03) or
+  a water log under the day it was typed rather than the day it belongs to.
+- **`clientId` must be stable per row AND unique per device.** Local rows are
+  auto-increment integers, so `'meal:42'` collides across two devices and the
+  server would treat them as the same row. The queue therefore needs a
+  per-install identifier (a generated id stored once, e.g. in a settings/key-value
+  row) combined with the table and row id, and the same clientId must be reused
+  when the same row is updated.
+- **Merge authority** is the device clock (`decideMerge` in `merge.ts`): an
+  operation older than what the server holds is `ignored-stale`. The engine must
+  not retry a stale operation as if it were a failure.
+- **Pull** (`GET /v1/sync/changes?since=&limit=`) returns meals/water/weight with
+  `clientId`, `dateKey`, `loggedAt`, `updatedAt`, `deletedAt` and a `serverTime`
+  cursor. Applying it locally means writing remote rows into the Drift tables and
+  honouring tombstones — that is the half where a mistake corrupts user data, so
+  it deserves its own pass with a real merge test, not a hurried addition.
+- **Suggested order of work:** queue table + `clientId` identity → enqueue at
+  every local mutation (meal save/delete, water add/remove, weight log) → push
+  with per-op outcome handling and a "sync now" affordance showing last-synced
+  and last error → live verification with `tool/auth_live_check.dart` extended
+  to push a real queue → only then pull/apply.
+- The account screen currently states that nothing is uploaded. That copy is
+  true today and must be changed in the same commit that starts uploading.
 
 ## GraphSync Note
 
