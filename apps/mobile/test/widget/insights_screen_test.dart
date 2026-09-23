@@ -59,6 +59,24 @@ void main() {
     );
   }
 
+  testWidgets('the dashboard is not computed until the tab is opened',
+      (WidgetTester tester) async {
+    final AppHarness harness = await pumpApp(tester, profile: answerProfile());
+    await seedTarget(harness.db, answerProfile());
+    await log(tester, harness.db, todayDateKey(), 900);
+
+    // Launch leaves the user on Home. The shell keeps its tabs alive, so the
+    // dashboard must still not have been built (master §62: launch stays on the
+    // Home path rather than running a week of queries).
+    expect(find.text(Strings.insightsTitle), findsNothing);
+    expect(find.text(Strings.insightsCaloricBalance), findsNothing);
+
+    await openInsightsTab(tester);
+    await pumpUntilFound(tester, find.text(Strings.insightsTitle));
+    expect(find.text(Strings.insightsTitle), findsOneWidget);
+    await harness.teardown(tester);
+  });
+
   testWidgets('an empty week shows the empty state, not a zeroed dashboard',
       (WidgetTester tester) async {
     final AppHarness harness = await pumpApp(tester, profile: answerProfile());

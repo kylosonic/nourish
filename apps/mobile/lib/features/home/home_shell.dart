@@ -25,26 +25,46 @@ class HomeShell extends ConsumerStatefulWidget {
 class _HomeShellState extends ConsumerState<HomeShell> {
   int _index = 0;
 
-  static const List<Widget> _pages = <Widget>[
-    HomeScreen(),
-    ProgressScreen(),
-    InsightsScreen(),
-    ProfileScreen(),
-  ];
+  /// Pages the user has actually opened.
+  ///
+  /// The shell keeps its tabs alive in an IndexedStack, but building all four at
+  /// launch means Progress, Insights and Profile do their work before the user
+  /// has asked for them — and the Insights dashboard alone runs a week of
+  /// queries. An unvisited tab renders an empty placeholder instead, so launch
+  /// stays on the Home path (master §62) and the dashboard computes when it is
+  /// actually opened.
+  final Set<int> _visited = <int>{0};
 
-  /// Maps a nav slot to its page index (scan slot has no page).
   static const List<int> _pageForSlot = <int>[0, 1, 2, 3];
 
   void _selectTab(int slot) {
     final int page = _pageForSlot[slot];
-    // Insights is a report over the trailing week, and the IndexedStack keeps
-    // every page mounted, so the provider would otherwise keep whatever it
-    // computed when the app first built the tree. Recompute it when the user
-    // actually opens the tab.
     if (page == 2) {
+      // Insights reports over the trailing week: recompute when it is opened
+      // rather than showing what it computed earlier in the session.
       ref.invalidate(weeklyInsightsProvider);
     }
-    setState(() => _index = page);
+    setState(() {
+      _index = page;
+      _visited.add(page);
+    });
+  }
+
+  Widget _pageAt(int index) {
+    if (!_visited.contains(index)) {
+      return const SizedBox.shrink();
+    }
+    switch (index) {
+      case 1:
+        return const ProgressScreen();
+      case 2:
+        return const InsightsScreen();
+      case 3:
+        return const ProfileScreen();
+      case 0:
+      default:
+        return const HomeScreen();
+    }
   }
 
   void _openScan() {
@@ -57,7 +77,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: _pages),
+      body: IndexedStack(
+        index: _index,
+        children: <Widget>[
+          for (int i = 0; i < 4; i++) _pageAt(i),
+        ],
+      ),
       bottomNavigationBar: _NourishBottomBar(
         selectedIndex: _index,
         onTabSelected: _selectTab,
