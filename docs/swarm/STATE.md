@@ -351,6 +351,14 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
     executed by an agent** — the UAT gate is a human's, and the file says so, and
     check 5.12 (restore onto a fresh install) is listed as *must fail today*
     because pull is not built.
+  - **Native build verified** (the gap left open when the secure-storage plugin
+    arrived): `flutter build windows --debug` succeeded — 148s, `nourish_mobile.exe`
+    produced, and `flutter_secure_storage_windows_plugin.dll` is among the linked
+    plugin DLLs alongside `sqlite3`, `url_launcher_windows` and
+    `file_selector_windows`. The dependency had only ever been exercised through
+    Dart tests before this; it is now known to compile and link into a real
+    target. Android release builds remain CI's job (`android-ci.yml`) and have
+    not been run here.
   - Nothing merged: `master` is still at `1c16902`.
 
 
