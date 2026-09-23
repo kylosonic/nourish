@@ -86,8 +86,16 @@ class MealDao extends DatabaseAccessor<AppDatabase> with _$MealDaoMixin {
     });
   }
 
-  Future<Meal?> mealById(int id) async {
-    final MealsRow? row = await (select(
+  /// Deletes a meal and its items in one transaction (LOG-06 removal path).
+  Future<void> deleteMealWithItems(int mealId) {
+    return transaction(() async {
+      await (delete(mealItems)..where((MealItems i) => i.mealId.equals(mealId)))
+          .go();
+      await (delete(meals)..where((Meals m) => m.id.equals(mealId))).go();
+    });
+  }
+
+  Future<Meal?> mealById(int id) async {    final MealsRow? row = await (select(
       meals,
     )..where((Meals m) => m.id.equals(id))).getSingleOrNull();
     if (row == null) {

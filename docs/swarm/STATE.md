@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S1, S2 (API + text + photo lanes), S3 (backend + device accounts/sessions), S4 (insights, weight, water goal, recommendations) and S5 COMMITTED; only S3 device sync (offline queue + engine) is unbuilt` |
+| Phase | `IMPLEMENTING — S1, S2, S3 (backend + device accounts/sessions + offline queue/push), S4 and S5 COMMITTED; only S3 pull/restore is unbuilt` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S3 — the device can now sign in and hold a session; the offline queue and sync engine are not built, so nothing uploads yet |
+| Active slice | S3 — the device queues every local change and backs it up on request; pulling changes back down is not built |
 | Active gate | none in flight — each slice was verified against its own criteria and committed |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest commit | `1190052` (S4 — INS-03 recommendations) plus the S3 sign-in work on the working tree |
+| Latest commit | `0de571e` (docs — UAT handoff) plus the S3 queue/push work on the working tree |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -334,6 +334,50 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-20 — S3 offline queue and backup push (OFF-02, this commit)**:
+  - Every local change now leaves a queued operation behind, written in the same
+    transaction as the change itself: meal saves, meal deletes (a tombstone,
+    because a deleted row leaves nothing to notice), water additions and
+    removals (signed amounts, matching the device's own audit trail) and weight
+    entries. The operation stores the exact wire body, so what is pushed later
+    is what was queued.
+  - Identity is install-scoped: `clientId` is `<12-char device id>:<table>:<row>`
+    generated once and kept locally, and each meal item carries its own id. Two
+    devices can therefore never collide into one server row, and the same local
+    row keeps its identity across pushes.
+  - The engine pushes in insertion order, in batches, and takes the server's word
+    for each operation: `applied` and `ignored-stale`/`unchanged` are done (a
+    stale operation is not a failure to retry), a refusal keeps the operation
+    queued with the server's reason, and an operation the server does not answer
+    for stays queued — silence is not acceptance. An expired access token is
+    rotated once and the same batch retried. With no stored session the queue
+    simply waits, so a meal logged before signing in is still backed up later.
+  - The account screen gained a backup panel that reports the queue's own count,
+    backs up on request, and says plainly that this is **a backup, not a sync**:
+    restoring onto a new device is not built. A session the server could not
+    confirm (offline) now reads "signed in, not confirmed" instead of claiming
+    the user has no account.
+  - **Live verification, and it earned its keep:** `tool/sync_live_check.dart`
+    signed in against the API running from this checkout, pushed a meal, a water
+    log, a weight entry and one deliberately incomplete meal, then read the
+    changes back. Result: `3 applied, 1 rejected — a meal needs at least one
+    item`, and the pull showed all three rows with the right `dateKey` and
+    values, the meal with its item. The first run **failed** and exposed two real
+    client bugs the fakes had hidden: the server requires a `clientId` on every
+    meal **item**, and refusals come back in a separate `rejected` array with a
+    `reason` field rather than as an `applied` outcome. Both are fixed, and the
+    fakes in the tests now use the server's real two-array shape so they cannot
+    hide it again.
+  - Evidence: `flutter analyze` clean; `flutter test` **268/268** (246 before:
+    11 queue tests, 8 engine tests, 3 backup-panel widget tests). Drift schema
+    v5 (additive table).
+  - **Still not built:** the pull half. `GET /v1/sync/changes` is implemented and
+    tested server-side and the live check read it, but the device never applies
+    remote rows: no restore onto a fresh install, no two-device reconciliation.
+    That is the half where a mistake corrupts a user's own records, so it gets
+    its own pass with a real merge test. The account screen says so.
+
 
 - **2026-09-20 — full-tree verification sweep at `79a725d` (whole repository,
   every suite, run one after another)**:
@@ -845,45 +889,34 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
   - Git: unchanged — HEAD `56a6a6b`, ~40 uncommitted S1 paths + this
     STATE.md update. Nothing committed (Gate F still pending).
 
-## Next Session — the one unbuilt piece: S3 device sync
+## Next Session - the one unbuilt piece: S3 pull (restore and reconciliation)
 
-Researched against the server code in this session, so it does not have to be
-re-derived:
+Push is built and live-verified (see the newest evidence block). What remains is
+the other direction, researched against the server code so it does not have to
+be re-derived:
 
-- **What the server accepts** (`apps/api/src/sync/dto/sync.dto.ts`):
-  `POST /v1/sync` takes `{ operations: [...] }`, max 500, each
-  `{ kind, op, clientId, clientSeq?, updatedAt, ... }` where `kind` is
-  `meal | water | weight` and `op` is `upsert | delete`. Per kind: a meal also
-  needs `dateKey`, `slot` and a non-empty `items[]` (each item: `foodId`,
-  `foodName`, `portionUnit`, `portionQuantity`, `grams`, kcal/macro grams,
-  optional fiber/sodium); water needs `dateKey`, `amountMl`, `loggedAt`; weight
-  needs `dateKey`, `weightKg`, `loggedAt`. The response reports a per-operation
-  outcome (`applied | ignored-stale | unchanged | rejected`) — a rejected
-  operation must be surfaced, never silently dropped.
-- **`dateKey` and `loggedAt` must be sent for all three kinds.** The server falls
-  back to `updatedAt` for both, which would file a back-filled weight (WW-03) or
-  a water log under the day it was typed rather than the day it belongs to.
-- **`clientId` must be stable per row AND unique per device.** Local rows are
-  auto-increment integers, so `'meal:42'` collides across two devices and the
-  server would treat them as the same row. The queue therefore needs a
-  per-install identifier (a generated id stored once, e.g. in a settings/key-value
-  row) combined with the table and row id, and the same clientId must be reused
-  when the same row is updated.
-- **Merge authority** is the device clock (`decideMerge` in `merge.ts`): an
-  operation older than what the server holds is `ignored-stale`. The engine must
-  not retry a stale operation as if it were a failure.
-- **Pull** (`GET /v1/sync/changes?since=&limit=`) returns meals/water/weight with
-  `clientId`, `dateKey`, `loggedAt`, `updatedAt`, `deletedAt` and a `serverTime`
-  cursor. Applying it locally means writing remote rows into the Drift tables and
-  honouring tombstones — that is the half where a mistake corrupts user data, so
-  it deserves its own pass with a real merge test, not a hurried addition.
-- **Suggested order of work:** queue table + `clientId` identity → enqueue at
-  every local mutation (meal save/delete, water add/remove, weight log) → push
-  with per-op outcome handling and a "sync now" affordance showing last-synced
-  and last error → live verification with `tool/auth_live_check.dart` extended
-  to push a real queue → only then pull/apply.
-- The account screen currently states that nothing is uploaded. That copy is
-  true today and must be changed in the same commit that starts uploading.
+- **What the server returns** (`apps/api/src/sync/sync.service.ts` `pull`):
+  `GET /v1/sync/changes?since=<ISO>&limit=<1..500>` answers
+  `{ meals: [...], water: [...], weight: [...], serverTime }`. Each row carries
+  `clientId`, `dateKey`, `loggedAt`, `updatedAt`, `deletedAt` (a tombstone is a
+  row with `deletedAt` set, not an absence) and, for meals, `clientSeq` and a
+  nested `items[]` with each item's own `clientId` and its frozen snapshot.
+  `serverTime` is the cursor to send back as `since` next time.
+- **Why this needs care:** applying rows writes into the same tables the user is
+  logging into. The server's rule is device-clock last-write-wins
+  (`decideMerge` in `merge.ts`), so the device must apply the same rule locally
+  or the two sides will disagree about which version is current. A pull must
+  also ignore the rows this device just pushed (its own `clientId`s), or it will
+  duplicate them.
+- **Suggested order of work:** store the cursor (a `seed_meta` settings key) ->
+  map remote rows to local rows by `clientId`, which needs a `clientId` column
+  or index on each synced table since local ids are integers -> apply upserts and
+  tombstones inside one transaction -> a merge test with a real two-way conflict
+  (same `clientId`, device edit vs server edit, different `updatedAt`) -> then the
+  restore-onto-a-fresh-install path, which is what makes the account screen's
+  "this is a backup, not a sync" copy obsolete.
+- The account screen's push-only copy is true today and must change in the same
+  commit that starts pulling.
 
 ## UAT handoff (human approval required before merge)
 
@@ -897,17 +930,17 @@ What a reviewer should look at, in order:
    limits (no AI key, no SMS gateway, no store release).
 2. `apps/mobile` on a device or desktop: onboarding → log a meal (text and
    photo lanes) → Home dashboard → Insights → weight → water goal → "what can I
-   eat" → Profile tab → sign in (needs the API running with
+   eat" → Profile tab → sign in → back up (needs the API running with
    `SMS_PROVIDER=console`, or use the console code from the API log).
 3. `docs/plans/provisional-product-assumptions.md` — every undesigned screen that
    was built provisionally (PPA-1…PPA-16). These are the product decisions
    awaiting sign-off; overturning one reworks only the listed slice.
 4. `docs/swarm/STATE.md` — this file: gates, evidence, unresolved risks, and the
-   *Next Session* block naming the one unbuilt piece (S3 device sync).
+   *Next Session* block naming the one unbuilt piece (S3 pull/restore).
 
-Known gaps at handoff: the device sync engine (nothing uploads), water reminders
-(WW-02), entitlements/paywall (SUB-01, needs a provider and a design), and the
-release pipeline (never run — needs a remote and secrets).
+Known gaps at handoff: sync pushes but pulls nothing back (a backup, not a
+restore), water reminders (WW-02), entitlements/paywall (SUB-01, needs a provider
+and a design), and the release pipeline (never run — needs a remote and secrets).
 
 ## GraphSync Note
 

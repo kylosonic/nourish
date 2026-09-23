@@ -4,6 +4,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'daos/food_dao.dart';
 import 'daos/meal_dao.dart';
 import 'daos/profile_dao.dart';
+import 'daos/sync_queue_dao.dart';
 import 'daos/target_dao.dart';
 import 'daos/water_dao.dart';
 import 'daos/weight_dao.dart';
@@ -11,13 +12,13 @@ import 'tables/tables.dart';
 
 part 'database.g.dart';
 
-/// The single local SQLite database for Nourish (schema version 4).
+/// The single local SQLite database for Nourish (schema version 5).
 ///
 /// v1→v2 adds the FCT provenance columns to [Foods] (additive, nullable,
 /// on-device upgrade safe — blueprint S1 §11). v3 adds [WeightLogs], v4 adds
-/// the adjustable water goal to the profile row. Future slices add tables
-/// through versioned Drift migrations; the seed catalog re-import is
-/// guarded separately by `seed_meta` (blueprint §17).
+/// the adjustable water goal to the profile row, v5 adds the offline sync
+/// queue. Future slices add tables through versioned Drift migrations; the seed
+/// catalog re-import is guarded separately by `seed_meta` (blueprint §17).
 @DriftDatabase(
   tables: [
     UserProfileTable,
@@ -29,9 +30,18 @@ part 'database.g.dart';
     MealItems,
     WaterLogs,
     WeightLogs,
+    SyncQueueRows,
     SeedMeta,
   ],
-  daos: [ProfileDao, FoodDao, MealDao, WaterDao, WeightDao, TargetDao],
+  daos: [
+    ProfileDao,
+    FoodDao,
+    MealDao,
+    WaterDao,
+    WeightDao,
+    SyncQueueDao,
+    TargetDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
@@ -43,7 +53,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -66,6 +76,12 @@ class AppDatabase extends _$AppDatabase {
         // v4 makes the water goal adjustable (WW-01). Nullable, so an existing
         // install keeps the documented default until the user changes it.
         await m.addColumn(userProfileTable, userProfileTable.waterTargetMl);
+      }
+      if (from < 5) {
+        // v5 adds the offline sync queue (OFF-02). An existing install starts
+        // with an empty queue: nothing already logged is re-uploaded, because
+        // there is no record of which rows the server has seen.
+        await m.createTable(syncQueueRows);
       }
     },
   );

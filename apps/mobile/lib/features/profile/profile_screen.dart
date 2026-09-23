@@ -7,6 +7,7 @@ import '../../data/models/account_session.dart';
 import '../../l10n/strings.dart';
 import '../../router/routes.dart';
 import '../auth/auth_controller.dart';
+import '../sync/sync_controller.dart';
 
 /// The Profile tab, now the account surface (S3, AUTH-01..03).
 ///
@@ -47,8 +48,39 @@ class ProfileScreen extends ConsumerWidget {
                 children: <Widget>[
                   if (auth.isSignedIn)
                     _SignedIn(account: auth.account!)
+                  else if (auth.isUnconfirmed)
+                    const _Unconfirmed()
                   else
                     const _SignedOut(),
+                  const SizedBox(height: NourishSpacing.gutter),
+                  // Rendered signed out too: the count of waiting changes is
+                  // the user's own data, and it is the reason to sign in.
+                  const _BackupPanel(),
+                  if (auth.isSignedIn || auth.isUnconfirmed) ...<Widget>[
+                    const SizedBox(height: NourishSpacing.gutter),
+                    NourishButton(
+                      variant: NourishButtonVariant.secondary,
+                      label: Strings.accountSignOutAction,
+                      // Captured before the await: the button's own context is
+                      // gone by the time the server answers.
+                      onPressed: () async {
+                        final ScaffoldMessengerState messenger =
+                            ScaffoldMessenger.of(context);
+                        final bool endedOnServer = await ref
+                            .read(authControllerProvider.notifier)
+                            .signOut();
+                        if (endedOnServer) return;
+                        // The device is signed out either way; only the server
+                        // session outlived it, and saying so is better than
+                        // implying otherwise.
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text(Strings.accountSignOutFailed),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ],
               ),
       ),
@@ -95,8 +127,6 @@ class _SignedIn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -139,40 +169,129 @@ class _SignedIn extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: NourishSpacing.gutter),
-        NourishCard(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            Strings.accountSyncNote,
+      ],
+    );
+  }
+}
+
+/// A stored session the server could not confirm (offline, or a transient
+/// failure). Showing the signed-out state here would tell the user they have no
+/// account when they do.
+class _Unconfirmed extends StatelessWidget {
+  const _Unconfirmed();
+
+  @override
+  Widget build(BuildContext context) {
+    return NourishCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            Strings.accountUnconfirmedTitle,
+            style: NourishTextStyles.headlineMd,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            Strings.accountUnconfirmedBody,
             style: NourishTextStyles.bodyMd.copyWith(
               color: NourishColors.onSurfaceVariant,
             ),
           ),
-        ),
-        const SizedBox(height: NourishSpacing.gutter),
-        NourishButton(
-          variant: NourishButtonVariant.secondary,
-          label: Strings.accountSignOutAction,
-          onPressed: () async {
-            final bool endedOnServer = await ref
-                .read(authControllerProvider.notifier)
-                .signOut();
-            if (endedOnServer) return;
-            // The device is signed out either way; only the server session
-            // outlived it, and saying so is better than implying otherwise.
-            messenger.showSnackBar(
-              const SnackBar(content: Text(Strings.accountSignOutFailed)),
-            );
-          },
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+}
+
+/// The backup panel (OFF-02).
+///
+/// Push only, and it says so: changes reach the account, but restoring them on
+/// a new device is not built. The pending count comes from the queue itself, so
+/// the number on screen is the number of changes actually waiting rather than
+/// an optimistic guess.
+class _BackupPanel extends ConsumerWidget {
+  const _BackupPanel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final int pending = ref.watch(pendingSyncCountProvider).value ?? 0;
+    final SyncState sync = ref.watch(syncControllerProvider);
+    // Whether there is an account at all is the auth state's business, not the
+    // sync engine's: a user who has never signed in should be told to, even
+    // though no push has been attempted.
+    final AuthState auth = ref.watch(authControllerProvider);
+    final bool hasSession = auth.isSignedIn || auth.sessionStored;
+
+    final String status = !hasSession
+        ? (pending == 0
+              ? Strings.syncSignedOutBody
+              : Strings.syncPendingSignedOut(pending))
+        : switch (sync.stage) {
+            SyncStage.syncing => Strings.syncInProgress,
+            SyncStage.synced => sync.applied > 0
+                ? Strings.syncDone(sync.applied)
+                : Strings.syncUpToDate,
+            SyncStage.failed => sync.message ?? Strings.syncNeverRun,
+            SyncStage.signedOut => pending == 0
+                ? Strings.syncSignedOutBody
+                : Strings.syncPendingSignedOut(pending),
+            SyncStage.idle => pending == 0
+                ? (sync.lastSyncedAt == null
+                      ? Strings.syncNeverRun
+                      : Strings.syncPendingNone)
+                : Strings.syncPendingCount(pending),
+          };
+
+    return NourishCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Text(Strings.syncTitle, style: NourishTextStyles.headlineMd),
+          const SizedBox(height: 8),
+          Text(
+            status,
+            style: NourishTextStyles.bodyMd.copyWith(
+              color: sync.stage == SyncStage.failed
+                  ? NourishColors.error
+                  : NourishColors.onSurfaceVariant,
+            ),
+          ),
+          if (sync.rejected > 0) ...<Widget>[
+            const SizedBox(height: 4),
+            Text(
+              Strings.syncRetrying(sync.rejected),
+              style: NourishTextStyles.bodyMd.copyWith(
+                fontSize: 13,
+                color: NourishColors.error,
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          NourishButton(
+            variant: NourishButtonVariant.secondary,
+            label: Strings.syncNowAction,
+            onPressed: sync.stage == SyncStage.syncing
+                ? null
+                : () => ref.read(syncControllerProvider.notifier).syncNow(),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            Strings.syncPushOnlyNote,
+            style: NourishTextStyles.bodyMd.copyWith(
+              fontSize: 13,
+              color: NourishColors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
 class _Row extends StatelessWidget {
   const _Row({required this.label, required this.value});
-
   final String label;
   final String value;
 

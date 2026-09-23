@@ -95,7 +95,7 @@ build — always pass an explicit glob, as above.
 | S2 — meal analysis (text + photo) and edit-before-save | Built, verified. The real recognition path is implemented and unit-tested against a fake provider; **no AI provider key exists in this environment**, so it has never been exercised against a real model |
 | S3 — accounts, sessions, sync endpoints (server) | Built, verified over HTTP |
 | S3 — accounts and sessions (device) | Built and verified live against the local API: sign-in, secure token storage, session restore, sign-out, account screen |
-| S3 — **device sync (offline queue + engine)** | **NOT BUILT.** Nothing is uploaded from the device. `POST /v1/sync` and `GET /v1/sync/changes` exist and are tested server-side; no client calls them yet. The account screen states this plainly. See `docs/swarm/STATE.md` → *Next Session* for the researched design |
+| S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Pull is NOT BUILT**: nothing is restored onto a new device, so this is a backup rather than a sync, and the account screen says so |
 | S4 — weekly insights, weight logging, adjustable water goal, "what can I eat" | Built, verified |
 | S4 — water reminders (WW-02), entitlements/paywall (SUB-01) | **NOT BUILT.** Reminders need platform notification support that cannot be verified here; the paywall has no design (P-SUB-1) and no payment provider (P-PROV-1) |
 | S5 — website, release metadata, in-app update check | Built, verified. The release pipeline itself has never run: it needs a remote and the secrets in `docs/release-process.md` |

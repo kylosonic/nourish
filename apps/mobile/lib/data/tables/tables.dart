@@ -223,7 +223,8 @@ class WaterLogs extends Table {
   DateTimeColumn get loggedAt => dateTime()();
 }
 
-/// Key/value metadata for one-shot import guards (seed version).
+/// Key/value metadata for one-shot import guards (seed version) and for
+/// install-scoped settings such as the sync device id.
 @DataClassName('SeedMetaRow')
 class SeedMeta extends Table {
   TextColumn get key => text()();
@@ -232,6 +233,46 @@ class SeedMeta extends Table {
 
   @override
   Set<Column> get primaryKey => {key};
+}
+
+/// The offline queue of operations waiting to be mirrored to the server
+/// (OFF-02, S3).
+///
+/// A queue rather than a "dirty row" watermark, because a delete leaves no row
+/// behind to notice: the only record that something was removed is an explicit
+/// tombstone operation. Rows are written in the same transaction as the change
+/// they describe, so a change cannot exist without its queued operation.
+@DataClassName('SyncQueueRow')
+class SyncQueueRows extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Stable identity of the thing this operation is about, unique per device
+  /// (the server keys idempotency on it, so two devices must never agree by
+  /// accident).
+  TextColumn get clientId => text()();
+
+  /// `meal` | `water` | `weight` — the server's own kind vocabulary.
+  TextColumn get kind => text()();
+
+  /// `upsert` | `delete`.
+  TextColumn get op => text()();
+
+  /// The operation body exactly as `POST /v1/sync` expects it, JSON-encoded.
+  /// Kept as the wire shape rather than re-derived at push time, so what is
+  /// sent is what was queued.
+  TextColumn get payload => text()();
+
+  /// When the device made the change — the server's last-write-wins clock.
+  DateTimeColumn get updatedAt => dateTime()();
+
+  /// Attempts so far, and the last refusal from the server (null while it has
+  /// never been tried). A refused operation stays queued and visible: it is
+  /// never silently dropped.
+  IntColumn get attempts => integer().withDefault(const Constant(0))();
+
+  TextColumn get lastError => text().nullable()();
+
+  DateTimeColumn get queuedAt => dateTime()();
 }
 
 /// Weight entries (WW-03).

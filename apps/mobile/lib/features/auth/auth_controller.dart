@@ -30,6 +30,7 @@ class AuthState {
     this.resendAfterSeconds = 0,
     this.errorMessage,
     this.restoring = true,
+    this.sessionStored = false,
   });
 
   final SignInStage stage;
@@ -53,7 +54,17 @@ class AuthState {
   /// not flash "signed out" before it knows.
   final bool restoring;
 
+  /// True when a session is stored on this device, whether or not the server
+  /// could confirm it. An offline device keeps its session; saying "you are not
+  /// signed in" then would be false.
+  final bool sessionStored;
+
   bool get isSignedIn => stage == SignInStage.signedIn && account != null;
+
+  /// A stored session the server could not confirm (offline, or a transient
+  /// failure). Signed in as far as the device is concerned, unverified as far
+  /// as the server is.
+  bool get isUnconfirmed => sessionStored && !isSignedIn;
 
   AuthState copyWith({
     SignInStage? stage,
@@ -65,6 +76,7 @@ class AuthState {
     String? errorMessage,
     bool clearError = false,
     bool? restoring,
+    bool? sessionStored,
   }) {
     return AuthState(
       stage: stage ?? this.stage,
@@ -75,6 +87,7 @@ class AuthState {
       resendAfterSeconds: resendAfterSeconds ?? this.resendAfterSeconds,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       restoring: restoring ?? this.restoring,
+      sessionStored: sessionStored ?? this.sessionStored,
     );
   }
 }
@@ -107,6 +120,9 @@ class AuthController extends Notifier<AuthState> {
         state = state.copyWith(restoring: false);
         return;
       }
+      // A session is stored, so the device is signed in even if the server
+      // cannot be reached to confirm it.
+      state = state.copyWith(sessionStored: true);
       // A stored token is not proof of a live session: ask the server who this
       // is, and on an expired access token rotate it once.
       try {
@@ -134,12 +150,10 @@ class AuthController extends Notifier<AuthState> {
         );
       }
     } on AuthException catch (error) {
-      // The session could not be confirmed. Say so and stay signed out rather
-      // than pretending to be signed in.
-      state = state.copyWith(
-        restoring: false,
-        errorMessage: error.message,
-      );
+      // The session is stored but could not be confirmed. Say exactly that,
+      // rather than either pretending to be signed in or claiming there is no
+      // session.
+      state = state.copyWith(restoring: false, errorMessage: error.message);
     } catch (_) {
       state = state.copyWith(restoring: false);
     }
@@ -191,6 +205,7 @@ class AuthController extends Notifier<AuthState> {
         account: session.account,
         phoneE164: session.account.phoneE164,
         verifying: false,
+        sessionStored: true,
       );
     } on AuthException catch (error) {
       state = state.copyWith(

@@ -2,6 +2,8 @@ import '../../core/date_utils.dart';
 import '../../features/weight/weight_trend.dart';
 import '../database.dart';
 import '../daos/weight_dao.dart';
+import '../models/sync_operation.dart';
+import 'sync_queue_repository.dart';
 
 /// Weight logging and trend (WW-03).
 ///
@@ -30,11 +32,28 @@ class WeightRepository {
       throw ArgumentError(problem);
     }
     final DateTime at = loggedAt ?? DateTime.now();
-    return _weights.insertEntry(
-      dateKey: dateKey ?? dateKeyFor(at),
+    final String key = dateKey ?? dateKeyFor(at);
+    final int rowId = await _weights.insertEntry(
+      dateKey: key,
       weightKg: weightKg,
       loggedAt: at,
     );
+    // Queue the entry with both its measured day and its timestamp: the server
+    // would otherwise file a back-filled entry under the day it was typed.
+    await SyncQueueRepository(_db).enqueue(
+      'weight',
+      rowId,
+      SyncOperation(
+        clientId: '',
+        kind: SyncKind.weight,
+        op: SyncOp.upsert,
+        updatedAt: at,
+        loggedAt: at,
+        dateKey: key,
+        weightKg: weightKg,
+      ),
+    );
+    return rowId;
   }
 
   /// Newest entry first (history list and "current weight").

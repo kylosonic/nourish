@@ -10,6 +10,7 @@ import 'data/database.dart';
 import 'data/repositories/food_repository.dart';
 import 'data/repositories/meal_repository.dart';
 import 'data/repositories/onboarding_repository.dart';
+import 'data/repositories/sync_queue_repository.dart';
 import 'data/repositories/target_repository.dart';
 import 'data/repositories/water_repository.dart';
 import 'data/repositories/weight_repository.dart';
@@ -19,6 +20,7 @@ import 'data/sources/analysis_api_client.dart';
 import 'data/sources/auth_api_client.dart';
 import 'data/sources/catalog_data_source.dart';
 import 'data/sources/local_catalog_data_source.dart';
+import 'data/sources/sync_api_client.dart';
 import 'data/sync/catalog_sync_service.dart';
 import 'data/sync/catalog_sync_state.dart';
 import 'features/onboarding/onboarding_controller.dart';
@@ -416,6 +418,18 @@ final Provider<AnalysisApi> analysisApiProvider = Provider<AnalysisApi>(
 final Provider<AuthApi> authApiProvider = Provider<AuthApi>(
   (Ref<AuthApi> ref) => AuthApi(),
 );
+
+/// The sync transport (S3 / OFF-02). Fourth and last egress seam.
+final Provider<SyncApi> syncApiProvider = Provider<SyncApi>(
+  (Ref<SyncApi> ref) => SyncApi(),
+);
+
+/// The offline queue (S3 / OFF-02): operations waiting to reach the server.
+final Provider<SyncQueueRepository> syncQueueRepositoryProvider =
+    Provider<SyncQueueRepository>(
+      (Ref<SyncQueueRepository> ref) =>
+          SyncQueueRepository(ref.watch(driftDatabaseProvider)),
+    );
 
 /// Where session tokens live. Platform secure storage in the app; an in-memory
 /// store in tests, so no test touches the keychain.

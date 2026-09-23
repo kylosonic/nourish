@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nourish_mobile/data/services/token_store.dart';
 import 'package:nourish_mobile/data/sources/auth_api_client.dart';
 import 'package:nourish_mobile/features/auth/sign_in_screen.dart';
+import 'package:nourish_mobile/features/profile/profile_screen.dart';
 import 'package:nourish_mobile/l10n/strings.dart';
 import 'package:nourish_mobile/providers.dart';
 import 'package:nourish_mobile/router/routes.dart';
@@ -264,6 +265,19 @@ void main() {
     await tester.tap(onScreen(find.text(Strings.signInVerify)));
     await tester.pumpAndSettle();
 
+    // The backup panel sits between the account rows and the sign-out control,
+    // and the account page is a lazy list: scroll it into existence.
+    await tester.scrollUntilVisible(
+      find.text(Strings.accountSignOutAction),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(ProfileScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text(Strings.accountSignOutAction));
     await tester.pumpAndSettle();
 

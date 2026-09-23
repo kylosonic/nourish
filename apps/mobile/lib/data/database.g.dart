@@ -4975,6 +4975,566 @@ class WeightLogsCompanion extends UpdateCompanion<WeightLogsRow> {
   }
 }
 
+class $SyncQueueRowsTable extends SyncQueueRows
+    with TableInfo<$SyncQueueRowsTable, SyncQueueRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncQueueRowsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
+  );
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+    'client_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _opMeta = const VerificationMeta('op');
+  @override
+  late final GeneratedColumn<String> op = GeneratedColumn<String>(
+    'op',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _attemptsMeta = const VerificationMeta(
+    'attempts',
+  );
+  @override
+  late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
+    'attempts',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _queuedAtMeta = const VerificationMeta(
+    'queuedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> queuedAt = GeneratedColumn<DateTime>(
+    'queued_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    clientId,
+    kind,
+    op,
+    payload,
+    updatedAt,
+    attempts,
+    lastError,
+    queuedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_queue_rows';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncQueueRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('op')) {
+      context.handle(_opMeta, op.isAcceptableOrUnknown(data['op']!, _opMeta));
+    } else if (isInserting) {
+      context.missing(_opMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_payloadMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('attempts')) {
+      context.handle(
+        _attemptsMeta,
+        attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta),
+      );
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
+    if (data.containsKey('queued_at')) {
+      context.handle(
+        _queuedAtMeta,
+        queuedAt.isAcceptableOrUnknown(data['queued_at']!, _queuedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_queuedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SyncQueueRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncQueueRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      clientId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      op: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}op'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      attempts: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}attempts'],
+      )!,
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
+      queuedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}queued_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SyncQueueRowsTable createAlias(String alias) {
+    return $SyncQueueRowsTable(attachedDatabase, alias);
+  }
+}
+
+class SyncQueueRow extends DataClass implements Insertable<SyncQueueRow> {
+  final int id;
+
+  /// Stable identity of the thing this operation is about, unique per device
+  /// (the server keys idempotency on it, so two devices must never agree by
+  /// accident).
+  final String clientId;
+
+  /// `meal` | `water` | `weight` — the server's own kind vocabulary.
+  final String kind;
+
+  /// `upsert` | `delete`.
+  final String op;
+
+  /// The operation body exactly as `POST /v1/sync` expects it, JSON-encoded.
+  /// Kept as the wire shape rather than re-derived at push time, so what is
+  /// sent is what was queued.
+  final String payload;
+
+  /// When the device made the change — the server's last-write-wins clock.
+  final DateTime updatedAt;
+
+  /// Attempts so far, and the last refusal from the server (null while it has
+  /// never been tried). A refused operation stays queued and visible: it is
+  /// never silently dropped.
+  final int attempts;
+  final String? lastError;
+  final DateTime queuedAt;
+  const SyncQueueRow({
+    required this.id,
+    required this.clientId,
+    required this.kind,
+    required this.op,
+    required this.payload,
+    required this.updatedAt,
+    required this.attempts,
+    this.lastError,
+    required this.queuedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['client_id'] = Variable<String>(clientId);
+    map['kind'] = Variable<String>(kind);
+    map['op'] = Variable<String>(op);
+    map['payload'] = Variable<String>(payload);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['attempts'] = Variable<int>(attempts);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    map['queued_at'] = Variable<DateTime>(queuedAt);
+    return map;
+  }
+
+  SyncQueueRowsCompanion toCompanion(bool nullToAbsent) {
+    return SyncQueueRowsCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      kind: Value(kind),
+      op: Value(op),
+      payload: Value(payload),
+      updatedAt: Value(updatedAt),
+      attempts: Value(attempts),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+      queuedAt: Value(queuedAt),
+    );
+  }
+
+  factory SyncQueueRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncQueueRow(
+      id: serializer.fromJson<int>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      op: serializer.fromJson<String>(json['op']),
+      payload: serializer.fromJson<String>(json['payload']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      attempts: serializer.fromJson<int>(json['attempts']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+      queuedAt: serializer.fromJson<DateTime>(json['queuedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'kind': serializer.toJson<String>(kind),
+      'op': serializer.toJson<String>(op),
+      'payload': serializer.toJson<String>(payload),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'attempts': serializer.toJson<int>(attempts),
+      'lastError': serializer.toJson<String?>(lastError),
+      'queuedAt': serializer.toJson<DateTime>(queuedAt),
+    };
+  }
+
+  SyncQueueRow copyWith({
+    int? id,
+    String? clientId,
+    String? kind,
+    String? op,
+    String? payload,
+    DateTime? updatedAt,
+    int? attempts,
+    Value<String?> lastError = const Value.absent(),
+    DateTime? queuedAt,
+  }) => SyncQueueRow(
+    id: id ?? this.id,
+    clientId: clientId ?? this.clientId,
+    kind: kind ?? this.kind,
+    op: op ?? this.op,
+    payload: payload ?? this.payload,
+    updatedAt: updatedAt ?? this.updatedAt,
+    attempts: attempts ?? this.attempts,
+    lastError: lastError.present ? lastError.value : this.lastError,
+    queuedAt: queuedAt ?? this.queuedAt,
+  );
+  SyncQueueRow copyWithCompanion(SyncQueueRowsCompanion data) {
+    return SyncQueueRow(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      op: data.op.present ? data.op.value : this.op,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+      queuedAt: data.queuedAt.present ? data.queuedAt.value : this.queuedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueRow(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('kind: $kind, ')
+          ..write('op: $op, ')
+          ..write('payload: $payload, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('attempts: $attempts, ')
+          ..write('lastError: $lastError, ')
+          ..write('queuedAt: $queuedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    clientId,
+    kind,
+    op,
+    payload,
+    updatedAt,
+    attempts,
+    lastError,
+    queuedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncQueueRow &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.kind == this.kind &&
+          other.op == this.op &&
+          other.payload == this.payload &&
+          other.updatedAt == this.updatedAt &&
+          other.attempts == this.attempts &&
+          other.lastError == this.lastError &&
+          other.queuedAt == this.queuedAt);
+}
+
+class SyncQueueRowsCompanion extends UpdateCompanion<SyncQueueRow> {
+  final Value<int> id;
+  final Value<String> clientId;
+  final Value<String> kind;
+  final Value<String> op;
+  final Value<String> payload;
+  final Value<DateTime> updatedAt;
+  final Value<int> attempts;
+  final Value<String?> lastError;
+  final Value<DateTime> queuedAt;
+  const SyncQueueRowsCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.op = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.queuedAt = const Value.absent(),
+  });
+  SyncQueueRowsCompanion.insert({
+    this.id = const Value.absent(),
+    required String clientId,
+    required String kind,
+    required String op,
+    required String payload,
+    required DateTime updatedAt,
+    this.attempts = const Value.absent(),
+    this.lastError = const Value.absent(),
+    required DateTime queuedAt,
+  }) : clientId = Value(clientId),
+       kind = Value(kind),
+       op = Value(op),
+       payload = Value(payload),
+       updatedAt = Value(updatedAt),
+       queuedAt = Value(queuedAt);
+  static Insertable<SyncQueueRow> custom({
+    Expression<int>? id,
+    Expression<String>? clientId,
+    Expression<String>? kind,
+    Expression<String>? op,
+    Expression<String>? payload,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? attempts,
+    Expression<String>? lastError,
+    Expression<DateTime>? queuedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (kind != null) 'kind': kind,
+      if (op != null) 'op': op,
+      if (payload != null) 'payload': payload,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (attempts != null) 'attempts': attempts,
+      if (lastError != null) 'last_error': lastError,
+      if (queuedAt != null) 'queued_at': queuedAt,
+    });
+  }
+
+  SyncQueueRowsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? clientId,
+    Value<String>? kind,
+    Value<String>? op,
+    Value<String>? payload,
+    Value<DateTime>? updatedAt,
+    Value<int>? attempts,
+    Value<String?>? lastError,
+    Value<DateTime>? queuedAt,
+  }) {
+    return SyncQueueRowsCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      kind: kind ?? this.kind,
+      op: op ?? this.op,
+      payload: payload ?? this.payload,
+      updatedAt: updatedAt ?? this.updatedAt,
+      attempts: attempts ?? this.attempts,
+      lastError: lastError ?? this.lastError,
+      queuedAt: queuedAt ?? this.queuedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (op.present) {
+      map['op'] = Variable<String>(op.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (attempts.present) {
+      map['attempts'] = Variable<int>(attempts.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (queuedAt.present) {
+      map['queued_at'] = Variable<DateTime>(queuedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncQueueRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('kind: $kind, ')
+          ..write('op: $op, ')
+          ..write('payload: $payload, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('attempts: $attempts, ')
+          ..write('lastError: $lastError, ')
+          ..write('queuedAt: $queuedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SeedMetaTable extends SeedMeta
     with TableInfo<$SeedMetaTable, SeedMetaRow> {
   @override
@@ -5197,12 +5757,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MealItemsTable mealItems = $MealItemsTable(this);
   late final $WaterLogsTable waterLogs = $WaterLogsTable(this);
   late final $WeightLogsTable weightLogs = $WeightLogsTable(this);
+  late final $SyncQueueRowsTable syncQueueRows = $SyncQueueRowsTable(this);
   late final $SeedMetaTable seedMeta = $SeedMetaTable(this);
   late final ProfileDao profileDao = ProfileDao(this as AppDatabase);
   late final FoodDao foodDao = FoodDao(this as AppDatabase);
   late final MealDao mealDao = MealDao(this as AppDatabase);
   late final WaterDao waterDao = WaterDao(this as AppDatabase);
   late final WeightDao weightDao = WeightDao(this as AppDatabase);
+  late final SyncQueueDao syncQueueDao = SyncQueueDao(this as AppDatabase);
   late final TargetDao targetDao = TargetDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -5218,6 +5780,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     mealItems,
     waterLogs,
     weightLogs,
+    syncQueueRows,
     seedMeta,
   ];
 }
@@ -8319,6 +8882,276 @@ typedef $$WeightLogsTableProcessedTableManager =
       WeightLogsRow,
       PrefetchHooks Function()
     >;
+typedef $$SyncQueueRowsTableCreateCompanionBuilder =
+    SyncQueueRowsCompanion Function({
+      Value<int> id,
+      required String clientId,
+      required String kind,
+      required String op,
+      required String payload,
+      required DateTime updatedAt,
+      Value<int> attempts,
+      Value<String?> lastError,
+      required DateTime queuedAt,
+    });
+typedef $$SyncQueueRowsTableUpdateCompanionBuilder =
+    SyncQueueRowsCompanion Function({
+      Value<int> id,
+      Value<String> clientId,
+      Value<String> kind,
+      Value<String> op,
+      Value<String> payload,
+      Value<DateTime> updatedAt,
+      Value<int> attempts,
+      Value<String?> lastError,
+      Value<DateTime> queuedAt,
+    });
+
+class $$SyncQueueRowsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncQueueRowsTable> {
+  $$SyncQueueRowsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get op => $composableBuilder(
+    column: $table.op,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get queuedAt => $composableBuilder(
+    column: $table.queuedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncQueueRowsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncQueueRowsTable> {
+  $$SyncQueueRowsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get op => $composableBuilder(
+    column: $table.op,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get attempts => $composableBuilder(
+    column: $table.attempts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get queuedAt => $composableBuilder(
+    column: $table.queuedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncQueueRowsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncQueueRowsTable> {
+  $$SyncQueueRowsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get op =>
+      $composableBuilder(column: $table.op, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get attempts =>
+      $composableBuilder(column: $table.attempts, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get queuedAt =>
+      $composableBuilder(column: $table.queuedAt, builder: (column) => column);
+}
+
+class $$SyncQueueRowsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncQueueRowsTable,
+          SyncQueueRow,
+          $$SyncQueueRowsTableFilterComposer,
+          $$SyncQueueRowsTableOrderingComposer,
+          $$SyncQueueRowsTableAnnotationComposer,
+          $$SyncQueueRowsTableCreateCompanionBuilder,
+          $$SyncQueueRowsTableUpdateCompanionBuilder,
+          (
+            SyncQueueRow,
+            BaseReferences<_$AppDatabase, $SyncQueueRowsTable, SyncQueueRow>,
+          ),
+          SyncQueueRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncQueueRowsTableTableManager(_$AppDatabase db, $SyncQueueRowsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncQueueRowsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncQueueRowsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncQueueRowsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> op = const Value.absent(),
+                Value<String> payload = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> attempts = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<DateTime> queuedAt = const Value.absent(),
+              }) => SyncQueueRowsCompanion(
+                id: id,
+                clientId: clientId,
+                kind: kind,
+                op: op,
+                payload: payload,
+                updatedAt: updatedAt,
+                attempts: attempts,
+                lastError: lastError,
+                queuedAt: queuedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String clientId,
+                required String kind,
+                required String op,
+                required String payload,
+                required DateTime updatedAt,
+                Value<int> attempts = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                required DateTime queuedAt,
+              }) => SyncQueueRowsCompanion.insert(
+                id: id,
+                clientId: clientId,
+                kind: kind,
+                op: op,
+                payload: payload,
+                updatedAt: updatedAt,
+                attempts: attempts,
+                lastError: lastError,
+                queuedAt: queuedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncQueueRowsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncQueueRowsTable,
+      SyncQueueRow,
+      $$SyncQueueRowsTableFilterComposer,
+      $$SyncQueueRowsTableOrderingComposer,
+      $$SyncQueueRowsTableAnnotationComposer,
+      $$SyncQueueRowsTableCreateCompanionBuilder,
+      $$SyncQueueRowsTableUpdateCompanionBuilder,
+      (
+        SyncQueueRow,
+        BaseReferences<_$AppDatabase, $SyncQueueRowsTable, SyncQueueRow>,
+      ),
+      SyncQueueRow,
+      PrefetchHooks Function()
+    >;
 typedef $$SeedMetaTableCreateCompanionBuilder =
     SeedMetaCompanion Function({
       required String key,
@@ -8477,6 +9310,8 @@ class $AppDatabaseManager {
       $$WaterLogsTableTableManager(_db, _db.waterLogs);
   $$WeightLogsTableTableManager get weightLogs =>
       $$WeightLogsTableTableManager(_db, _db.weightLogs);
+  $$SyncQueueRowsTableTableManager get syncQueueRows =>
+      $$SyncQueueRowsTableTableManager(_db, _db.syncQueueRows);
   $$SeedMetaTableTableManager get seedMeta =>
       $$SeedMetaTableTableManager(_db, _db.seedMeta);
 }

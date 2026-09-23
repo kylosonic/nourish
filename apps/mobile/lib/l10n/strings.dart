@@ -587,4 +587,34 @@ abstract final class Strings {
   static const String accountSignOutFailed =
       'Signed out on this device. The server could not be reached to end the '
       'session there.';
+  static const String accountUnconfirmedTitle = 'Signed in, not confirmed';
+  static const String accountUnconfirmedBody =
+      'Your session is stored on this device, but Nourish could not reach the '
+      'server to confirm it. You stay signed in here; your plan and device '
+      'count will refresh when the connection is back.';
+
+  // ── S3 OFF-02: backup/push state on the account screen ───────────────────
+  static const String syncTitle = 'Backup';
+  static const String syncSignedOutBody =
+      'Sign in to back up what you log. Until then everything stays on this '
+      'device.';
+  static String syncPendingSignedOut(int count) =>
+      '$count change${count == 1 ? '' : 's'} waiting. Sign in to back '
+      '${count == 1 ? 'it' : 'them'} up.';
+  static const String syncPushOnlyNote =
+      'Changes are sent to your account. Restoring them onto a new device is '
+      'not built yet, so this is a backup, not a sync.';
+  static const String syncNowAction = 'BACK UP NOW';
+  static const String syncPendingNone = 'Everything is backed up.';
+  static String syncPendingCount(int count) =>
+      '$count change${count == 1 ? '' : 's'} waiting to be sent.';
+  static String syncRetrying(int count) =>
+      '$count change${count == 1 ? '' : 's'} could not be sent. They stay '
+      'queued and will be retried.';
+  static const String syncInProgress = 'Sending…';
+  static String syncDone(int count) =>
+      'Backed up $count change${count == 1 ? '' : 's'}.';
+  static const String syncUpToDate = 'Already up to date.';
+  static String syncFailed(String message) => message;
+  static const String syncNeverRun = 'Not backed up yet.';
 }
