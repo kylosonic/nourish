@@ -4,6 +4,8 @@ import 'package:nourish_domain/domain.dart';
 import '../../core/clock.dart';
 import '../../core/date_utils.dart';
 import '../../providers.dart';
+import '../weight/weight_providers.dart';
+import '../weight/weight_trend.dart';
 import 'weekly_insights.dart';
 
 /// The trailing 7 calendar days, oldest first, ending on the clock's today.
@@ -32,6 +34,7 @@ final FutureProvider<WeeklyInsights> weeklyInsightsProvider =
   final List<String> window = ref.watch(insightsWindowProvider);
   final String startKey = window.first;
   final String endKey = window.last;
+  final Clock clock = ref.watch(clockProvider);
 
   final List<Meal> meals = await ref
       .watch(mealRepositoryProvider)
@@ -55,6 +58,14 @@ final FutureProvider<WeeklyInsights> weeklyInsightsProvider =
     for (final Food food in catalog) food.id: food.category,
   };
 
+  // The weight trend for the same window (WW-03 → INS-02). Read through the
+  // history stream first so a weigh-in logged elsewhere moves this dashboard
+  // too; the chart stays a function of what was actually logged.
+  await ref.watch(weightHistoryProvider.future);
+  final WeightTrend weight = await ref
+      .watch(weightRepositoryProvider)
+      .trend(days: insightsWindowDays, at: clock());
+
   return buildWeeklyInsights(
     windowDateKeys: window,
     weekdayLabelFor: weekdayLabelFor,
@@ -62,5 +73,7 @@ final FutureProvider<WeeklyInsights> weeklyInsightsProvider =
     waterMlByDateKey: waterByDay,
     target: target,
     categoryByFoodId: categoryByFoodId,
+    weightChangeKg: weight.smoothedChangeKg,
+    weightLoggedDays: weight.entryCount == 0 ? 0 : weight.points.length,
   );
 });

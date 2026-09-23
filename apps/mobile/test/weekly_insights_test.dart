@@ -91,6 +91,8 @@ void main() {
     Map<String, int> water = const <String, int>{},
     DailyTarget? dailyTarget,
     Map<String, String> categories = const <String, String>{'shiro_wot': 'Ethiopian'},
+    double? weightChangeKg,
+    int weightLoggedDays = 0,
   }) {
     return buildWeeklyInsights(
       windowDateKeys: window,
@@ -99,6 +101,8 @@ void main() {
       waterMlByDateKey: water,
       target: dailyTarget,
       categoryByFoodId: categories,
+      weightChangeKg: weightChangeKg,
+      weightLoggedDays: weightLoggedDays,
     );
   }
 
@@ -296,6 +300,67 @@ void main() {
 
     test('no highlights at all without logged data', () {
       expect(build(meals: <Meal>[], dailyTarget: target()).highlights, isEmpty);
+    });
+  });
+
+  group('INS-02 weight trend (WW-03)', () {
+    test('a clear move is reported as a fact, not as praise or a warning', () {
+      final WeeklyInsights insights = build(
+        meals: <Meal>[mealOn('2026-09-19')],
+        dailyTarget: target(),
+        weightChangeKg: -1.4,
+        weightLoggedDays: 4,
+      );
+      final InsightHighlight weight = insights.highlights.firstWhere(
+        (InsightHighlight h) => h.title == 'Weight trend',
+      );
+      expect(
+        weight.kind,
+        HighlightKind.informational,
+        reason: 'whether down is good depends on the user goal, which the '
+            'dashboard does not hold',
+      );
+      expect(weight.detail, 'Your logged weight moved down 1.4 kg over your '
+          '4 weigh-ins this week.');
+    });
+
+    test('movement inside the ±0.5 kg noise band produces nothing', () {
+      final WeeklyInsights insights = build(
+        meals: <Meal>[mealOn('2026-09-19')],
+        dailyTarget: target(),
+        weightChangeKg: 0.4,
+        weightLoggedDays: 5,
+      );
+      expect(
+        insights.highlights.any((InsightHighlight h) => h.title == 'Weight trend'),
+        isFalse,
+      );
+    });
+
+    test('a single weigh-in is not a trend', () {
+      final WeeklyInsights insights = build(
+        meals: <Meal>[mealOn('2026-09-19')],
+        dailyTarget: target(),
+        weightChangeKg: 3,
+        weightLoggedDays: 1,
+      );
+      expect(
+        insights.highlights.any((InsightHighlight h) => h.title == 'Weight trend'),
+        isFalse,
+      );
+    });
+
+    test('no weigh-ins at all leaves the dashboard without a weight claim', () {
+      final WeeklyInsights insights = build(
+        meals: <Meal>[mealOn('2026-09-19')],
+        dailyTarget: target(),
+      );
+      expect(insights.weightChangeKg, isNull);
+      expect(insights.weightLoggedDays, 0);
+      expect(
+        insights.highlights.any((InsightHighlight h) => h.title == 'Weight trend'),
+        isFalse,
+      );
     });
   });
 }

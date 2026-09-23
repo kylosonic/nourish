@@ -6,11 +6,12 @@ import 'daos/meal_dao.dart';
 import 'daos/profile_dao.dart';
 import 'daos/target_dao.dart';
 import 'daos/water_dao.dart';
+import 'daos/weight_dao.dart';
 import 'tables/tables.dart';
 
 part 'database.g.dart';
 
-/// The single local SQLite database for Nourish (schema version 2).
+/// The single local SQLite database for Nourish (schema version 3).
 ///
 /// v1→v2 adds the FCT provenance columns to [Foods] (additive, nullable,
 /// on-device upgrade safe — blueprint S1 §11). Future slices add tables
@@ -26,9 +27,10 @@ part 'database.g.dart';
     Meals,
     MealItems,
     WaterLogs,
+    WeightLogs,
     SeedMeta,
   ],
-  daos: [ProfileDao, FoodDao, MealDao, WaterDao, TargetDao],
+  daos: [ProfileDao, FoodDao, MealDao, WaterDao, WeightDao, TargetDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
@@ -40,7 +42,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -53,6 +55,11 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(foods, foods.sourceFoodCode);
         await m.addColumn(foods, foods.sourceReference);
         await m.addColumn(foods, foods.importDate);
+      }
+      if (from < 3) {
+        // v3 adds the weight log table (WW-03). Additive: no existing table is
+        // touched and no user data is rewritten.
+        await m.createTable(weightLogs);
       }
     },
   );

@@ -20,6 +20,7 @@ import '../features/scan/text_log_screen.dart';
 import '../features/search/food_search_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/voids/honest_void_screen.dart';
+import '../features/weight/weight_screen.dart';
 import '../features/welcome/welcome_screen.dart';
 import 'routes.dart';
 
@@ -70,6 +71,7 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
     AppRoutes.profile,
     AppRoutes.history,
     AppRoutes.searchFood,
+    AppRoutes.weight,
   };
 
   return GoRouter(
@@ -162,6 +164,11 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
         path: AppRoutes.searchFood,
         builder: (BuildContext context, GoRouterState state) =>
             const FoodSearchScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.weight,
+        builder: (BuildContext context, GoRouterState state) =>
+            const WeightScreen(),
       ),
       // S2 scan flow: transactional screens, the navigation shell is suppressed.
       GoRoute(

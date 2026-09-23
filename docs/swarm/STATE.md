@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S1, S2 (API + text + photo lanes), S3 BACKEND and S5 COMMITTED; S3 mobile (auth screens + sync engine) and S4 (water/weight + insights) NOT STARTED` |
+| Phase | `IMPLEMENTING — S1, S2 (API + text + photo lanes), S3 BACKEND, S4 (insights + weight) and S5 COMMITTED; S3 mobile (auth screens + sync engine) NOT STARTED` |
 | Active branch | `feat/nourish-mvp` |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S3 — backend complete (accounts, sessions, sync mirror); the device side is not built |
+| Active slice | S4 — insights (INS-01/02) and weight (WW-03) shipped; water-target adjustability (WW-01) and INS-03 open |
 | Active gate | none in flight — each slice was verified against its own criteria and committed |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest commit | `299e830` (S3 part 2 — sync contract) |
+| Latest commit | `deb9800` (S4 — lazy shell pages) plus the weight work on the working tree |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -243,6 +243,10 @@ Tracked in `docs/plans/provisional-product-assumptions.md`:
   three slots.
 - **PPA-8** — S0 seed catalog values are provisional placeholders; superseded by
   the Ethiopian FCT 2025 import in S1.
+- **PPA-13** — the WW-03 weight screen is laid out provisionally from the
+  behaviour contract's contents (P-WW-2 has no design), and its INS-02 weight
+  highlight is stated as a fact rather than as praise or a warning. See
+  `docs/plans/provisional-product-assumptions.md`.
 
 ### Pending behaviors blocking later slices
 
@@ -318,6 +322,51 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 - `CONTEXT.md` — project context anchor.
 
 ## Last Verification Evidence
+
+- **2026-09-20 — S4 insights (`1db8429`, `deb9800`) and weight logging
+  (WW-03, this commit)**:
+  - **INS-01 / INS-02** shipped as a real dashboard over the user's own records:
+    caloric balance with a dashed target line and over-target days flagged, macro
+    averages against the target, data-backed highlights, dietary diversity. No
+    server aggregate, no model, no placeholder. **P-INS-1 resolved as the
+    architect and pinned by tests:** an un-logged day is NOT a zero-consumption
+    day — it draws no bar, and averages divide by logged days while the window
+    size stays honest. A partly elapsed window is labelled, not presented as a
+    full week. The dashboard is not computed at launch: the shell builds its
+    pages lazily and recomputes when the Insights tab is opened (`deb9800`).
+  - **WW-03** shipped: an append-only weight history (Drift schema v3), pure
+    trend maths (per-day mean of same-day entries, trailing 7-day smoothing,
+    append-order-independent), weekly/monthly windows, and a provisional screen
+    reachable from a Home dashboard card. SAFE-01 range 30–350 kg is enforced at
+    the field and in the repository, so an out-of-range value never reaches the
+    table. The ±0.5 kg noise rule is a single shared constant: inside the band
+    the copy is neutral, and no highlight is emitted at all. History is ordered
+    by measured day rather than by typing order, so a back-filled entry keeps its
+    own date instead of becoming "current". Nothing is seeded from the onboarding
+    answers — the history holds weigh-ins the user actually made.
+  - **INS-02 ← WW-03**: the dashboard now carries the weight trend as an
+    `informational` highlight (new [HighlightKind] value) that states the move
+    and the number of weigh-ins. It is deliberately not positive/cautionary:
+    whether "down" is good depends on the user's goal, which the dashboard does
+    not hold, so it does not judge.
+  - Evidence: `flutter analyze` clean; `flutter test` **194/194**, up from the
+    155 on `deb9800` — 15 new weight-trend unit tests, 11 weight-repository
+    tests over a real in-memory Drift database, 7 weight-screen widget tests
+    (entry stored and read back, out-of-range refused at the field with nothing
+    written, weekly vs monthly windows, the Home card following a saved entry,
+    onboarding gating), 4 weight-highlight unit tests and 2 insights widget
+    tests (a clear move is highlighted, a ±0.2 kg fluctuation is not); PPA-13
+    recorded. Egress confinement unchanged — the weight feature adds no network
+    surface and reads only local Drift tables.
+  - **Honest gaps (not fixed, not pretended):** the WW-03 screen layout is
+    provisional (P-WW-2 has no design); the weekly view is the default because
+    the design is silent on it; WW-01 water-target adjustability, INS-03
+    ("What can I eat", P-INS-2) and water reminders (WW-02) are still open; S3's
+    device side (sign-in screens, secure token storage, the offline queue and its
+    sync engine) is still not built, so nothing syncs in the app yet.
+  - **Not verified anywhere:** no AI provider key and no SMS gateway credential
+    exist in this environment, so recognition and real SMS delivery remain
+    implemented-but-not-exercised.
 
 - **2026-09-19 — S3 backend: accounts, sessions, sync (commits `d2aeb3e`,
   `299e830`; decisions in `docs/adr/0008-…`)**:

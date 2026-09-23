@@ -19,6 +19,10 @@ abstract final class AppRoutes {
   static const String profile = '/profile';
   static const String history = '/history';
   static const String searchFood = '/search-food';
+
+  /// WW-03 weight logging & trend (P-WW-2: dedicated screen undesigned, so the
+  /// layout is provisional — PPA-13). Pushed from the Home dashboard card.
+  static const String weight = '/weight';
   static const String honestVoid = '/honest-void/:feature';
 
   /// S2 transactional scan flow (SCAN-01..07, LOG-01). These screens suppress

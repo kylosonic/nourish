@@ -11,6 +11,7 @@ import 'data/repositories/meal_repository.dart';
 import 'data/repositories/onboarding_repository.dart';
 import 'data/repositories/target_repository.dart';
 import 'data/repositories/water_repository.dart';
+import 'data/repositories/weight_repository.dart';
 import 'data/sources/api_catalog_data_source.dart';
 import 'data/sources/analysis_api_client.dart';
 import 'data/sources/catalog_data_source.dart';
@@ -108,6 +109,13 @@ final Provider<WaterRepository> waterRepositoryProvider =
     Provider<WaterRepository>(
       (Ref<WaterRepository> ref) =>
           WaterRepository(ref.watch(driftDatabaseProvider)),
+    );
+
+/// Weight logging and trend (WW-03).
+final Provider<WeightRepository> weightRepositoryProvider =
+    Provider<WeightRepository>(
+      (Ref<WeightRepository> ref) =>
+          WeightRepository(ref.watch(driftDatabaseProvider)),
     );
 
 final Provider<TargetRepository> targetRepositoryProvider =

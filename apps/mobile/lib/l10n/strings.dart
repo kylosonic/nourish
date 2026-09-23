@@ -442,4 +442,46 @@ abstract final class Strings {
   static const String insightsUnavailableBody =
       'Your logged data could not be read just now. It is still on this device.';
   static const String insightsLogAMeal = 'LOG A MEAL';
+
+  // ── WW-03: weight logging & trend (P-WW-2: screen undesigned) ────────────
+  /// P-WW-2 resolved provisionally (PPA-13): the behaviour contract fixes the
+  /// content (current, target, history, weekly/monthly trend) but no screen
+  /// design exists, so this screen follows the existing card/heading system.
+  static const String weightTitle = 'Weight';
+  static const String weightSubtitle =
+      'Your weight, from your own entries. Day-to-day movement is normal and '
+      'this screen does not treat it as progress or a problem.';
+  static const String weightCurrent = 'Current';
+  static const String weightTarget = 'Target';
+  static const String weightNoEntries = 'Not logged yet';
+  static const String weightTrendTitle = 'Trend';
+  static const String weightHistoryTitle = 'History';
+  static const String weightLogTitle = 'Log a weight';
+  static const String weightFieldLabel = 'Weight today';
+  static const String weightLogAction = 'SAVE WEIGHT';
+  static const String weightSaved = 'Weight saved.';
+  static const String weightSaveFailed =
+      'That entry could not be saved. Nothing was recorded — try again.';
+  static const String weightHistoryEmpty =
+      'No weights logged yet. Your first entry starts the history.';
+  static const String weightTrendEmpty =
+      'Log your weight twice and a trend appears here.';
+  static const String weightTargetUnset = 'No target weight set';
+  static const String weightViewAction = 'VIEW WEIGHT';
+
+  /// The contract requires the copy not to alarm on normal noise (WW-03), so
+  /// "holding steady" is neutral rather than a warning.
+  static const String weightWithinNoise =
+      'Holding steady — day-to-day changes of under 0.5 kg are normal.';
+  static String weightChangeLine(String direction, String amountKg, int days) =>
+      'Trending $direction $amountKg kg across $days logged days.';
+  static String weightKgValue(String kg) => '$kg kg';
+  static const String weightUnitKg = 'kg';
+  static String weightDayEntries(int entries) => '$entries entries';
+  static const String weightSmoothedLegend = 'Smoothed';
+  static const String weightTargetLegend = 'Target';
+  static const String weightUnavailableTitle = 'Weight unavailable';
+  static const String weightUnavailableBody =
+      'Your logged weights could not be read just now. They are still on this '
+      'device.';
 }

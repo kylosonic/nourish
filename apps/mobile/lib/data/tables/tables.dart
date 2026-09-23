@@ -228,3 +228,23 @@ class SeedMeta extends Table {
   @override
   Set<Column> get primaryKey => {key};
 }
+
+/// Weight entries (WW-03).
+///
+/// One row per *entry*, not per day: the behavior contract allows several
+/// same-day entries and requires a back-filled entry to keep the date it was
+/// given. The trend is therefore computed over entries and only then grouped by
+/// day, never on a one-row-per-day assumption.
+@DataClassName('WeightLogsRow')
+class WeightLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Local calendar day as `yyyy-MM-dd` — the day the entry is *for*, which may
+  /// be earlier than the day it was recorded.
+  TextColumn get dateKey => text()();
+
+  /// Kilograms, checked against the SAFE-01 body range before it is written.
+  RealColumn get weightKg => real()();
+
+  DateTimeColumn get loggedAt => dateTime()();
+}

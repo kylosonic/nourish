@@ -1,5 +1,7 @@
 import 'package:nourish_domain/domain.dart';
 
+import '../weight/weight_trend.dart' show weightNoiseBandKg;
+
 /// Weekly insights derived from the user's own logged data (INS-01 / INS-02).
 ///
 /// Everything here is a pure function of local records: no model, no network,
@@ -16,7 +18,7 @@ import 'package:nourish_domain/domain.dart';
 /// How many days the dashboard looks back.
 const int insightsWindowDays = 7;
 
-enum HighlightKind { positive, cautionary }
+enum HighlightKind { positive, cautionary, informational }
 
 /// One data-driven finding. [detail] must cite the specific day or count.
 class InsightHighlight {
@@ -86,6 +88,8 @@ class WeeklyInsights {
     required this.targetCarbsG,
     required this.targetFatG,
     required this.highlights,
+    this.weightChangeKg,
+    this.weightLoggedDays = 0,
   });
 
   final List<DayInsight> days;
@@ -94,6 +98,14 @@ class WeeklyInsights {
   final int targetCarbsG;
   final int targetFatG;
   final List<InsightHighlight> highlights;
+
+  /// Smoothed weight change over the window, or null when there is not enough
+  /// weighed data to say anything. Carried as a plain number rather than the
+  /// weight feature's model so this module stays a pure function of records.
+  final double? weightChangeKg;
+
+  /// How many days inside the window carry a weigh-in.
+  final int weightLoggedDays;
 
   int get loggedDays => days.where((DayInsight d) => d.logged).length;
   int get windowDays => days.length;
@@ -165,6 +177,8 @@ const double dailySodiumReferenceMg = 2000;
 /// [meals] may contain meals from any date; only the window is used.
 /// [categoryByFoodId] maps a food id to its catalog category, used for the
 /// diversity split.
+/// [weightChangeKg] / [weightLoggedDays] are the weight feature's smoothed
+/// trend over the same window, passed in as scalars (WW-03 → INS-02).
 WeeklyInsights buildWeeklyInsights({
   required List<String> windowDateKeys,
   required String Function(String dateKey) weekdayLabelFor,
@@ -172,6 +186,8 @@ WeeklyInsights buildWeeklyInsights({
   required Map<String, int> waterMlByDateKey,
   required DailyTarget? target,
   required Map<String, String> categoryByFoodId,
+  double? weightChangeKg,
+  int weightLoggedDays = 0,
 }) {
   final Map<String, List<Meal>> byDay = <String, List<Meal>>{};
   for (final Meal meal in meals) {
@@ -228,6 +244,8 @@ WeeklyInsights buildWeeklyInsights({
     targetCarbsG: target?.carbsG ?? 0,
     targetFatG: target?.fatG ?? 0,
     highlights: const <InsightHighlight>[],
+    weightChangeKg: weightChangeKg,
+    weightLoggedDays: weightLoggedDays,
   );
 
   return WeeklyInsights(
@@ -237,6 +255,8 @@ WeeklyInsights buildWeeklyInsights({
     targetCarbsG: insights.targetCarbsG,
     targetFatG: insights.targetFatG,
     highlights: generateHighlights(insights),
+    weightChangeKg: weightChangeKg,
+    weightLoggedDays: weightLoggedDays,
   );
 }
 
@@ -319,6 +339,26 @@ List<InsightHighlight> generateHighlights(WeeklyInsights insights) {
         title: 'Logging consistency',
         detail:
             'You logged on ${insights.loggedDays} of the last ${insights.windowDays} days.',
+      ),
+    );
+  }
+
+  // Weight trend (WW-03 → INS-02), stated as a fact rather than as praise or a
+  // warning: whether "down" is good depends on the user's own goal, which this
+  // module does not hold, so it does not judge. Movement inside the ±0.5 kg
+  // noise band produces nothing at all.
+  final double? weightChange = insights.weightChangeKg;
+  if (weightChange != null &&
+      insights.weightLoggedDays >= 2 &&
+      weightChange.abs() >= weightNoiseBandKg) {
+    highlights.add(
+      InsightHighlight(
+        kind: HighlightKind.informational,
+        title: 'Weight trend',
+        detail:
+            'Your logged weight moved ${weightChange < 0 ? 'down' : 'up'} '
+            '${weightChange.abs().toStringAsFixed(1)} kg over your '
+            '${insights.weightLoggedDays} weigh-ins this week.',
       ),
     );
   }

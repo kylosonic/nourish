@@ -379,13 +379,20 @@ class _Highlights extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Icon(
-                    highlight.kind == HighlightKind.positive
-                        ? Icons.check_circle
-                        : Icons.warning_amber_rounded,
+                    switch (highlight.kind) {
+                      HighlightKind.positive => Icons.check_circle,
+                      HighlightKind.cautionary => Icons.warning_amber_rounded,
+                      // A finding the data supports but the app cannot judge:
+                      // the weight trend, whose direction is only good or bad
+                      // relative to a goal the dashboard does not hold.
+                      HighlightKind.informational => Icons.monitor_weight_outlined,
+                    },
                     size: 20,
-                    color: highlight.kind == HighlightKind.positive
-                        ? NourishColors.primaryContainer
-                        : NourishColors.secondaryContainer,
+                    color: switch (highlight.kind) {
+                      HighlightKind.positive => NourishColors.primaryContainer,
+                      HighlightKind.cautionary => NourishColors.secondaryContainer,
+                      HighlightKind.informational => NourishColors.onSurfaceVariant,
+                    },
                   ),
                   const SizedBox(width: 12),
                   Expanded(

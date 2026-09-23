@@ -5,6 +5,7 @@ import 'package:nourish_domain/domain.dart';
 import 'package:nourish_mobile/core/date_utils.dart';
 import 'package:nourish_mobile/data/database.dart';
 import 'package:nourish_mobile/data/repositories/meal_repository.dart';
+import 'package:nourish_mobile/data/repositories/weight_repository.dart';
 import 'package:nourish_mobile/l10n/strings.dart';
 
 import '../pump_app.dart';
@@ -190,6 +191,81 @@ void main() {
       ),
       findsOneWidget,
     );
+    await harness.teardown(tester);
+  });
+
+  testWidgets('weigh-ins inside the week add a factual weight highlight',
+      (WidgetTester tester) async {
+    final AppHarness harness = await pumpApp(tester, profile: answerProfile());
+    await seedTarget(harness.db, answerProfile());
+    await log(tester, harness.db, todayDateKey(), 900);
+
+    // Two weigh-ins three days apart, 2 kg down (WW-03 → INS-02).
+    final WeightRepository weights = WeightRepository(harness.db);
+    final DateTime today = dateOnly(DateTime.now());
+    await weights.log(
+      weightKg: 72,
+      dateKey: dateKeyFor(today.subtract(const Duration(days: 3))),
+      loggedAt: today.subtract(const Duration(days: 3)),
+    );
+    await weights.log(
+      weightKg: 70,
+      dateKey: dateKeyFor(today),
+      loggedAt: today,
+    );
+
+    await openInsightsTab(tester);
+    await pumpUntilFound(tester, find.text(Strings.insightsTitle));
+    await tester.scrollUntilVisible(
+      find.text(Strings.insightsHighlights),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Weight trend'), findsOneWidget);
+    // Neutral wording: the dashboard does not know whether "down" is the goal.
+    expect(
+      find.textContaining('moved down'),
+      findsOneWidget,
+      reason: 'the weight finding states the move, it does not judge it',
+    );
+    expect(find.textContaining('2 weigh-ins'), findsOneWidget);
+
+    await harness.teardown(tester);
+  });
+
+  testWidgets('a fluctuation inside the noise band adds no weight highlight',
+      (WidgetTester tester) async {
+    final AppHarness harness = await pumpApp(tester, profile: answerProfile());
+    await seedTarget(harness.db, answerProfile());
+    await log(tester, harness.db, todayDateKey(), 900);
+
+    // 0.2 kg across three days: normal day-to-day movement (WW-03).
+    final WeightRepository weights = WeightRepository(harness.db);
+    final DateTime today = dateOnly(DateTime.now());
+    await weights.log(
+      weightKg: 70,
+      dateKey: dateKeyFor(today.subtract(const Duration(days: 2))),
+      loggedAt: today.subtract(const Duration(days: 2)),
+    );
+    await weights.log(
+      weightKg: 70.2,
+      dateKey: dateKeyFor(today),
+      loggedAt: today,
+    );
+
+    await openInsightsTab(tester);
+    await pumpUntilFound(tester, find.text(Strings.insightsTitle));
+    await tester.scrollUntilVisible(
+      find.text(Strings.insightsHighlights),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Weight trend'), findsNothing);
+
     await harness.teardown(tester);
   });
 }

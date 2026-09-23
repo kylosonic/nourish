@@ -10,6 +10,7 @@ import '../../l10n/strings.dart';
 import '../../router/routes.dart';
 import '../update/update_controller.dart';
 import '../update/widgets/update_banner.dart';
+import '../weight/widgets/weight_card.dart';
 import 'widgets/calorie_ring.dart';
 import 'widgets/hydration_card.dart';
 import 'widgets/macro_pills.dart';
@@ -125,6 +126,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const TodaysMealsCard(),
                   const SizedBox(height: NourishSpacing.gutter),
                   const HydrationCard(),
+                  const SizedBox(height: NourishSpacing.gutter),
+                  const WeightCard(),
                 ],
               ),
             ),
