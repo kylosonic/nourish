@@ -285,7 +285,10 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
    multi-items-per-slot (repo-level test + code inspection cover it).
 3. WW-01: `todayMeals`/`todayWater` providers capture date key at build time —
    session open across midnight shows stale day until rebuild (save-time keys
-   stay correct; display-only).
+   stay correct; display-only). **CLOSED 2026-09-20**: the day key is now its own
+   notifier recomputed on app resume; a screen left open and untouched across
+   midnight still shows the previous day until the next interaction, which is
+   recorded in the provider's doc comment as the remaining limit.
 4. PPA-7 surface: Home renders 4 slot rows (incl. Snack), design shows 3;
    "Other" has no Home row — needs `@vision` confirmation at UAT.
 5. `strings.dart`: `honestVoidFeatures` Set declared but never referenced
@@ -335,8 +338,24 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-20 — QA finding 3 closed: "today" is no longer frozen at build time
+  (this commit)**:
+  - The day key the dashboard, water card and meal list all read used to be
+    computed inside each provider's build, so a session left open across midnight
+    kept showing the previous day's meals and water. It is now a notifier
+    (`todayKeyProvider`), recomputed when the app is **resumed** — the moment a
+    user returning after midnight actually looks at it.
+  - The remaining limit is stated rather than hidden: a screen left open and
+    untouched across midnight still shows the previous day until the next
+    interaction. Closing that too would need a midnight timer, i.e. a wake-up the
+    app does not otherwise need — recorded in the provider's own doc comment.
+  - Evidence: `flutter analyze` clean; `flutter test` **271/271** (269 before:
+    the day key follows a refreshed clock, and the meal list follows the day
+    across midnight when the app is resumed, pinned end to end through the
+    widget tree).
+
 - **2026-09-20 — session lifecycle: a dead session is cleared, not left
-  "unconfirmed" (this commit)**:
+  "unconfirmed"**:
   - The launcher's restore path now separates two cases it had been treating as
     one. If the server refuses the session itself (`TOKEN_REUSED`,
     `ACCOUNT_DISABLED`, or a refused rotation), the stored tokens are deleted and

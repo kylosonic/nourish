@@ -145,13 +145,34 @@ final StreamProvider<DailyTarget?> activeDailyTargetProvider =
           ref.watch(targetRepositoryProvider).watchLatest(),
     );
 
-/// Today's meals with their frozen item snapshots. "Today" reads the
-/// injectable clock (M3) so midnight crossings recompute the day key.
+/// Today's calendar day, as a value the whole app can watch (QA finding 3).
+///
+/// The date key used to be computed inside each provider's build, so a session
+/// left open across midnight kept showing yesterday's meals and water until
+/// something else rebuilt the provider. It is now its own notifier, recomputed
+/// when the app is resumed (see `NourishApp`) — the moment a user returning to
+/// the app after midnight actually looks at it.
+///
+/// A screen left open and untouched across midnight still shows the previous
+/// day until the next interaction; making that impossible would need a midnight
+/// timer, which is a wake-up the app does not otherwise need.
+class TodayKey extends Notifier<String> {
+  @override
+  String build() => todayDateKey(ref.watch(clockProvider));
+
+  /// Recompute from the clock. Called on resume and when a tab is opened.
+  void refresh() => state = todayDateKey(ref.read(clockProvider));
+}
+
+final NotifierProvider<TodayKey, String> todayKeyProvider =
+    NotifierProvider<TodayKey, String>(TodayKey.new);
+
+/// Today's meals with their frozen item snapshots.
 final StreamProvider<List<Meal>> todayMealsProvider =
     StreamProvider<List<Meal>>(
       (Ref<AsyncValue<List<Meal>>> ref) => ref
           .watch(mealRepositoryProvider)
-          .watchMealsForDate(todayDateKey(ref.watch(clockProvider))),
+          .watchMealsForDate(ref.watch(todayKeyProvider)),
     );
 
 /// Today's consumed totals (domain aggregation over snapshots).
@@ -215,7 +236,7 @@ final NotifierProvider<WaterTarget, int> waterTargetProvider =
 final StreamProvider<WaterDay> todayWaterProvider = StreamProvider<WaterDay>(
   (Ref<AsyncValue<WaterDay>> ref) => ref
       .watch(waterRepositoryProvider)
-      .watchDailyTotalMl(todayDateKey(ref.watch(clockProvider)))
+      .watchDailyTotalMl(ref.watch(todayKeyProvider))
       .map((int ml) => WaterDay(consumedMl: ml)),
 );
 
