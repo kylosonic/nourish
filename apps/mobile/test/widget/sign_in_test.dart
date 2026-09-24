@@ -287,15 +287,23 @@ void main() {
     await harness.teardown(tester);
   });
 
-  testWidgets('sign-in is not reachable before onboarding finishes',
+  testWidgets('sign-in is reachable before onboarding finishes, on purpose',
       (WidgetTester tester) async {
-    // No profile: onboarding has not been completed on this install.
+    // No profile: onboarding has not been completed on this install. Sign-in
+    // depends on nothing local, so a returning user must be able to sign in
+    // from the welcome screen — and still be sent through setup afterwards.
     final AppHarness harness = await pumpApp(tester);
 
     harness.router.go(AppRoutes.signIn);
     await tester.pumpAndSettle();
 
-    expect(find.byType(SignInScreen), findsNothing);
+    expect(find.text(Strings.signInSubtitle), findsOneWidget);
+    expect(harness.router.state.matchedLocation, AppRoutes.signIn);
+
+    // The app screens stay gated until setup is done.
+    harness.router.go(AppRoutes.weight);
+    await tester.pumpAndSettle();
+    expect(harness.router.state.matchedLocation, isNot(AppRoutes.weight));
 
     await harness.teardown(tester);
   });

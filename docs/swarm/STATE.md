@@ -338,6 +338,23 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-20 — honesty sweep of the remaining voids (this commit)**:
+  - Sign-in is built, so the welcome screen's "I ALREADY HAVE AN ACCOUNT" no
+    longer opens a void that claimed accounts were "coming soon": it opens the
+    real sign-in screen. That meant un-gating `/sign-in` — it depends on nothing
+    local, and a returning user must be able to sign in before finishing setup on
+    this device — while every app screen stays gated. Two tests that asserted the
+    old void were replaced by ones asserting the new behaviour (sign-in reachable
+    pre-onboarding; `/weight` still bounced).
+  - The TAKE PHOTO void said "photo analysis is coming soon", which was untrue:
+    analysing a photo the user picks already works. It now names what is actually
+    missing (the in-app camera screen, SCAN-02) and points at the lane that works.
+  - The dead `honestVoidFeatures` set and the notifications void's generic copy
+    (QA findings 5 and 6) were already resolved in earlier work; finding 3 is
+    closed above, leaving findings 1, 2, 4 and 7 open in the ledger.
+  - Evidence: `flutter analyze` clean; `flutter test` **271/271**.
+
+
 - **2026-09-20 — QA finding 3 closed: "today" is no longer frozen at build time
   (this commit)**:
   - The day key the dashboard, water card and meal list all read used to be

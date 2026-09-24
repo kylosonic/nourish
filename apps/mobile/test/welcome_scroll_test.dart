@@ -24,13 +24,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(Strings.getStarted), findsOneWidget);
 
-      // Secondary action starts below the fold — scrolling reveals it,
-      // and tapping it opens the honest sign-in void (no dead end).
+      // Secondary action starts below the fold — scrolling reveals it, and it
+      // opens the real sign-in screen, which needs no local profile.
       await tester.ensureVisible(find.text(Strings.alreadyHaveAccount));
       await tester.pumpAndSettle();
       await tester.tap(find.text(Strings.alreadyHaveAccount));
       await tester.pumpAndSettle();
-      expect(find.text(Strings.honestVoidTitle('sign-in')), findsWidgets);
+      expect(find.text(Strings.signInSubtitle), findsWidgets);
 
       await harness.teardown(tester);
     });

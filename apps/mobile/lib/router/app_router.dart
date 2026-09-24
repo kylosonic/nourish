@@ -66,6 +66,9 @@ String firstUnansweredRoute(UserProfile profile) {
 /// [profileNotifier] is seeded by bootstrap and updated when the flow
 /// finishes, so the redirect stays live for the session.
 GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
+  // Screens that need a finished profile. Sign-in is deliberately NOT here: it
+  // depends on nothing local, and a returning user must be able to open it from
+  // the welcome screen before setup on this device is done.
   const Set<String> gatedLocations = <String>{
     AppRoutes.home,
     AppRoutes.progress,
@@ -75,7 +78,6 @@ GoRouter buildAppRouter({required ValueNotifier<UserProfile> profileNotifier}) {
     AppRoutes.searchFood,
     AppRoutes.weight,
     AppRoutes.whatCanIEat,
-    AppRoutes.signIn,
   };
 
   return GoRouter(

@@ -254,12 +254,14 @@ abstract final class Strings {
   /// Per-feature honest copy; generic fallback for unknown ids.
   static String honestVoidBody(String feature) {
     switch (feature) {
-      case 'sign-in':
-        return 'Accounts and sign-in are coming soon. Nourish already '
-            'works fully offline — your data stays on this phone.';
+      // No 'sign-in' case: sign-in is built, and the welcome screen opens the
+      // real screen. Copy claiming it is "coming soon" would be a lie about a
+      // feature that ships.
       case 'take-photo':
-        return 'Photo analysis is coming soon. Until then you can search '
-            'and log foods manually — it works fully offline.';
+        // The camera *screen* is what is missing (SCAN-02); analysing a photo
+        // the user picks already works, so the copy must not claim otherwise.
+        return 'The in-app camera is coming soon. You can choose a photo from '
+            'your gallery instead, and that one is analysed for real.';
       case 'choose-photo':
         return 'Choosing a photo for analysis is coming soon. You can '
             'search and log foods manually right now, fully offline.';

@@ -129,9 +129,10 @@ class WelcomeScreen extends StatelessWidget {
                             NourishButton(
                               label: Strings.alreadyHaveAccount,
                               variant: NourishButtonVariant.secondary,
-                              onPressed: () => context.go(
-                                AppRoutes.honestVoidFor('sign-in'),
-                              ),
+                              // The real sign-in screen exists now, and it does
+                              // not need a profile: a returning user can sign in
+                              // before finishing setup on this device.
+                              onPressed: () => context.push(AppRoutes.signIn),
                             ),
                             const SizedBox(
                               height: NourishSpacing.containerMargin,

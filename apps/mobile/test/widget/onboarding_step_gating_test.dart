@@ -77,13 +77,14 @@ void main() {
       await harness.teardown(tester);
     });
 
-    testWidgets('I ALREADY HAVE AN ACCOUNT opens the honest void (sign-in)',
+    testWidgets('I ALREADY HAVE AN ACCOUNT opens the real sign-in screen',
         (WidgetTester tester) async {
       final AppHarness harness = await pumpApp(tester);
       await tapButton(tester, Strings.alreadyHaveAccount);
-      expect(find.text(Strings.honestVoidTitle('sign-in')), findsWidgets);
-      expect(find.text(Strings.honestVoidBody('sign-in')), findsOneWidget);
-      expect(find.text(Strings.continueWithoutAccount), findsOneWidget);
+      // Sign-in is built and needs no local profile, so a returning user can
+      // reach it before finishing setup on this device.
+      expect(find.text(Strings.signInSubtitle), findsOneWidget);
+      expect(find.text(Strings.signInSendCode), findsOneWidget);
       await harness.teardown(tester);
     });
   });
