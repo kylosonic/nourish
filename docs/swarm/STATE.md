@@ -1154,3 +1154,52 @@ it becomes available; otherwise continue recording the limitation.
   asset paths cannot satisfy. That mismatch is the next concrete piece of work —
   either teach the generator GitHub's layout, or serve the artifacts from Pages
   under `android/`.
+
+## Shipping result (2026-09-30)
+
+**Release `v1.0.0` — https://github.com/kylosonic/nourish/releases/tag/v1.0.0**
+
+| Asset | Size | Installable? |
+| --- | --- | --- |
+| `Nourish-v1.0.0-universal.apk` | 61,174,761 bytes (sha256 `b63674f3…8b7fff`) | **Yes** — sideload; signed with the Android debug key, so not Play-publishable |
+| `Nourish-v1.0.0-unsigned-development.ipa` | 9,379,311 bytes | **No** — iOS requires Apple code signing; built for inspection |
+
+- **Launch site (live):** https://kylosonic.github.io/nourish/ — GitHub Pages from
+  the `gh-pages` branch. Its download button reads `latest.json` beside the page
+  and links the APK above. Verified end to end: the live `latest.json` reports
+  `published=true version=1.0.0 android=true`, and fetching the URL it advertises
+  returns **HTTP 200 with 61,174,761 bytes**, matching the recorded size.
+- **Repository:** https://github.com/kylosonic/nourish — public; `feat/nourish-mvp`
+  (the work) and `master` (still the S0 release commit) are both pushed, plus tag
+  `v1.0.0`. Nothing is merged to `master`: that is still the human's call.
+- **iOS is built in CI** (`.github/workflows/ios-ipa.yml`) because Windows cannot
+  produce an `.ipa`. Two bugs were fixed to get there: `flutter build ipa
+  --no-codesign` leaves an `.xcarchive` and no `.ipa` on current Flutter, so the
+  Payload zip is now assembled from the unsigned `.app`; and GitHub was rejecting
+  the pre-existing `build-release.yml` outright (0-second "workflow file issue"
+  runs) — **that workflow is still rejected and is not used by this path.**
+
+### CI state at shipping (honest, including what is red)
+
+- ✓ `website` (metadata validation, download-logic tests, HTML validation) and
+  ✓ Pages deployment.
+- ✓ `ios-ipa` (macOS) — produces the unsigned IPA artifact.
+- ✗ `api-ci`: **3 of 5 jobs green** (lint, unit tests, build + Prisma validate);
+  `npm audit` fails on a clean install reporting **2 high-severity
+  vulnerabilities** — a real finding, and my earlier "0 vulnerabilities" was a
+  local run that missed it; the e2e job still fails and its cause is **not yet
+  identified**.
+- Bugs already fixed here, all found only because the workflows ran for the first
+  time: `flutter test <path>` from the repository root (both Flutter workflows),
+  boolean flags silently ignored by the release generator (including
+  `--ios-signed`), the generator prefixing asset URLs with `android/` that a
+  GitHub release cannot serve, a website test that required "unavailable" for
+  every platform, and api-ci's missing `CORS_ORIGINS` and `DATABASE_URL`.
+
+### What is still unproven
+
+- **Nobody has installed and used the APK.** "Everything works as intended" is a
+  claim only a human running it can make.
+- No AI provider key and no SMS gateway exist in this environment, so recognition
+  and real code delivery are unavailable in this build; sync restore is not built
+  (backup only).
