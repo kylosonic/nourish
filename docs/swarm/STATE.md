@@ -1040,6 +1040,15 @@ be re-derived:
 
 ## What is not built, and what each one is waiting for
 
+> **Session close (2026-09-24).** Work on this session stopped here by the
+> human's decision, with the repository green and the tree clean at `7253b35`
+> (mobile 275/275, analyze clean). The S3 apply/restore step is deliberately
+> **not started**: it is a write path into the user's own logged history, and the
+> person chose to give it a fresh session rather than a fragmented attempt at the
+> end of a long one. Its entry point is
+> `docs/plans/slice-s3-apply-blueprint.md`. Everything else below is either done
+> or blocked on something outside this environment.
+
 "The agent ran out of patience" and "this cannot be done in this environment" are
 different problems, and a handoff that blurs them wastes the next person's time.
 Every remaining item, with the thing that actually gates it:
