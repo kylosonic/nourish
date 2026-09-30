@@ -19,7 +19,7 @@ defaults:
 # DATABASE_URL with its own service container.
 env:
   DATABASE_URL: postgresql://nourish:nourish@localhost:5432/nourish_test?schema=public
-  CORS_ORIGINS: http://localhost:3000,http://localhost:8080
+  CORS_ORIGINS: http://localhost:5173,http://localhost:3000,http://localhost:8080
   JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
   SMS_PROVIDER: console
   AI_PROVIDER: fixture
@@ -96,7 +96,7 @@ jobs:
       AI_PROVIDER: fixture
       # Required by env validation and present locally only in the gitignored
       # .env, so CI failed before running a single test.
-      CORS_ORIGINS: http://localhost:3000,http://localhost:8080
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000,http://localhost:8080
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
