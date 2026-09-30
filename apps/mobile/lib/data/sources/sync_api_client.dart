@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../models/sync_changes.dart';
 import '../models/sync_operation.dart';
 import 'api_catalog_data_source.dart' show apiBaseUrl;
 import 'auth_api_client.dart' show AuthException, authTimeout;
@@ -74,6 +75,39 @@ class SyncApi {
     outcome: 'rejected',
     message: (json['reason'] as String?) ?? 'The server refused this change.',
   );
+
+  /// Read what the server holds that this device has not seen (OFF-02).
+  ///
+  /// [since] is the cursor from the previous pull ([SyncChanges.serverTime]);
+  /// omitting it asks for everything, which is what a fresh install needs —
+  /// the restore path rather than the steady-state one.
+  Future<SyncChanges> changes({
+    required String accessToken,
+    DateTime? since,
+    int limit = 500,
+  }) async {
+    final String query = <String>[
+      if (since != null)
+        'since=${Uri.encodeQueryComponent(since.toUtc().toIso8601String())}',
+      'limit=$limit',
+    ].join('&');
+    final http.Response response;
+    try {
+      response = await _client
+          .get(
+            Uri.parse('$_baseUrl/v1/sync/changes?$query'),
+            headers: <String, String>{
+              'Accept': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+          )
+          .timeout(authTimeout);
+    } on Exception catch (error) {
+      throw AuthException('Could not reach Nourish ($error)', code: 'NETWORK');
+    }
+    if (response.statusCode != 200) throw _errorFor(response);
+    return SyncChanges.fromJson(_decode(response));
+  }
 
   Future<http.Response> _post(
     String path, {

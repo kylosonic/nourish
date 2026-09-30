@@ -77,12 +77,18 @@ class RecordedRequest {
     required this.method,
     required this.path,
     required this.headers,
+    this.query = const <String, String>{},
     this.body,
   });
 
   final String method;
   final String path;
   final Map<String, String> headers;
+
+  /// Decoded query parameters: a test can assert what was asked for, not only
+  /// which endpoint was hit.
+  final Map<String, String> query;
+
   final Map<String, dynamic>? body;
 }
 
@@ -136,6 +142,7 @@ class FakeHttpClient extends http.BaseClient {
         method: request.method,
         path: request.url.path,
         headers: request.headers,
+        query: request.url.queryParameters,
         body: decoded,
       ),
     );

@@ -14,12 +14,11 @@
 // incomplete meal (which the server must refuse per-operation), then reads the
 // changes back so the stored rows can be compared with what was sent.
 
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
 import 'package:nourish_domain/domain.dart';
 import 'package:nourish_mobile/data/models/account_session.dart';
+import 'package:nourish_mobile/data/models/sync_changes.dart';
 import 'package:nourish_mobile/data/models/sync_operation.dart';
 import 'package:nourish_mobile/data/sources/auth_api_client.dart';
 import 'package:nourish_mobile/data/sources/sync_api_client.dart';
@@ -122,53 +121,35 @@ Future<void> main(List<String> args) async {
     }
     stdout.writeln('push serverTime: ${result.serverTime?.toIso8601String()}');
 
-    // Read back what the server holds, using the same bearer token the app has.
-    final http.Response changes = await http.get(
-      Uri.parse('$baseUrl/v1/sync/changes?limit=50'),
-      headers: <String, String>{'Authorization': 'Bearer $token'},
+    // Read back what the server holds, through the same client the app uses.
+    final SyncChanges changes = await sync.changes(accessToken: token);
+    final List<RemoteChange> mine = <RemoteChange>[
+      ...changes.meals,
+      ...changes.water,
+      ...changes.weight,
+    ].where((RemoteChange row) => row.clientId.startsWith(device)).toList();
+    stdout.writeln(
+      'changes: ${mine.length} rows from this run '
+      '(serverTime ${changes.serverTime?.toIso8601String()})',
     );
-    if (changes.statusCode != 200) {
-      stdout.writeln('changes: HTTP ${changes.statusCode} ${changes.body}');
-      exit(1);
-    }
-    final Map<String, dynamic> body =
-        jsonDecode(changes.body) as Map<String, dynamic>;
-    // The server answers three arrays: meals (each with its items), water and
-    // weight.
-    final List<dynamic> meals = (body['meals'] as List<dynamic>?) ?? <dynamic>[];
-    final List<dynamic> water = (body['water'] as List<dynamic>?) ?? <dynamic>[];
-    final List<dynamic> weight = (body['weight'] as List<dynamic>?) ?? <dynamic>[];
-
-    final List<Map<String, dynamic>> mine = <Map<String, dynamic>>[
-      for (final dynamic entry in meals)
-        if (((entry as Map<String, dynamic>)['clientId'] ?? '')
-            .toString()
-            .startsWith(device))
-          entry,
-      for (final dynamic entry in <dynamic>[...water, ...weight])
-        if (((entry as Map<String, dynamic>)['clientId'] ?? '')
-            .toString()
-            .startsWith(device))
-          entry,
-    ];
-    stdout.writeln('changes: ${mine.length} rows from this run');
-    for (final Map<String, dynamic> row in mine) {
+    for (final RemoteChange row in mine) {
       stdout.writeln(
-        '  ${row['clientId']} dateKey=${row['dateKey']} '
-        'value=${row['amountMl'] ?? row['weightKg'] ?? 'meal'} '
-        'items=${(row['items'] as List<dynamic>?)?.length ?? 0}',
+        '  ${row.clientId} dateKey=${row.dateKey} '
+        'value=${row.amountMl ?? row.weightKg ?? 'meal'} '
+        'items=${row.items.length} deleted=${row.isDeleted}',
       );
     }
 
     final bool mealStored = mine.any(
-      (Map<String, dynamic> row) => row['clientId'] == '$device:meal:1',
+      (RemoteChange row) => row.clientId == '$device:meal:1',
     );
     final bool waterStored = mine.any(
-      (Map<String, dynamic> row) => row['clientId'] == '$device:water:1',
+      (RemoteChange row) => row.clientId == '$device:water:1',
     );
     final bool weightStored = mine.any(
-      (Map<String, dynamic> row) => row['clientId'] == '$device:weight:1',
+      (RemoteChange row) => row.clientId == '$device:weight:1',
     );
+    final bool cursorReturned = changes.serverTime != null;
     final bool incompleteRefused = result.outcomes.any(
       (SyncPushOutcome outcome) =>
           outcome.clientId == '$device:meal:2' && outcome.isRejected,
@@ -176,15 +157,17 @@ Future<void> main(List<String> args) async {
 
     stdout.writeln(
       'meal=$mealStored water=$waterStored weight=$weightStored '
-      'incomplete-refused=$incompleteRefused',
+      'incomplete-refused=$incompleteRefused cursor=$cursorReturned',
     );
-    stdout.writeln(
-      mealStored && waterStored && weightStored && incompleteRefused
-          ? 'result: PASS'
-          : 'result: FAIL',
-    );
+    final bool pass =
+        mealStored &&
+        waterStored &&
+        weightStored &&
+        incompleteRefused &&
+        cursorReturned;
+    stdout.writeln(pass ? 'result: PASS' : 'result: FAIL');
     await auth.logout(session.tokens.refreshToken);
-    exit(mealStored && waterStored && weightStored && incompleteRefused ? 0 : 1);
+    exit(pass ? 0 : 1);
   } on AuthException catch (error) {
     stdout.writeln('refused: ${error.code} — ${error.message}');
     exit(1);

@@ -338,6 +338,33 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-24 — S3 pull transport and its live verification (this commit)**:
+  - The read half of OFF-02 exists: `SyncApi.changes()` asks
+    `GET /v1/sync/changes` (with an optional `since` cursor) and decodes it into
+    `SyncChanges` / `RemoteChange` — meals with their items, water and weight,
+    each carrying the `clientId` the device minted, plus a tombstone flag
+    (`deletedAt`) and the `serverTime` cursor for next time.
+  - Two things it deliberately refuses to fudge: a row with `deletedAt` set is
+    **not** the same as a missing row (that distinction is what stops a deleted
+    record from being re-created later), and a missing `serverTime` leaves the
+    cursor unset rather than inventing one, because a cursor that advances
+    without knowing what it covered would skip changes silently.
+  - **Live, not mocked:** `tool/sync_live_check.dart` now reads the changes back
+    through this client instead of a hand-rolled request. Against the API running
+    from this checkout: push → `3 applied, 1 rejected — a meal needs at least one
+    item`, then pull → `3 rows from this run` with
+    `meal=true water=true weight=true incomplete-refused=true cursor=true`,
+    `result: PASS`; the meal came back with its single item, and each row with the
+    right `dateKey` and value.
+  - Evidence: `flutter analyze` clean; `flutter test` **275/275** (271 before:
+    four pull tests — parsing with tombstones and ids intact, the `since`
+    parameter, an empty answer, and a refused pull reporting the server's code).
+  - **What this is not:** an apply step. Nothing yet writes a remote row into the
+    local tables, so restore-onto-a-new-device still does not exist and the
+    account screen's "a backup, not a sync" copy remains true. The *Next Session*
+    block below covers the apply half.
+
+
 - **2026-09-20 — honesty sweep of the remaining voids (this commit)**:
   - Sign-in is built, so the welcome screen's "I ALREADY HAVE AN ACCOUNT" no
     longer opens a void that claimed accounts were "coming soon": it opens the
