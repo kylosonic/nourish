@@ -1024,6 +1024,23 @@ be re-derived:
 - The account screen's push-only copy is true today and must change in the same
   commit that starts pulling.
 
+## What is not built, and what each one is waiting for
+
+"The agent ran out of patience" and "this cannot be done in this environment" are
+different problems, and a handoff that blurs them wastes the next person's time.
+Every remaining item, with the thing that actually gates it:
+
+| Item | State | Gated by |
+| --- | --- | --- |
+| **S3 apply/restore** (`GET /v1/sync/changes` → local tables) | Read half built, unit-tested and live-verified; **nothing writes remote rows back** | Nothing external — it is ordinary work: schema v6 adds a durable `clientId` to the three synced tables, then insert-time identity, tombstone-aware apply and a two-way merge test. Design notes are in *Next Session* above |
+| **WW-02 water reminders** | Not built | Platform verification, not design: the behaviour needs scheduled local notifications, and this environment has no device to confirm they arrive (or that they stay silent when the target is met). Building the settings UI without that would ship a screen that does nothing |
+| **SUB-01 entitlements / paywall** | Not built | Two external inputs: no design exists (P-SUB-1) and no payment provider is configured (P-PROV-1). The server-side plan/consent model already exists and is reported on the account screen |
+| **UAT** | Not run | A human. `docs/uat-checklist.md` is ready; no check in it has been executed by an agent |
+| **Merge and release** | Not done, correctly | The same UAT approval (AGENTS.md §10). `master` is still at the S0 release commit |
+| **Release pipeline** | Never run | A git remote and the secrets listed in `docs/release-process.md` (keystore, Play credentials). The workflows parse and their contracts are tested |
+| **Real AI recognition** | Implemented, unit-tested against a mock only | An AI provider key. The provider seam refuses unknown configuration rather than falling back to a fake answer |
+| **Real SMS delivery** | Implemented, exercised through the console gateway only | An SMS gateway credential. The `http` gateway is configuration rather than exercised code |
+
 ## UAT handoff (human approval required before merge)
 
 `feat/nourish-mvp` holds everything; `master` still points at the S0 release
