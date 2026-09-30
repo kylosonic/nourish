@@ -338,6 +338,35 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-24 — self-review of the device credential path (this commit)**:
+  - **This is not an independent security review** — the swarm's `@security` agent
+    was stood down at the human's instruction, so this is the implementer checking
+    their own work. Recorded as such; the S3 device side has no external review.
+  - Scope: where session material can escape on the device — logging, storage, and
+    the three egress seams (`auth_api_client`, `sync_api_client`,
+    `analysis_api_client`).
+  - What was checked, and what was found:
+    - A grep for `print(`/`debugPrint`/`log(` across `lib/` returns **no `print`
+      at all**, and the auth and sync clients contain **no logging statements
+      whatsoever** — tokens, the `Authorization` header and response bodies are
+      never written to a log. `developer.log` is used for bootstrap, seed import,
+      catalog sync, analysis mapping and release checks only.
+    - Tokens exist in exactly three places: the API clients' parameters, the
+      `SessionTokens` model, and platform secure storage. No file, preference or
+      database write of a token exists outside `SecureTokenStore`.
+    - The access token is attached only as a bearer header inside the egress
+      seams; no URL or query string carries it (the sync cursor travels in the
+      query, which is a timestamp, not a credential).
+    - Refresh happens at most once per operation (`rotated` guard in
+      `SyncController`, single attempt in `AuthController._restore`), so a
+      rejected token cannot spin a retry loop.
+  - Known and unchanged from S0: the local Drift database (meals, water, weight,
+    the queue) is not encrypted at rest. That was recorded as a provisional risk
+    in S0 and is still true; the queue adds meal contents to that same store, so
+    it does not widen the exposure beyond the data the app already kept.
+  - No code changed; nothing was found that required a fix.
+
+
 - **2026-09-24 — release-mode build verified (this commit)**:
   - Every build check until now was a **debug** build, which is exactly the wrong
     mode to trust for the parts that changed late: a plugin that fails only under
