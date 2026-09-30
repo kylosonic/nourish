@@ -81,6 +81,9 @@ jobs:
       JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
       SMS_PROVIDER: console
       AI_PROVIDER: fixture
+      # Required by env validation and present locally only in the gitignored
+      # .env, so CI failed before running a single test.
+      CORS_ORIGINS: http://localhost:3000,http://localhost:8080
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
