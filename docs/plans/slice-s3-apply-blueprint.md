@@ -152,3 +152,45 @@ the OTP from the API log.
   screen's push-only copy replaced.
 - `docs/swarm/STATE.md` records the evidence and stops describing apply as
   unbuilt.
+
+## Execution order for option (B), with commit checkpoints
+
+Written because a data-write feature is the one thing that must not be left
+half-landed: every step below ends at a state that is **coherent and green**, so
+stopping between any two steps leaves a working repository rather than a partial
+write path. Do them in this order and commit at each ✅.
+
+1. **Cursor** — `SyncQueueRepository` gains `readCursor()` / `writeCursor(DateTime)`
+   on the existing `sync.since` settings key (`SyncQueueDao.readSetting` /
+   `writeSetting` already exist). Test: round-trips, and an absent key is null.
+2. **Pure decisions** — `lib/features/sync/apply_changes.dart` with a pure
+   function over (remote rows, local rows) → decisions. No database, no I/O.
+   Test the whole matrix in step 6's file before wiring anything.
+   ✅ *Commit: cursor + pure function + its unit tests. Nothing is wired yet, so
+   nothing in the app changes behaviour.*
+3. **Execution** — the transaction that performs the decisions: remote rows and
+   the cursor advance in **one** transaction; meals insert with their items.
+4. **Controller** — `SyncController.restore()`: fetch changes, execute, record
+   per-kind counts (`applied` / `skipped-newer-locally` / `removed` / `failed`)
+   in `SyncState`. Never runs during a push.
+5. **Tests** — the ten-case matrix against a real in-memory Drift database and
+   the scripted `FakeHttpClient` from `test/test_helpers.dart`; include the
+   crash-replay case (transaction throws → cursor unchanged → second run is a
+   no-op, not a duplicate).
+   ✅ *Commit: the feature works from code, with tests. Still not reachable from
+   the UI, which is a safe place to stop if the session ends here.*
+6. **UI** — RESTORE action on the backup panel, with copy that states the option
+   (B) limitation (a delete made on another device for a row this device did not
+   create is not applied yet). Panel test extended.
+7. **Copy + ledger** — rewrite `docs/uat-checklist.md` 5.12 to expect a restore,
+   replace the account screen's "a backup, not a sync" note, and update
+   `docs/swarm/STATE.md` (evidence block, the blocked/unbuilt table, and the
+   *Next Session* section, which becomes empty).
+   ✅ *Commit: slice complete, gates recorded.*
+8. **Live verification** — the two-device recipe above against the local API, with
+   the result pasted into the ledger as evidence, not as a claim.
+
+If a session ends after step 2 or step 5, say so plainly in `docs/swarm/STATE.md`
+and leave the next session the remaining steps — that is a legitimate stopping
+point; a half-wired apply is not.
+
