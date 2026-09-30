@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S1, S2, S3 (backend + device accounts/sessions + offline queue/push), S4 and S5 COMMITTED; only S3 pull/restore is unbuilt` |
-| Active branch | `feat/nourish-mvp` |
+| Phase | `IMPLEMENTING — S0–S5 all built and committed except the S3 apply/restore half; UAT pending` |
+| Active branch | `feat/nourish-mvp` (clean tree; `master` still at the S0 release commit `1c16902`) |
 | Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S3 — the device queues every local change and backs it up on request; pulling changes back down is not built |
-| Active gate | none in flight — each slice was verified against its own criteria and committed |
+| Active slice | S3 — the device queues every local change, backs it up on request, and can now *read* the server's changes; writing them back into the local tables (apply/restore) is not built |
+| Active gate | none in flight — each slice was verified against its own criteria and committed. **UAT has not been run**: `docs/uat-checklist.md` is ready and no check in it has been executed |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest commit | `0de571e` (docs — UAT handoff) plus the S3 queue/push work on the working tree |
+| Latest commit | `e1afc91` (chore — dead string cleanup) |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
