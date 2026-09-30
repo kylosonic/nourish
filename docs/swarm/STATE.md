@@ -338,6 +338,20 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
 
 ## Last Verification Evidence
 
+- **2026-09-24 — release-mode build verified (this commit)**:
+  - Every build check until now was a **debug** build, which is exactly the wrong
+    mode to trust for the parts that changed late: a plugin that fails only under
+    AOT (secure storage is the classic case) would have shipped a sign-in that
+    breaks in the build users actually install.
+  - `flutter build windows --release` succeeds: `nourish_mobile.exe` produced
+    (91 648 bytes, tree-shaken from the debug build's much larger output) with
+    `flutter_secure_storage_windows_plugin.dll` still linked alongside the other
+    plugin DLLs.
+  - Still unverified after this: **Android release builds** — those need the
+    Gradle/Play toolchain and are the S5 CI workflow's job (`android-ci.yml`),
+    which has never run on a remote. Recorded rather than implied.
+
+
 - **2026-09-24 — S3 pull transport and its live verification (this commit)**:
   - The read half of OFF-02 exists: `SyncApi.changes()` asks
     `GET /v1/sync/changes` (with an optional `since` cursor) and decodes it into
