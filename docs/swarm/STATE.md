@@ -1270,3 +1270,13 @@ over a real in-memory database, green CI builds of the Android APK, and a
 successful Windows release build. What is **not** evidenced by anyone: the app
 opening on a phone and being used. That remains the human's check, and the APK is
 on the release page for it.
+
+### Release integrity verified against the bytes, not the metadata
+
+Downloaded the APK from the URL the live site advertises and hashed it:
+
+- published `sha256` `b63674f3cf562a17c573442c997f5f5efdd2b4bc06fb254616de88e9038b7fff`
+- hash of the downloaded file: identical, and 61,174,761 bytes as published.
+
+So the checksum on the launch page describes the artifact a user actually
+receives. Every page the site serves was also fetched and returned 200.
