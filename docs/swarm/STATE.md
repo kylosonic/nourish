@@ -1046,7 +1046,7 @@ Every remaining item, with the thing that actually gates it:
 
 | Item | State | Gated by |
 | --- | --- | --- |
-| **S3 apply/restore** (`GET /v1/sync/changes` → local tables) | Read half built, unit-tested and live-verified; **nothing writes remote rows back** | Nothing external — it is ordinary work: schema v6 adds a durable `clientId` to the three synced tables, then insert-time identity, tombstone-aware apply and a two-way merge test. Design notes are in *Next Session* above |
+| **S3 apply/restore** (`GET /v1/sync/changes` → local tables) | Read half built, unit-tested and live-verified; **nothing writes remote rows back** | Nothing external — it is ordinary work, and it now has a blueprint: `docs/plans/slice-s3-apply-blueprint.md` (schema v6 `clientId`, the pure decision function, the tombstone and last-write-wins rules, a ten-case test matrix, and a live recipe that simulates a fresh install) |
 | **WW-02 water reminders** | Not built | Platform verification, not design: the behaviour needs scheduled local notifications, and this environment has no device to confirm they arrive (or that they stay silent when the target is met). Building the settings UI without that would ship a screen that does nothing |
 | **SUB-01 entitlements / paywall** | Not built | Two external inputs: no design exists (P-SUB-1) and no payment provider is configured (P-PROV-1). The server-side plan/consent model already exists and is reported on the account screen |
 | **UAT** | Not run | A human. `docs/uat-checklist.md` is ready; no check in it has been executed by an agent |
