@@ -1124,3 +1124,33 @@ and a design), and the release pipeline (never run — needs a remote and secret
 `graphify` command is not installed on this machine — recorded as a limitation
 per AGENTS.md §9 (do not pretend it ran). Run `graphify update .` at Gate E if
 it becomes available; otherwise continue recording the limitation.
+
+
+## Shipping (2026-09-30) — first installable build
+
+- **Repository:** https://github.com/kylosonic/nourish (public; pushed from this
+  checkout, branches `feat/nourish-mvp` and `master`, tag `v1.0.0`).
+- **Android:** `Nourish-1.0.0.apk` (61,174,761 bytes, sha256
+  `b63674f3cf562a17c573442c997f5f5efdd2b4bc06fb254616de88e9038b7fff`) is published
+  as a release asset on
+  https://github.com/kylosonic/nourish/releases/tag/v1.0.0 — built locally with
+  `flutter build apk --release`. It is **debug-signed** (the project's release
+  build type uses the debug keystore), so it installs by sideload but cannot go to
+  Play without a real upload key.
+- **iOS:** `.github/workflows/ios-ipa.yml` was added because an `.ipa` can only be
+  built on macOS. It builds with `--no-codesign` and uploads a development
+  artifact; **an unsigned IPA does not install on an iPhone** and is never
+  presented as installable.
+- **CI bugs found by actually running it** (the workflows had never run): every
+  Flutter test step was invoked as `flutter test <path>` from the repository root,
+  which fails with "No pubspec.yaml file found" — now run per package with
+  `working-directory`; and `api-ci`'s e2e job fails on `validateEnv` because S3
+  added required environment variables the workflow does not provide. The second
+  is **still open**.
+- **Launch site:** the six pages were patched to relative paths so they can be
+  served from a project Pages subpath (16 root-absolute references). It is **not
+  yet deployed**, and its download link is **not yet wired**: the release
+  generator builds URLs as `<base>/android/<file>`, which GitHub's flat release
+  asset paths cannot satisfy. That mismatch is the next concrete piece of work —
+  either teach the generator GitHub's layout, or serve the artifacts from Pages
+  under `android/`.
