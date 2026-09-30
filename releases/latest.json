@@ -1,13 +1,17 @@
 {
   "schema_version": 1,
-  "published": false,
-  "version": null,
-  "release_tag": null,
-  "release_date": null,
+  "published": true,
+  "version": "1.0.0",
+  "release_tag": "v1.0.0",
+  "release_date": "2026-09-30",
   "android": {
-    "available": false,
+    "available": true,
     "apk": null,
-    "universal_apk": null,
+    "universal_apk": {
+      "url": "https://github.com/kylosonic/nourish/releases/download/v1.0.0/Nourish-v1.0.0-universal.apk",
+      "size_bytes": 61174761,
+      "sha256": "b63674f3cf562a17c573442c997f5f5efdd2b4bc06fb254616de88e9038b7fff"
+    },
     "aab": null
   },
   "ios": {
@@ -16,6 +20,6 @@
     "ipa": null,
     "note": "iOS distribution requires Apple signing and distribution approval."
   },
-  "github_release": null,
-  "github_releases_url": "https://github.com/nourish-app/nourish/releases"
+  "github_release": "https://github.com/kylosonic/nourish/releases/tag/v1.0.0",
+  "github_releases_url": "https://github.com/kylosonic/nourish/releases"
 }

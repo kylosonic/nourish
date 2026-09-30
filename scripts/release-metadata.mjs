@@ -96,6 +96,10 @@ export function buildReleaseMetadata(options) {
     androidDir = null,
     iosDir = null,
     iosSigned = false,
+    // GitHub release assets are flat: every asset hangs off the release's
+    // download URL with no directory of its own, so the object key must be the
+    // bare filename. Other hosts (a CDN, object storage) keep the directory.
+    flatAssets = false,
   } = options;
 
   if (!version || !/^\d+\.\d+\.\d+/.test(version)) {
@@ -129,11 +133,11 @@ export function buildReleaseMetadata(options) {
   document.release_date = releaseDate;
   document.android = {
     available: androidAvailable,
-    apk: apk ? describeAsset(apk, publicBaseUrl, `android/${path.basename(apk)}`) : null,
+    apk: apk ? describeAsset(apk, publicBaseUrl, `${flatAssets ? '' : 'android/'}${path.basename(apk)}`) : null,
     universal_apk: universal
-      ? describeAsset(universal, publicBaseUrl, `android/${path.basename(universal)}`)
+      ? describeAsset(universal, publicBaseUrl, `${flatAssets ? '' : 'android/'}${path.basename(universal)}`)
       : null,
-    aab: aab ? describeAsset(aab, publicBaseUrl, `android/${path.basename(aab)}`) : null,
+    aab: aab ? describeAsset(aab, publicBaseUrl, `${flatAssets ? '' : 'android/'}${path.basename(aab)}`) : null,
   };
   // A signed iOS build is the ONLY way `installable` becomes true (master §65).
   const iosAvailable = Boolean(ipa) && iosSigned;
@@ -141,7 +145,7 @@ export function buildReleaseMetadata(options) {
     available: iosAvailable,
     installable: iosAvailable,
     ipa: iosAvailable
-      ? describeAsset(ipa, publicBaseUrl, `ios/${path.basename(ipa)}`)
+      ? describeAsset(ipa, publicBaseUrl, `${flatAssets ? '' : 'ios/'}${path.basename(ipa)}`)
       : null,
     note: iosAvailable
       ? 'Signed distribution build.'

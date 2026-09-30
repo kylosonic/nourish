@@ -27,7 +27,7 @@ import {
 
 function parseArgs(argv) {
   const args = {};
-  const booleanFlags = new Set(['ios-signed', 'check']);
+  const booleanFlags = new Set(['ios-signed', 'check', 'flat-assets']);
   for (let i = 0; i < argv.length; i++) {
     const token = argv[i];
     if (!token.startsWith('--')) continue;
@@ -44,6 +44,15 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2));
+
+// parseArgs keys flags by their raw text ('flat-assets'), while the call sites
+// below read camelCase ('flatAssets'). Without this, a boolean flag was silently
+// ignored -- which is why --ios-signed never had any effect either.
+for (const flag of ['ios-signed', 'flat-assets']) {
+  if (args[flag] === true) {
+    args[flag.replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = true;
+  }
+}
 const defaultOut = path.resolve(import.meta.dirname, '../releases/latest.json');
 
 if (args.check) {
@@ -81,6 +90,7 @@ if (!args.version) {
     androidDir: args['android-dir'] ? path.resolve(args['android-dir']) : null,
     iosDir: args['ios-dir'] ? path.resolve(args['ios-dir']) : null,
     iosSigned: Boolean(args.iosSigned),
+    flatAssets: Boolean(args.flatAssets),
   });
 }
 
