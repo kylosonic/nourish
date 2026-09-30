@@ -14,6 +14,16 @@ defaults:
   run:
     working-directory: apps/api
 
+# Variables Prisma and env validation need in every job. Locally they live in the
+# gitignored .env, which is why these steps failed in CI; the e2e job overrides
+# DATABASE_URL with its own service container.
+env:
+  DATABASE_URL: postgresql://nourish:nourish@localhost:5432/nourish_test?schema=public
+  CORS_ORIGINS: http://localhost:3000,http://localhost:8080
+  JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
+  SMS_PROVIDER: console
+  AI_PROVIDER: fixture
+
 jobs:
   lint:
     name: Lint (strict TS)
