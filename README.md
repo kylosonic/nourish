@@ -81,6 +81,13 @@ npm run test:e2e                         # 83 e2e tests (needs Docker Postgres)
 node --test "scripts/*.test.mjs"                       # 9 tests
 node --test "apps/website/test/*.test.mjs"             # 12 tests
 node scripts/generate-latest-json.mjs --check
+```n
+Two live checks need the API running (they are manual on purpose: the test suite must stay offline). They are what caught the wire mismatches the fakes had hidden:
+
+```powershell
+dart run tool/auth_live_check.dart request +251911000123   # then read the code from the API log
+dart run tool/auth_live_check.dart session +251911000123 123456
+dart run tool/sync_live_check.dart  +251911000123 123456   # push, then read the rows back
 ```
 
 Note: `node --test <directory>` fails with `MODULE_NOT_FOUND` on this Node/Windows
@@ -95,7 +102,7 @@ build — always pass an explicit glob, as above.
 | S2 — meal analysis (text + photo) and edit-before-save | Built, verified. The real recognition path is implemented and unit-tested against a fake provider; **no AI provider key exists in this environment**, so it has never been exercised against a real model |
 | S3 — accounts, sessions, sync endpoints (server) | Built, verified over HTTP |
 | S3 — accounts and sessions (device) | Built and verified live against the local API: sign-in, secure token storage, session restore, sign-out, account screen |
-| S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Pull is NOT BUILT**: nothing is restored onto a new device, so this is a backup rather than a sync, and the account screen says so |
+| S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Restore is NOT BUILT**: the app can already *read* the account's rows (GET /v1/sync/changes, live-verified) but does not write them back into the local database yet, so this is a backup rather than a sync, and the account screen says so |
 | S4 — weekly insights, weight logging, adjustable water goal, "what can I eat" | Built, verified |
 | S4 — water reminders (WW-02), entitlements/paywall (SUB-01) | **NOT BUILT.** Reminders need platform notification support that cannot be verified here; the paywall has no design (P-SUB-1) and no payment provider (P-PROV-1) |
 | S5 — website, release metadata, in-app update check | Built, verified. The release pipeline itself has never run: it needs a remote and the secrets in `docs/release-process.md` |
