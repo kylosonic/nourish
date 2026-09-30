@@ -28,7 +28,35 @@ that handles it:
    (`decideMerge` in `apps/api/src/sync/merge.ts`). The device must apply the same
    rule locally, or the two sides will disagree about which version is current.
 
-## Step 1 — durable local identity (schema v6)
+### Two ways to satisfy hazard 1 — pick deliberately
+
+**(A) Durable `clientId` column (step 1 below; full convergence.)** Every synced
+row records its own identity, so remote rows can be matched whoever created them.
+Costs a schema version, a migration and insert-site wiring in three repositories;
+buys deletes and edits of *restored* rows as well as of the device's own.
+
+**(B) Derive identity + transactional apply (restore-focused, no schema change.)**
+The id scheme is deterministic, so a row this device created is matched by parsing
+`clientId` — `<device>:<table>:<rowId>` — and no column is needed. Idempotency for
+rows from *other* devices does not need one either, provided the insert of every
+remote row **and** the cursor advance happen in a **single transaction**: a crash
+rolls back both, so the replay re-inserts rather than duplicating.
+
+- Buys: the actual user promise (a fresh install restores what the account holds),
+  same-device edits and deletes, no migration, no codegen, and much less code.
+- Costs: a delete or edit of a row that this device did not create cannot be
+  matched until (A) lands. On a fresh install that gap is invisible (tombstoned
+  rows are simply never inserted), and it only shows up when a *second* device
+  later deletes a row this device had restored.
+- If (B) is chosen, the limitation must be written into the account screen's copy
+  and into this file's Definition of done, not left implicit.
+
+**Recommendation:** ship (B) first — it is smaller, needs no migration, and covers
+the restore path users actually ask for — then (A) when two-device convergence
+matters. Either way, the decision belongs in `docs/swarm/STATE.md` with the
+reason, because it changes what the app promises.
+
+## Step 1 — durable local identity (schema v6) — required for option (A)
 
 - Add `clientId` (`text().nullable()`) to `Meals`, `WaterLogs` and `WeightLogs` in
   `lib/data/tables/tables.dart`, and an index on it (apply looks rows up by it on
