@@ -31,6 +31,28 @@ read it there. No real SMS gateway exists in this environment, and no AI
 provider key exists either, so checks that would need one are marked
 **EXPECTED LIMIT** rather than skipped silently.
 
+Handy while reviewing:
+
+```powershell
+# The code the API just logged (the console SMS gateway writes it to its own log)
+Select-String -Path <api log> -Pattern 'sign-in code is (\d{6})' | Select-Object -Last 1
+
+# What the account actually holds. Run from apps/api; the containers are compose
+# project "api", bound to loopback. `\dt` lists the real table names first, so a
+# renamed table never leaves you guessing.
+docker exec nourish-postgres psql -U nourish -d nourish -c '\dt'
+docker exec nourish-postgres psql -U nourish -d nourish -c 'SELECT "clientId", "dateKey", "updatedAt" FROM "Meal" ORDER BY "updatedAt" DESC LIMIT 5;'
+docker exec nourish-postgres psql -U nourish -d nourish -c 'SELECT "clientId", "dateKey", "amountMl" FROM "WaterLog" ORDER BY "updatedAt" DESC LIMIT 5;'
+docker exec nourish-postgres psql -U nourish -d nourish -c 'SELECT "clientId", "dateKey", "weightKg" FROM "WeightLog" ORDER BY "updatedAt" DESC LIMIT 5;'
+
+# The API's tail, if it was started in the background
+Get-Content <api log> -Tail 30
+
+# Stop the dev stack when you are finished
+cd apps/api
+docker compose down
+```
+
 ## 1. Onboarding (ONB-01…09)
 
 | # | Step | Expected |
