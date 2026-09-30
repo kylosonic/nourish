@@ -1249,3 +1249,24 @@ It is therefore **disabled** (`gh workflow disable build-release.yml`) rather th
 deleted: the file and its intent stay in the repository for whoever wants to
 rehabilitate it, and the CI signal is honest again. This is recorded because a
 disabled gate is a decision, not an accident.
+
+### Runtime smoke test: inconclusive here, and recorded as such
+
+Attempted to verify the shipped app actually runs, since that is the one claim
+automated tests cannot make:
+
+- `flutter build windows --release` succeeds and produces the executable.
+- Launching that executable (and `flutter run -d windows --debug`) **starts a
+  process and even exposes a Dart VM Service**, but it exits with code 0 within
+  seconds, prints no application log lines, and **creates no data directory or
+  database file** under `%APPDATA%`. A working startup would have created the
+  Drift database and run the seed import.
+
+Conclusion: **the app was not observed running on a real display in this
+environment**, and the reason looks environmental (no interactive desktop session
+for the spawned process) rather than a code fault. What is genuinely evidenced:
+275 automated tests including full-app widget harnesses that pump the real app
+over a real in-memory database, green CI builds of the Android APK, and a
+successful Windows release build. What is **not** evidenced by anyone: the app
+opening on a phone and being used. That remains the human's check, and the APK is
+on the release page for it.
