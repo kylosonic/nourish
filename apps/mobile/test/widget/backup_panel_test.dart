@@ -231,10 +231,11 @@ void main() {
       findsOneWidget,
     );
     // Still waiting, and still counted.
-    expect(onScreen(find.text(Strings.syncRetrying(1))), findsOneWidget);
+    expect(onScreen(find.text(Strings.syncRefused(1))), findsOneWidget);
     expect(onScreen(find.text(Strings.syncPendingCount(1))), findsNothing);
 
     await harness.teardown(tester);
   });
 }
+
 

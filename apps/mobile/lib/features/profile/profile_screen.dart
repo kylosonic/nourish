@@ -261,7 +261,7 @@ class _BackupPanel extends ConsumerWidget {
           if (sync.rejected > 0) ...<Widget>[
             const SizedBox(height: 4),
             Text(
-              Strings.syncRetrying(sync.rejected),
+              Strings.syncRefused(sync.rejected),
               style: NourishTextStyles.bodyMd.copyWith(
                 fontSize: 13,
                 color: NourishColors.error,
@@ -313,3 +313,4 @@ class _Row extends StatelessWidget {
     );
   }
 }
+

@@ -613,9 +613,12 @@ abstract final class Strings {
   static const String syncPendingNone = 'Everything is backed up.';
   static String syncPendingCount(int count) =>
       '$count change${count == 1 ? '' : 's'} waiting to be sent.';
-  static String syncRetrying(int count) =>
-      '$count change${count == 1 ? '' : 's'} could not be sent. They stay '
-      'queued and will be retried.';
+  /// A refusal, stated for what it is. Nothing in the app retries on its own —
+  /// a push happens when the user asks for one — so "will be retried" would
+  /// promise a background retry that does not exist.
+  static String syncRefused(int count) =>
+      '$count change${count == 1 ? '' : 's'} could not be sent. '
+      '${count == 1 ? 'It stays' : 'They stay'} queued until you back up again.';
   static const String syncInProgress = 'Sending…';
   static String syncDone(int count) =>
       'Backed up $count change${count == 1 ? '' : 's'}.';
