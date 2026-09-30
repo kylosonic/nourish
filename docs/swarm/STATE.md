@@ -1229,3 +1229,23 @@ host confusion `GHSA-58mr-gqgx-xq4g`, inconsistent host-case normalisation
 the lockfile and the suites could not be re-verified in this session, and an
 unverified dependency bump is the shortcut this project has refused throughout.
 The gate itself is left intact.
+
+### The one remaining CI red: build-release.yml, disabled rather than faked
+
+`build-release.yml` is rejected by GitHub at registration: its runs have **zero
+jobs** and report their name as the file path, and it produces a red X on every
+push. Diagnostics performed: js-yaml parses the file strictly; no tabs; no
+duplicate top-level or job keys; LF endings; 12,764 bytes; the only non-ASCII are
+dashes in comments. The offending construct was not identified, and guessing at it
+was not worth further session time when the workflow is redundant:
+
+- `android-ci` builds the APK in CI (green),
+- `.github/workflows/ios-ipa.yml` builds the unsigned IPA on macOS (green, artifact
+  attached to the release),
+- the release itself was published with `gh release create/upload`, and
+- `website` validates the release metadata and deploys the site (green).
+
+It is therefore **disabled** (`gh workflow disable build-release.yml`) rather than
+deleted: the file and its intent stay in the repository for whoever wants to
+rehabilitate it, and the CI signal is honest again. This is recorded because a
+disabled gate is a decision, not an accident.
