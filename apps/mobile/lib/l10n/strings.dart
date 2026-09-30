@@ -581,9 +581,6 @@ abstract final class Strings {
   static const String accountConsentNote =
       'Consent is stored by Nourish\'s server and can be changed there. This '
       'screen only reports what the server holds.';
-  static const String accountSyncNote =
-      'Backup and sync between devices are not built yet: this account is real, '
-      'but nothing is uploaded from this device.';
   static const String accountSignInAction = 'SIGN IN';
   static const String accountSignOutAction = 'SIGN OUT';
   static const String accountSignOutFailed =
@@ -623,6 +620,5 @@ abstract final class Strings {
   static String syncDone(int count) =>
       'Backed up $count change${count == 1 ? '' : 's'}.';
   static const String syncUpToDate = 'Already up to date.';
-  static String syncFailed(String message) => message;
   static const String syncNeverRun = 'Not backed up yet.';
 }
