@@ -47,11 +47,19 @@ jobs:
           flutter analyze packages/design-system
           flutter analyze apps/mobile
 
-      - name: Tests
-        run: |
-          flutter test packages/domain
-          flutter test packages/design-system
-          flutter test apps/mobile
+      # Each suite runs inside its own package: `flutter test <path>` from the
+      # repository root fails with "No pubspec.yaml file found".
+      - name: Tests (domain)
+        working-directory: packages/domain
+        run: flutter test
+
+      - name: Tests (design system)
+        working-directory: packages/design-system
+        run: flutter test
+
+      - name: Tests (mobile)
+        working-directory: apps/mobile
+        run: flutter test
 
       - name: Release tooling tests (metadata + website download logic)
         run: |

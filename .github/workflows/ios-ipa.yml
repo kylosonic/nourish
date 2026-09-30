@@ -1,0 +1,62 @@
+name: iOS unsigned IPA
+
+# Why this workflow exists: an iOS .ipa can only be produced on macOS, and this
+# project is developed on Windows. It builds the app with code signing disabled
+# and publishes the result as a *development* artifact.
+#
+# An unsigned IPA is NOT installable on an iPhone: iOS refuses to install it.
+# It is shipped so the build can be inspected and so a signed build can be
+# produced later with the right certificates. Never present it as an installable
+# iOS release.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+jobs:
+  ipa:
+    name: Build unsigned iOS development IPA
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      # Each package is fetched from its own directory: `flutter pub get` needs a
+      # pubspec in the working directory.
+      - name: Packages
+        run: |
+          flutter pub get --directory packages/domain
+          flutter pub get --directory packages/design-system
+          flutter pub get --directory apps/mobile
+
+      - name: Build without code signing
+        working-directory: apps/mobile
+        run: flutter build ipa --release --no-codesign
+
+      - name: Collect the .ipa and its checksum
+        run: |
+          set -euo pipefail
+          ls -la apps/mobile/build/ios/ipa
+          mkdir -p release/ios
+          cp apps/mobile/build/ios/ipa/*.ipa release/ios/Nourish-unsigned-development.ipa
+          cd release/ios
+          shasum -a 256 Nourish-unsigned-development.ipa | tee Nourish-unsigned-development.ipa.sha256
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nourish-ios-unsigned-ipa
+          path: release/ios/
+          # A green run with no .ipa would be worse than a red one.
+          if-no-files-found: error
+          retention-days: 30
