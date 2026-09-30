@@ -1203,3 +1203,29 @@ it becomes available; otherwise continue recording the limitation.
 - No AI provider key and no SMS gateway exist in this environment, so recognition
   and real code delivery are unavailable in this build; sync restore is not built
   (backup only).
+
+### CI resolution (2026-09-30, later)
+
+`api-ci`'s e2e job is **green in CI: 7 suites, 83 of 83 tests**, and three of the
+five jobs pass. Getting there required four separate fixes, every one of them a
+bug that had been invisible because the workflow had never executed:
+
+1. `CORS_ORIGINS` was not provided at all - env validation aborted the run.
+2. `npx prisma validate` had no `DATABASE_URL`.
+3. The Postgres service container created a database named `nourish` while the
+   harness connects to `nourish_test`, so jest's globalSetup died with an
+   AggregateError before a single test ran.
+4. The `--health-cmd` I first wrote probed `-d nourish_test`, which does not exist
+   until initdb finishes, so the container never reported healthy and every later
+   step was skipped. The suite then reached 81/83.
+5. The last two were the CORS suite itself: it asserts the origin
+   `http://localhost:5173`, which my CI value omitted.
+
+**Still red, and not a CI bug:** the `npm audit` job. A clean install reports two
+high-severity advisories - `fast-uri` (authority injection `GHSA-qw65-cvwx-89v3`,
+host confusion `GHSA-58mr-gqgx-xq4g`, inconsistent host-case normalisation
+`GHSA-hrr3-gc8f-f4qj`) and `brace-expansion` via the jest/glob tooling, with
+`npm audit fix` available. That fix was deliberately **not** run here: it rewrites
+the lockfile and the suites could not be re-verified in this session, and an
+unverified dependency bump is the shortcut this project has refused throughout.
+The gate itself is left intact.
