@@ -76,9 +76,8 @@ jobs:
           POSTGRES_USER: nourish
           POSTGRES_PASSWORD: nourish
           # The e2e harness connects to nourish_test (TEST_DATABASE_URL below); a
-          # container created with only 
-ourish made globalSetup fail before any
-          # test ran - which is why this job was red from its first execution.
+          # container created with only POSTGRES_DB=nourish made globalSetup fail
+          # before any test ran, which is why this job was red from its first run.
           POSTGRES_DB: nourish_test
         ports:
           - 5432:5432
