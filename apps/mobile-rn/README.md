@@ -105,6 +105,11 @@ GitHub release assets without EAS credentials:
 The workflow writes `SHA256SUMS.txt` and creates the requested GitHub release
 only after both builds succeed.
 
+The first published React Native build is
+[`v1.1.0`](https://github.com/kylosonic/nourish/releases/tag/v1.1.0), marked as
+a prerelease because the APK uses a development signing key and the iOS IPA is
+unsigned.
+
 ## Dependency audit note
 
 `npm audit` reports 15 high-severity advisories inherited from Expo's

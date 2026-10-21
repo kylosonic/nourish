@@ -14,7 +14,7 @@ agent's exact approval.
 | Active slice | `apps/mobile-rn` — first-release flow, offline state, analysis mapping, history, insights, account UI, privacy, and release scaffolding |
 | Active gate | Local lint/typecheck/tests/bundles passed. **UAT has not been run**; external AI/SMS/EAS/Apple credentials remain unavailable |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest commit | `e1afc91` (chore — dead string cleanup) |
+| Latest release build | `v1.1.0`, source commit `9fc8cca`, GitHub Actions run `39658274332` |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -36,6 +36,15 @@ agent's exact approval.
 > The live AI/SMS loop was not exercised because the local API, Docker daemon,
 > and provider credentials were unavailable. The implementation record is
 > `docs/react-native-migration.md`.
+>
+> **Published artifact evidence.** GitHub prerelease `v1.1.0` contains a working
+> 110,266,199-byte Android APK and a 13,619,747-byte unsigned iOS IPA. The APK
+> passes Android APK Signature Scheme v2 verification with one signer (debug
+> development key). The IPA has the expected `Payload/Nourish.app`, bundle id
+> `app.nourish.mobile`, version `1.1.0`/build `1`, no `_CodeSignature`, and no
+> provisioning profile. Downloaded release bytes match `SHA256SUMS.txt`:
+> APK `257722ad4af91b7aed58bf30594be9097855fcbeb2bdc66f95db24b34539e782`;
+> IPA `ef59a6c8ec614d3948f381efc9049b54facbc3123e768f65250af7ec7eefc545`.
 
 ## Gates
 

@@ -82,3 +82,15 @@ Production launch still requires external configuration: AI provider key,
 SMS gateway, verified packaged-product source if barcode/OCR is enabled, EAS
 project linkage/signing credentials, Apple distribution approval, and the
 server-side account-erasure endpoint required by the privacy contract.
+
+## Published build
+
+GitHub prerelease `v1.1.0` was produced by workflow run `39658274332` from
+source commit `9fc8cca`. It contains:
+
+- `Nourish-1.1.0.apk` — 110,266,199 bytes, Android APK Signature Scheme v2
+  verified, signed with the generated development debug key.
+- `Nourish-1.1.0-UNSIGNED.ipa` — 13,619,747 bytes, bundle
+  `app.nourish.mobile`, version `1.1.0`/build `1`, no code signature or
+  provisioning profile.
+- `SHA256SUMS.txt` — downloaded-byte verification passed for both artifacts.
