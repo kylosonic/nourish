@@ -14,7 +14,8 @@ provider is missing the app says so instead of substituting a plausible answer.
 
 | Path | What it is |
 | --- | --- |
-| `apps/mobile` | Flutter app (Riverpod, GoRouter, Drift/SQLite). Offline-first: it works with no account and no network. |
+| `apps/mobile-rn` | **Active React Native MVP** (Expo 58, TypeScript, React Navigation). Rebuild of the approved mobile experience with offline-first persisted state. |
+| `apps/mobile` | Verified Flutter implementation retained as a migration/reference client. |
 | `apps/api` | NestJS 11 + Prisma 6 + PostgreSQL 16 API: FCT catalog, meal analysis pipeline, accounts and sync endpoints. |
 | `apps/website` | Static marketing site (no cookies, no analytics, bundled fonts). |
 | `packages/domain` | Pure Dart nutrition engine: targets, portions, snapshots. No Flutter, no I/O. |
@@ -41,14 +42,24 @@ npm run start:dev               # http://127.0.0.1:3000/v1/healthz
 **Mobile**
 
 ```powershell
-cd apps/mobile
-flutter pub get
-flutter run                     # Windows/Android; the app needs no API to be usable
+cd apps/mobile-rn
+npm ci
+Copy-Item .env.example .env
+npm start                       # Expo dev server / Android / iOS via Expo Go or a dev build
 ```
 
-The app reads `apiBaseUrl` for the catalog and analysis lanes; with no API
-running it falls back to the bundled seed catalog and text logging still works
-offline (AI recognises nothing, and it says so).
+The React Native app reads `EXPO_PUBLIC_API_URL` for the catalog and analysis
+lanes. With no API running it keeps the bundled seed catalog, supports offline
+manual search/logging/history, and tells the user when provider-dependent lanes
+cannot run.
+
+The legacy Flutter app remains runnable:
+
+```powershell
+cd apps/mobile
+flutter pub get
+flutter run
+```
 
 **Website**
 
@@ -66,6 +77,12 @@ Every command below is the exact one used for the recorded evidence in
 # Mobile (apps/mobile)
 flutter analyze
 flutter test                             # 246 tests
+
+# Active React Native MVP (apps/mobile-rn)
+npm run lint
+npm run typecheck
+npm test                                 # deterministic domain suite
+npx expo export --platform web
 
 # Domain and design system (packages/*)
 flutter test                             # 27 and 13 tests

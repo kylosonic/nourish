@@ -1,0 +1,67 @@
+{
+  "expo": {
+    "name": "Nourish",
+    "slug": "nourish",
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "scheme": "nourish",
+    "icon": "./assets/nourish-icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.nourish.mobile",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Nourish uses the camera to identify the foods in a meal photo.",
+        "NSPhotoLibraryUsageDescription": "Nourish lets you choose a meal photo for nutrition analysis.",
+        "NSHumanReadableCopyright": "Copyright © 2026 Nourish"
+      }
+    },
+    "android": {
+      "package": "app.nourish.mobile",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#006C49",
+        "foregroundImage": "./assets/nourish-adaptive.png",
+        "monochromeImage": "./assets/nourish-adaptive.png"
+      },
+      "predictiveBackGestureEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      "expo-sharing",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FCF9F8",
+          "image": "./assets/nourish-icon.png",
+          "imageWidth": 132
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nourish to photograph meals for nutrition analysis.",
+          "recordAudioAndroid": false,
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Nourish to choose a meal photo from your library.",
+          "cameraPermission": "Allow Nourish to photograph meals for nutrition analysis.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {}
+    }
+  }
+}

@@ -1,0 +1,71 @@
+name: React Native EAS Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        required: true
+        default: android
+        type: choice
+        options:
+          - android
+          - ios
+          - all
+      profile:
+        description: EAS build profile
+        required: true
+        default: production
+        type: choice
+        options:
+          - preview
+          - production
+  push:
+    tags:
+      - "rn-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Verified EAS build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile-rn
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Expo credentials are configured
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "EXPO_TOKEN is required. Add a repository secret and link the app with EAS first."
+            exit 1
+          fi
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile-rn/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Gate release on lint, types, and tests
+        run: |
+          npm run lint
+          npm run typecheck
+          npm test
+
+      - name: Start EAS build
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          BUILD_PLATFORM: ${{ github.event.inputs.platform || 'all' }}
+          BUILD_PROFILE: ${{ github.event.inputs.profile || 'production' }}
+        run: npx eas-cli@latest build --platform "$BUILD_PLATFORM" --profile "$BUILD_PROFILE" --non-interactive --no-wait

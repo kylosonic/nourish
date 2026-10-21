@@ -1,0 +1,240 @@
+name: React Native Unsigned Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: GitHub release tag
+        required: true
+        default: v1.1.0
+        type: string
+      version:
+        description: App version embedded in the build
+        required: true
+        default: 1.1.0
+        type: string
+      prerelease:
+        description: Mark the GitHub release as a prerelease
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  APP_VERSION: ${{ inputs.version }}
+  RELEASE_TAG: ${{ inputs.release_tag }}
+
+jobs:
+  verify:
+    name: Verify React Native source
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile-rn
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile-rn/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+  android:
+    name: Build installable Android APK
+    runs-on: ubuntu-latest
+    needs: verify
+    defaults:
+      run:
+        working-directory: apps/mobile-rn
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile-rn/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install
+        run: npm ci
+
+      - name: Generate Android project
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build release APK with development signing
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Prepare APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../../release-assets
+          APK="android/app/build/outputs/apk/release/app-release.apk"
+          test -s "$APK"
+          cp "$APK" "../../release-assets/Nourish-${APP_VERSION}.apk"
+          APK_TOOL="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -1)"
+          "$APK_TOOL" verify --verbose "../../release-assets/Nourish-${APP_VERSION}.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: nourish-android-apk
+          path: release-assets/Nourish-*.apk
+          if-no-files-found: error
+
+  ios:
+    name: Build unsigned iOS IPA
+    runs-on: macos-15
+    needs: verify
+    defaults:
+      run:
+        working-directory: apps/mobile-rn
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/mobile-rn/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Generate iOS project and CocoaPods dependencies
+        run: npx expo prebuild --platform ios --clean
+
+      - name: Build unsigned archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -workspace ios/Nourish.xcworkspace \
+            -scheme Nourish \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Nourish.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            EXPANDED_CODE_SIGN_IDENTITY="" \
+            archive
+
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find "$RUNNER_TEMP/Nourish.xcarchive/Products/Applications" -maxdepth 1 -name '*.app' -type d | head -1)"
+          test -n "$APP_PATH"
+          plutil -p "$APP_PATH/Info.plist" | grep -E 'CFBundleIdentifier|CFBundleShortVersionString|CFBundleVersion'
+          mkdir -p "$RUNNER_TEMP/ipa/Payload" "../../release-assets"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/ipa/Payload/"
+          IPA="../../release-assets/Nourish-${APP_VERSION}-UNSIGNED.ipa"
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/ipa/Payload" "$IPA"
+          unzip -t "$IPA"
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: nourish-ios-unsigned-ipa
+          path: release-assets/Nourish-*-UNSIGNED.ipa
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+    needs:
+      - android
+      - ios
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: nourish-android-apk
+          path: release-assets
+
+      - name: Download unsigned IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: nourish-ios-unsigned-ipa
+          path: release-assets
+
+      - name: Generate checksums
+        working-directory: release-assets
+        shell: bash
+        run: sha256sum * > SHA256SUMS.txt
+
+      - name: Show artifacts
+        working-directory: release-assets
+        run: ls -lh
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Nourish ${{ env.APP_VERSION }} — React Native Preview
+          prerelease: ${{ inputs.prerelease }}
+          generate_release_notes: false
+          body: |
+            ## Nourish ${{ env.APP_VERSION }} — React Native MVP
+
+            Built from commit `${{ github.sha }}`.
+
+            ### Android
+
+            `Nourish-${{ env.APP_VERSION }}.apk` is an installable release APK
+            signed with the generated Android debug key. It is suitable for
+            development and direct testing, not Play Store distribution.
+
+            ### iOS
+
+            `Nourish-${{ env.APP_VERSION }}-UNSIGNED.ipa` is an **unsigned iOS
+            archive artifact**. It is not installable on a standard iPhone.
+            Apple signing and an approved distribution channel are still
+            required for TestFlight or App Store installation.
+
+            ### Integrity
+
+            Verify downloads with `SHA256SUMS.txt`.
+          files: |
+            release-assets/Nourish-${{ env.APP_VERSION }}.apk
+            release-assets/Nourish-${{ env.APP_VERSION }}-UNSIGNED.ipa
+            release-assets/SHA256SUMS.txt
+          fail_on_unmatched_files: true

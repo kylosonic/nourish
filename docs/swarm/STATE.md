@@ -8,11 +8,11 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — S0–S5 all built and committed except the S3 apply/restore half; UAT pending` |
-| Active branch | `feat/nourish-mvp` (clean tree; `master` still at the S0 release commit `1c16902`) |
-| Batch | Nourish MVP vertical slices S0–S5 |
-| Active slice | S3 — the device queues every local change, backs it up on request, and can now *read* the server's changes; writing them back into the local tables (apply/restore) is not built |
-| Active gate | none in flight — each slice was verified against its own criteria and committed. **UAT has not been run**: `docs/uat-checklist.md` is ready and no check in it has been executed |
+| Phase | `IMPLEMENTING — React Native MVP rebuilt and locally verified; UAT and store credentials pending` |
+| Active branch | `feat/nourish-mvp`; no new commit in the React Native session. The worktree includes pre-existing `.opencode/`/`AGENTS.md` deletions plus the new React Native client |
+| Batch | React Native rebuild of the S0–S5 mobile experience; Flutter retained as reference |
+| Active slice | `apps/mobile-rn` — first-release flow, offline state, analysis mapping, history, insights, account UI, privacy, and release scaffolding |
+| Active gate | Local lint/typecheck/tests/bundles passed. **UAT has not been run**; external AI/SMS/EAS/Apple credentials remain unavailable |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
 | Latest commit | `e1afc91` (chore — dead string cleanup) |
 
@@ -25,6 +25,17 @@ agent's exact approval.
 > Treat the commits and those evidence blocks as the state of record; the
 > `INTAKE → … → DEPLOYED` state machine in AGENTS.md §3 is no longer being
 > driven formally.
+
+> **2026-10-21 React Native rebuild note.** The mobile experience was rebuilt in
+> `apps/mobile-rn` with Expo SDK 58 and React Native 0.88. The Flutter client
+> was deliberately retained rather than overwritten. Local evidence:
+> `npm run lint`, `npm run typecheck`, 11 Vitest checks, Expo Doctor 20/20
+> before the final crypto dependency addition (the last re-run was blocked by
+> an `exp.host` timeout), and Android/iOS/Web production bundle exports. A production web bundle was
+> visually traversed at 375/390px mobile and 768/1280px responsive viewports.
+> The live AI/SMS loop was not exercised because the local API, Docker daemon,
+> and provider credentials were unavailable. The implementation record is
+> `docs/react-native-migration.md`.
 
 ## Gates
 
