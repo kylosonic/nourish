@@ -122,3 +122,41 @@ Downloaded release bytes were independently verified:
 The release remains a preview. Cloud recognition and live Google/email account
 creation still require a reachable API URL, Google OAuth client IDs, and an AI
 provider configuration; no such credentials are present in this repository.
+
+## Published `v1.3.0` build
+
+GitHub prerelease `v1.3.0` was produced by workflow run `39783149395` from
+source commit `88a1af4`. This build:
+
+- changes the navigation animation to a timed 360 ms slide and verifies the
+  active lens positions through the browser render path;
+- removes Describe Meal and Voice from the scanner menu and all navigation
+  fallbacks;
+- opens a grams editor for every food-search result, supports 1–2,000 g and
+  preset amounts, and recalculates nutrition before saving;
+- enables persisted hydration notifications at 10:00, 14:00, and 18:00, asks
+  for native permission on first enable, and sends an immediate confirmation
+  notification.
+
+The Android release manifest check confirms `POST_NOTIFICATIONS`, the
+`expo.modules.notifications` receivers, the notification handler, and the
+default notification icon/color. Local scheduled notifications do not require a
+remote push provider; remote multi-device push would still require Expo/FCM/APNs
+delivery credentials.
+
+Downloaded release bytes were independently verified:
+
+- `Nourish-1.3.0.apk` — 110,824,283 bytes; SHA-256
+  `dd98dd28a6ffcc4e6a3d1d7024e895c82044b1a4050bc473a57e8b106779ffcb`;
+  APK Signature Scheme v2 verified with the development/debug signer;
+  `app.nourish.mobile`, versionCode `3`, versionName `1.3.0`.
+- `Nourish-1.3.0-UNSIGNED.ipa` — 13,864,647 bytes; SHA-256
+  `2a05a3c998233e52a563dcc614ec6a9f60d0c4b77364c7fc9edcda91f6cec118`;
+  `Payload/Nourish.app`, bundle `app.nourish.mobile`, version/build `1.3.0/3`,
+  no `_CodeSignature`, and no provisioning profile.
+- `SHA256SUMS.txt` — both downloaded files match the published checksums.
+
+The emulator was stopped at the user's request before an attended system-banner
+interaction could be recorded. Notification packaging and permission generation
+are verified by the APK manifest gate; physical device delivery remains a UAT
+step for the next installed-device check.

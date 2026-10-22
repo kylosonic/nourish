@@ -18,15 +18,15 @@ contracts continue to be shared.
 | Photo/gallery scan | Implemented through the real `POST /v1/analyses` endpoint |
 | Analysis progress, failure, result, low confidence | Implemented without synthetic result fallbacks |
 | Edit-before-save | Implemented with live deterministic nutrition recalculation |
-| Text meal logging | Implemented through the API, with editable results before save |
-| Food search/quick add | Implemented against the cached catalog with English and Amharic aliases |
+| Food search/quick add | Implemented against the cached catalog with English and Amharic aliases and a 1–2,000 g portion editor |
 | Meal history | Implemented with daily totals and immutable item snapshots |
 | Weekly insights | Implemented from actual logged meals and weigh-ins |
 | Water and weight | Implemented with local persistence and a reviewable sync queue |
 | Recommendations | Implemented as a deterministic budget/protein/preference ranking |
 | Phone, email/password, and Google account entry | Implemented; Google token verification is server-side, with secure on-device session storage |
 | Scanner recovery | Camera/gallery errors always expose manual food search, retry, and cancel |
-| Bottom navigation | Floating liquid-glass surface with an elevated scan action |
+| Bottom navigation | Floating liquid-glass surface with a timed sliding selection lens and central scan action |
+| Hydration reminders | Native local notifications at 10:00, 14:00, and 18:00 with permission handling and a confirmation notification |
 | Local health-data storage | Encrypted AES-256-GCM blob; key held in platform secure storage |
 | Push-only backup | Implemented against `/v1/auth` and `/v1/sync`, including token rotation on a 401 |
 | Release update check | Implemented against `latest.json` using semantic version comparison |
@@ -36,18 +36,16 @@ contracts continue to be shared.
 
 These are product/provider blockers, not hidden stubs:
 
-- The API must be running and have a configured `AI_PROVIDER` for photo or text
+- The API must be running and have a configured `AI_PROVIDER` for photo
   recognition. Without a provider, the analysis screen shows a retryable,
   plain-language failure and saves nothing.
 - SMS delivery requires an API `SMS_PROVIDER`. The local API supports its
   development console provider, but no production SMS gateway credential is in
   this workspace.
-- Voice transcription requires a speech provider. The voice lane routes to the
-  transcript editor and states that live transcription is not configured.
 - Barcode lookup and label OCR require a verified product catalog/service.
   Unknown barcodes never receive estimated packaged nutrition.
-- Platform reminder scheduling is not configured, so the setting is visibly
-  disabled instead of being a dead control.
+- Hydration reminders are scheduled locally by the installed app. Remote pushes
+  to all devices would additionally require Expo/FCM/APNs delivery credentials.
 - Server-side account erasure is not present in the current API. The app offers
   local deletion and identifies the remaining server-side blocker in Privacy.
 - EAS signing/store publication requires an Expo account, Apple team, and
@@ -99,19 +97,20 @@ No keystore, Apple private key, API key, or OTP code belongs in this repository.
 `.github/workflows/react-native-artifacts.yml` produces two directly downloadable
 GitHub release assets without EAS credentials:
 
-- `Nourish-1.2.0.apk` — release-mode Android APK signed with the generated
+- `Nourish-1.3.0.apk` — release-mode Android APK signed with the generated
   development debug key; installable for testing.
-- `Nourish-1.2.0-UNSIGNED.ipa` — an unsigned iOS payload archive for
+- `Nourish-1.3.0-UNSIGNED.ipa` — an unsigned iOS payload archive for
   inspection and signing work; **not installable on a standard iPhone**.
 
 The workflow writes `SHA256SUMS.txt` and creates the requested GitHub release
 only after both builds succeed.
 
 The current React Native preview is
-[`v1.2.0`](https://github.com/kylosonic/nourish/releases/tag/v1.2.0), marked as
+[`v1.3.0`](https://github.com/kylosonic/nourish/releases/tag/v1.3.0), marked as
 a prerelease because the APK uses a development signing key and the iOS IPA is
 unsigned. The earlier
-[`v1.1.0`](https://github.com/kylosonic/nourish/releases/tag/v1.1.0) build is
+[`v1.2.0`](https://github.com/kylosonic/nourish/releases/tag/v1.2.0) and
+[`v1.1.0`](https://github.com/kylosonic/nourish/releases/tag/v1.1.0) builds are
 retained on GitHub Releases.
 
 ## Dependency audit note

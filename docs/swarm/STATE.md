@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `PRERELEASE — React Native 1.2.0 artifacts published; live providers and store signing pending` |
-| Active branch | `feat/nourish-mvp` at `41776d8`; release artifacts were built from `43ebf18`. Unrelated pre-existing worktree changes remain unstaged |
+| Phase | `PRERELEASE — React Native 1.3.0 artifacts published; live providers and store signing pending` |
+| Active branch | `feat/nourish-mvp`; release artifacts were built from `88a1af4`. Unrelated pre-existing worktree changes remain unstaged |
 | Batch | React Native rebuild of the S0–S5 mobile experience; Flutter retained as reference |
 | Active slice | `apps/mobile-rn` — first-release flow, offline state, analysis mapping, history, insights, account UI, privacy, and release scaffolding |
 | Active gate | API and React Native CI green for the release commit; downloaded artifact checksums and signing state independently verified. Human device UAT and external AI/Google credentials remain unavailable |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest release build | `v1.2.0`, source commit `43ebf18`, GitHub Actions run `39769071548` |
+| Latest release build | `v1.3.0`, source commit `88a1af4`, GitHub Actions run `39783149395` |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -55,6 +55,17 @@ agent's exact approval.
 > `cfd73af383c2668007e7de88fdc6ab99be18a71d8c6cb712a0b35f4531b7b110`;
 > its Info.plist reports `1.2.0`, it has no code signature or provisioning
 > profile, and it remains non-installable.
+>
+> **v1.3.0 release evidence.** The selection lens is timed over 360 ms, the
+> retired text/voice lanes are absent from the scanner, search supports
+> 1–2,000 g portions, and native hydration notifications are packaged with
+> `POST_NOTIFICATIONS` plus the Expo notification receivers. The downloaded APK
+> is 110,824,283 bytes with SHA-256
+> `dd98dd28a6ffcc4e6a3d1d7024e895c82044b1a4050bc473a57e8b106779ffcb`;
+> APK Signature Scheme v2 validates with the development signer. The unsigned
+> IPA is 13,864,647 bytes with SHA-256
+> `2a05a3c998233e52a563dcc614ec6a9f60d0c4b77364c7fc9edcda91f6cec118`;
+> it reports `1.3.0`/build `3` and has no code signature or provisioning profile.
 
 ## Gates
 

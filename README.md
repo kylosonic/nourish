@@ -88,10 +88,12 @@ flutter run
 ```
 
 The current React Native preview is
-[`v1.2.0`](https://github.com/kylosonic/nourish/releases/tag/v1.2.0). It includes
-the supplied liquid-glass navigation, email/Google/phone entry points, shorter
-copy, and manual scanner recovery. The Android APK is installable for testing;
-the iOS IPA is unsigned and requires Apple signing before it can be installed.
+[`v1.3.0`](https://github.com/kylosonic/nourish/releases/tag/v1.3.0). It includes
+the supplied liquid-glass navigation with a sliding selection lens,
+email/Google/phone entry points, exact-gram food portions, scheduled hydration
+notifications, shorter copy, and manual scanner recovery. The Android APK is
+installable for testing; the iOS IPA is unsigned and requires Apple signing
+before it can be installed.
 
 **Website**
 
@@ -153,7 +155,7 @@ build — always pass an explicit glob, as above.
 | S3 — accounts and sessions (device) | Built: phone OTP, email/password, and Google identity flows with secure token storage, session restore, sign-out, and account linking; live Google credentials are not present |
 | S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Restore is NOT BUILT**: the app can already *read* the account's rows (GET /v1/sync/changes, live-verified) but does not write them back into the local database yet, so this is a backup rather than a sync, and the account screen says so |
 | S4 — weekly insights, weight logging, adjustable water goal, "what can I eat" | Built, verified |
-| S4 — water reminders (WW-02), entitlements/paywall (SUB-01) | **NOT BUILT.** Reminders need platform notification support that cannot be verified here; the paywall has no design (P-SUB-1) and no payment provider (P-PROV-1) |
+| S4 — hydration reminders (WW-02), entitlements/paywall (SUB-01) | Hydration reminders are implemented as native local notifications at 10:00, 14:00, and 18:00. The paywall remains **NOT BUILT**: it has no design (P-SUB-1) or payment provider (P-PROV-1) |
 | S5 — website, release metadata, in-app update check | Built, verified. The release pipeline itself has never run: it needs a remote and the secrets in `docs/release-process.md` |
 
 Honest limits, stated everywhere they matter: no deployed API URL, Google OAuth
