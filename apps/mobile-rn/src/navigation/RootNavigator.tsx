@@ -57,7 +57,7 @@ function MainTabs({ navigation }: { navigation: { navigate: (name: keyof RootSta
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        sceneStyle: { backgroundColor: colors.surface, paddingBottom: 100 },
+        sceneStyle: { backgroundColor: colors.surface, paddingBottom: 112 },
         tabBarStyle: {
           position: 'absolute',
           backgroundColor: 'transparent',
