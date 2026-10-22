@@ -17,6 +17,7 @@ import { colors, fonts, spacing, type } from '../../theme';
 import { Card, Icon, type IconName } from '../../components/ui';
 import { fetchReleaseMetadata, releaseDownloadUrl } from '../../data/release';
 import { isNewerVersion } from '../../utils/version';
+import { APP_VERSION } from '../../data/appInfo';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
@@ -30,8 +31,8 @@ export function SettingsScreen({ navigation }: Props) {
       const metadata = await fetchReleaseMetadata();
       if (!metadata) {
         Alert.alert('Update check unavailable', 'Release metadata could not be reached. Try again later.');
-      } else if (!isNewerVersion(metadata.version, '1.0.0')) {
-        Alert.alert('Nourish is up to date', 'You are using version 1.0.0.');
+      } else if (!isNewerVersion(metadata.version, APP_VERSION)) {
+        Alert.alert('Nourish is up to date', `You are using version ${APP_VERSION}.`);
       } else {
         const url = releaseDownloadUrl(metadata);
         if (!url) {
@@ -173,7 +174,7 @@ export function SettingsScreen({ navigation }: Props) {
           <MenuRow
             icon="download-outline"
             title="Check for updates"
-            detail={checking ? 'Checking release metadata…' : 'Current version 1.0.0'}
+            detail={checking ? 'Checking release metadata…' : `Current version ${APP_VERSION}`}
             onPress={() => void checkUpdate()}
           />
           <View style={styles.divider} />

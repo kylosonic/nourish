@@ -25,6 +25,7 @@ import type { MealSlot } from '../../types';
 import { fetchReleaseMetadata } from '../../data/api';
 import { isNewerVersion } from '../../utils/version';
 import { releaseDownloadUrl } from '../../data/release';
+import { APP_VERSION } from '../../data/appInfo';
 
 type TabNavigation = BottomTabNavigationProp<MainTabParamList>;
 type RootNavigation = NativeStackNavigationProp<RootStackParamList>;
@@ -49,7 +50,7 @@ export function HomeScreen() {
       if (
         Platform.OS === 'android' &&
         metadata &&
-        isNewerVersion(metadata.version, '1.0.0')
+        isNewerVersion(metadata.version, APP_VERSION)
       ) {
         setUpdateUrl(releaseDownloadUrl(metadata));
       }

@@ -19,6 +19,7 @@ import { useApp } from '../../state/AppProvider';
 import { colors, fonts, radii, spacing, type } from '../../theme';
 import { Banner, Button, Card, Icon, IconButton, type IconName } from '../../components/ui';
 import { localDateKey } from '../../utils/date';
+import { APP_VERSION } from '../../data/appInfo';
 
 type TabNavigation = BottomTabNavigationProp<MainTabParamList>;
 type RootNavigation = NativeStackNavigationProp<RootStackParamList>;
@@ -233,11 +234,11 @@ export function ProfileScreen() {
           <MenuRow
             icon="information-outline"
             title="About Nourish"
-            detail="Version 1.0.0 · Ethiopian FCT 2025"
+            detail={`Version ${APP_VERSION} · Ethiopian FCT 2025`}
             onPress={() =>
               Alert.alert(
                 'About Nourish',
-                'Nourish 1.0.0\nNutrition, understood.\n\nFood composition data: Ethiopian Food Composition Table 2025 (EPHI & FAO) where imported. Bootstrap foods are labeled as provisional.',
+                `Nourish ${APP_VERSION}\nNutrition, understood.\n\nFood composition data: Ethiopian Food Composition Table 2025 (EPHI & FAO) where imported. Bootstrap foods are labeled as provisional.`,
               )
             }
           />
