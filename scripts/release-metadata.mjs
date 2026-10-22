@@ -115,6 +115,10 @@ export function buildReleaseMetadata(options) {
   const universal = firstExisting(androidDir, [
     `Nourish-${tag}-universal.apk`,
     `Nourish-${version}-universal.apk`,
+    // The React Native release workflow exports one universal release APK
+    // without a "universal" suffix.
+    `Nourish-${tag}.apk`,
+    `Nourish-${version}.apk`,
   ]);
   const aab = firstExisting(androidDir, [
     `Nourish-${tag}.aab`,

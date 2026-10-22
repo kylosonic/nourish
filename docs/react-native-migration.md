@@ -94,3 +94,31 @@ source commit `9fc8cca`. It contains:
   `app.nourish.mobile`, version `1.1.0`/build `1`, no code signature or
   provisioning profile.
 - `SHA256SUMS.txt` — downloaded-byte verification passed for both artifacts.
+
+## Published `v1.2.0` build
+
+GitHub prerelease `v1.2.0` was produced by workflow run `39769071548` from
+source commit `43ebf18`. This build adds email/password and Google account entry
+points, reserves phone OTP as a third lane, replaces the bottom bar with the
+supplied floating glass navigation treatment, reduces explanatory copy, and
+makes manual food selection the primary scanner recovery path.
+
+The visual navigation adaptation uses the supplied nav's 76px glass capsule,
+animated selection lens, specular and inner-shadow edges, pointer-follow radial
+glow, and an adapted five-destination layout so Scan remains one tap away.
+
+Downloaded release bytes were independently verified:
+
+- `Nourish-1.2.0.apk` — 110,405,655 bytes; SHA-256
+  `e44e3601153b736b9a4316c69b480178a419e3d5ef8a1b8cb65596ef0c6399d0`;
+  Android APK Signature Scheme v2 verified with one generated development/debug
+  signer; `app.nourish.mobile`, versionCode `2`, versionName `1.2.0`.
+- `Nourish-1.2.0-UNSIGNED.ipa` — 13,709,971 bytes; SHA-256
+  `cfd73af383c2668007e7de88fdc6ab99be18a71d8c6cb712a0b35f4531b7b110`;
+  `Payload/Nourish.app`, bundle `app.nourish.mobile`, version `1.2.0`, no
+  `_CodeSignature`, and no provisioning profile.
+- `SHA256SUMS.txt` — both downloaded files match the published checksums.
+
+The release remains a preview. Cloud recognition and live Google/email account
+creation still require a reachable API URL, Google OAuth client IDs, and an AI
+provider configuration; no such credentials are present in this repository.

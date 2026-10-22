@@ -72,6 +72,27 @@ test('a published Android release carries url + size + sha256 for every asset', 
   );
 });
 
+test('React Native generic APK and flat GitHub assets resolve without invented paths', () => {
+  const dir = tempDir();
+  const android = path.join(dir, 'android');
+  writeArtifact(android, 'Nourish-1.2.0.apk', 'react-native-apk');
+  const document = buildReleaseMetadata({
+    ...BASE,
+    version: '1.2.0',
+    tag: 'v1.2.0',
+    publicBaseUrl: 'https://github.com/nourish-app/nourish/releases/download/v1.2.0',
+    androidDir: android,
+    flatAssets: true,
+  });
+
+  assert.equal(document.android.apk, null);
+  assert.equal(
+    document.android.universal_apk.url,
+    'https://github.com/nourish-app/nourish/releases/download/v1.2.0/Nourish-1.2.0.apk',
+  );
+  assert.deepEqual(validateReleaseMetadata(document), []);
+});
+
 test('an unsigned iOS artifact is never installable or linked (master §65)', () => {
   const dir = tempDir();
   const android = path.join(dir, 'android');

@@ -107,10 +107,12 @@ GitHub release assets without EAS credentials:
 The workflow writes `SHA256SUMS.txt` and creates the requested GitHub release
 only after both builds succeed.
 
-The current React Native release input is `1.2.0`. The earlier published build is
-[`v1.1.0`](https://github.com/kylosonic/nourish/releases/tag/v1.1.0), marked as
+The current React Native preview is
+[`v1.2.0`](https://github.com/kylosonic/nourish/releases/tag/v1.2.0), marked as
 a prerelease because the APK uses a development signing key and the iOS IPA is
-unsigned.
+unsigned. The earlier
+[`v1.1.0`](https://github.com/kylosonic/nourish/releases/tag/v1.1.0) build is
+retained on GitHub Releases.
 
 ## Dependency audit note
 

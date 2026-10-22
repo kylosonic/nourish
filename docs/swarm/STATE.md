@@ -8,13 +8,13 @@ agent's exact approval.
 
 | Field | Value |
 | --- | --- |
-| Phase | `IMPLEMENTING — React Native MVP rebuilt and locally verified; UAT and store credentials pending` |
-| Active branch | `feat/nourish-mvp`; no new commit in the React Native session. The worktree includes pre-existing `.opencode/`/`AGENTS.md` deletions plus the new React Native client |
+| Phase | `PRERELEASE — React Native 1.2.0 artifacts published; live providers and store signing pending` |
+| Active branch | `feat/nourish-mvp` at `43ebf18`; the React Native release is pushed. Unrelated pre-existing worktree changes remain unstaged |
 | Batch | React Native rebuild of the S0–S5 mobile experience; Flutter retained as reference |
 | Active slice | `apps/mobile-rn` — first-release flow, offline state, analysis mapping, history, insights, account UI, privacy, and release scaffolding |
-| Active gate | Local lint/typecheck/tests/bundles passed. **UAT has not been run**; external AI/SMS/EAS/Apple credentials remain unavailable |
+| Active gate | API and React Native CI green for the release commit; downloaded artifact checksums and signing state independently verified. Human device UAT and external AI/Google credentials remain unavailable |
 | Retry count | S1 Gate C: QA rejected once (F-01/F-02 BLOCKERs), both fixed and independently re-verified. No other gate retries. |
-| Latest release build | `v1.1.0`, source commit `9fc8cca`, GitHub Actions run `39658274332` |
+| Latest release build | `v1.2.0`, source commit `43ebf18`, GitHub Actions run `39769071548` |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
 > (the `.opencode` orchestration) were stopped at the human's instruction
@@ -45,6 +45,16 @@ agent's exact approval.
 > provisioning profile. Downloaded release bytes match `SHA256SUMS.txt`:
 > APK `257722ad4af91b7aed58bf30594be9097855fcbeb2bdc66f95db24b34539e782`;
 > IPA `ef59a6c8ec614d3948f381efc9049b54facbc3123e768f65250af7ec7eefc545`.
+>
+> **v1.2.0 release evidence.** The preview adds email/Google account entry
+> points, the supplied liquid-glass navigation treatment, shorter copy, and
+> manual scanner recovery. The downloaded APK is 110,405,655 bytes with SHA-256
+> `e44e3601153b736b9a4316c69b480178a419e3d5ef8a1b8cb65596ef0c6399d0`;
+> APK Signature Scheme v2 validates with the generated development signer.
+> The unsigned IPA is 13,709,971 bytes with SHA-256
+> `cfd73af383c2668007e7de88fdc6ab99be18a71d8c6cb712a0b35f4531b7b110`;
+> its Info.plist reports `1.2.0`, it has no code signature or provisioning
+> profile, and it remains non-installable.
 
 ## Gates
 

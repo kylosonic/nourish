@@ -87,6 +87,12 @@ flutter pub get
 flutter run
 ```
 
+The current React Native preview is
+[`v1.2.0`](https://github.com/kylosonic/nourish/releases/tag/v1.2.0). It includes
+the supplied liquid-glass navigation, email/Google/phone entry points, shorter
+copy, and manual scanner recovery. The Android APK is installable for testing;
+the iOS IPA is unsigned and requires Apple signing before it can be installed.
+
 **Website**
 
 ```powershell
