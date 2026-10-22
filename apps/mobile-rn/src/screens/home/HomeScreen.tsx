@@ -152,7 +152,7 @@ export function HomeScreen() {
           <View style={{ flex: 1 }}>
             <Text style={styles.recommendationTitle}>What can I eat?</Text>
             <Text style={styles.recommendationCopy}>
-              Find local foods that fit your remaining budget.
+              Foods that fit your budget.
             </Text>
           </View>
           <Icon name="arrow-right" size={20} color={colors.primary} />

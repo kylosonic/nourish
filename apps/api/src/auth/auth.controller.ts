@@ -16,7 +16,14 @@ import { NourishHttpException } from '../common/error/error-envelope';
 import { AuthGuard, AuthenticatedRequest } from './auth.guard';
 import { AuthRepository } from './auth.repository';
 import { AccountView, AuthService, OtpRequestResult, SessionTokens } from './auth.service';
-import { RefreshTokenDto, RequestOtpDto, VerifyOtpDto } from './dto/auth.dto';
+import {
+  GoogleAuthDto,
+  LoginEmailDto,
+  RefreshTokenDto,
+  RegisterEmailDto,
+  RequestOtpDto,
+  VerifyOtpDto,
+} from './dto/auth.dto';
 
 /**
  * Account surface (S3, ADR-0008).
@@ -35,6 +42,7 @@ export const OTP_VERIFY_RATE_LIMIT = {
   limit: Number(process.env.OTP_VERIFY_RATE_LIMIT ?? 10),
   ttl: Number(process.env.OTP_RATE_LIMIT_TTL_MS ?? 60000),
 } as const;
+export const EMAIL_AUTH_RATE_LIMIT = { limit: 10, ttl: 60000 } as const;
 
 @Controller('auth')
 export class AuthController {
@@ -57,6 +65,44 @@ export class AuthController {
     @Headers('user-agent') userAgent?: string,
   ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
     return this.auth.verifyOtp(body.phone, body.code, userAgent);
+  }
+
+  /** Create an email/password account and start a rotating session. */
+  @Post('email/register')
+  @Throttle({ default: EMAIL_AUTH_RATE_LIMIT })
+  @HttpCode(HttpStatus.CREATED)
+  async registerEmail(
+    @Body() body: RegisterEmailDto,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    return this.auth.registerEmail(
+      body.email,
+      body.password,
+      body.displayName,
+      userAgent,
+    );
+  }
+
+  /** Sign in with a normalized email identity and verify the password hash. */
+  @Post('email/login')
+  @Throttle({ default: EMAIL_AUTH_RATE_LIMIT })
+  @HttpCode(HttpStatus.OK)
+  async loginEmail(
+    @Body() body: LoginEmailDto,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    return this.auth.loginEmail(body.email, body.password, userAgent);
+  }
+
+  /** Verify a Google ID token, then create/link the account and session. */
+  @Post('google')
+  @Throttle({ default: EMAIL_AUTH_RATE_LIMIT })
+  @HttpCode(HttpStatus.OK)
+  async google(
+    @Body() body: GoogleAuthDto,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    return this.auth.signInWithGoogle(body.idToken, userAgent);
   }
 
   /** AUTH-03: rotate the refresh credential. The old one stops working. */

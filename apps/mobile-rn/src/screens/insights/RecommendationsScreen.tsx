@@ -80,8 +80,7 @@ export function RecommendationsScreen({ navigation }: Props) {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <Text style={styles.title}>What can I eat?</Text>
         <Text style={styles.subcopy}>
-          Suggestions use your remaining budget, protein need, food preference, and the meal you’re
-          planning. Every number comes from the local catalog.
+          Foods ranked for your remaining budget.
         </Text>
         <View style={styles.budgetCard}>
           <View style={styles.budgetItem}>

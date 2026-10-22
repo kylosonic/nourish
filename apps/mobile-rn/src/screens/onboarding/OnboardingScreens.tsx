@@ -60,7 +60,7 @@ export function WelcomeScreen({ navigation }: Props<'Welcome'>) {
       <View style={[styles.welcomeCopy, { paddingBottom: Math.max(24, insets.bottom + 16) }]}>
         <Text style={styles.welcomeTitle}>Eat smarter. Understand your food.</Text>
         <Text style={styles.welcomeBody}>
-          AI-powered nutrition tracking built for the way you eat.
+          Nutrition built for the way you eat.
         </Text>
         <Button
           label="GET STARTED"
@@ -154,7 +154,7 @@ export function LanguageScreen({ navigation }: Props<'Language'>) {
     >
       <Text style={styles.centerTitle}>Language</Text>
       <Text style={[styles.subcopy, { textAlign: 'center', marginBottom: 28 }]}>
-        Select your preferred language for the Nourish experience.
+        Choose your language.
       </Text>
       <View style={{ gap: spacing.sm }}>
         {languages.map((language) => (
@@ -195,7 +195,7 @@ export function GoalScreen({ navigation }: Props<'Goal'>) {
       }
     >
       <Text style={styles.onboardingTitle}>What is your goal?</Text>
-      <Text style={styles.subcopy}>Select one to help us personalize your plan.</Text>
+      <Text style={styles.subcopy}>Choose one.</Text>
       <View style={[styles.cardList, { marginTop: spacing.xxl }]}>
         {goals.map((goal) => {
           const selected = state.onboarding.goal === goal.id;
@@ -263,7 +263,7 @@ export function BodyScreen({ navigation }: Props<'Body'>) {
     >
       <Text style={styles.onboardingTitle}>Your body</Text>
       <Text style={styles.subcopy}>
-        We use these details to calculate a safe daily nutrition target.
+        Used for your daily nutrition target.
       </Text>
       <Text style={[type.label, { marginTop: spacing.xxl, marginBottom: spacing.xs }]}>
         BIOLOGICAL SEX
@@ -350,11 +350,11 @@ export function BodyScreen({ navigation }: Props<'Body'>) {
 export function ActivityScreen({ navigation }: Props<'Activity'>) {
   const { state, patchOnboarding } = useApp();
   const options: { id: Activity; title: string; detail: string }[] = [
-    { id: 'sedentary', title: 'Sedentary', detail: 'Little to no exercise, desk job most of the day.' },
-    { id: 'light', title: 'Light', detail: 'Light exercise or sports 1-3 days a week.' },
-    { id: 'moderate', title: 'Moderate', detail: 'Moderate exercise or sports 3-5 days a week.' },
-    { id: 'veryActive', title: 'Very active', detail: 'Hard exercise or sports 6-7 days a week.' },
-    { id: 'athlete', title: 'Athlete', detail: 'Very hard daily exercise, physical job, or training twice a day.' },
+    { id: 'sedentary', title: 'Sedentary', detail: 'Mostly sitting' },
+    { id: 'light', title: 'Light', detail: '1–3 workouts / week' },
+    { id: 'moderate', title: 'Moderate', detail: '3–5 workouts / week' },
+    { id: 'veryActive', title: 'Very active', detail: '6–7 workouts / week' },
+    { id: 'athlete', title: 'Athlete', detail: 'Daily hard training' },
   ];
   return (
     <OnboardingFrame
@@ -374,7 +374,7 @@ export function ActivityScreen({ navigation }: Props<'Activity'>) {
       }
     >
       <Text style={styles.onboardingTitle}>Activity level</Text>
-      <Text style={styles.subcopy}>How active are you on a typical day?</Text>
+      <Text style={styles.subcopy}>On a typical day.</Text>
       <View style={[styles.cardList, { marginTop: spacing.xxl }]}>
         {options.map((option) => (
           <Radio
@@ -397,21 +397,21 @@ export function PaceScreen({ navigation }: Props<'Pace'>) {
       id: 'conservative',
       title: 'Conservative',
       amount: '-0.25 kg / week',
-      detail: 'Gentle approach, easier to adapt dietary habits over time.',
+      detail: 'Steady and sustainable.',
       tag: 'Recommended',
     },
     {
       id: 'moderate',
       title: 'Moderate',
       amount: '-0.5 kg / week',
-      detail: 'Balanced pace requiring consistent effort and tracking.',
+      detail: 'Balanced and consistent.',
     },
     {
       id: 'aggressive',
       title: 'Aggressive',
       amount: '-1.0 kg / week',
-      detail: 'Strict adherence needed. May feel restrictive.',
-      tag: 'Requires discipline',
+      detail: 'Demanding and restrictive.',
+      tag: 'Hard',
     },
   ];
   return (
@@ -441,7 +441,7 @@ export function PaceScreen({ navigation }: Props<'Pace'>) {
     >
       <Text style={styles.centerTitle}>Preferred pace</Text>
       <Text style={[styles.subcopy, { textAlign: 'center' }]}>
-        Choose how quickly you’d like to reach your goal. A steadier pace is often easier to maintain.
+        Choose a pace you can maintain.
       </Text>
       <View style={[styles.cardList, { marginTop: spacing.xl }]}>
         {options.map((option) => {
@@ -533,7 +533,7 @@ export function FoodPreferenceScreen({ navigation }: Props<'FoodPreference'>) {
     >
       <Text style={styles.onboardingTitle}>What do you usually eat?</Text>
       <Text style={styles.subcopy}>
-        We’ll use this to build your baseline nutritional targets and suggest relevant meals.
+        This shapes your food suggestions.
       </Text>
       <View style={[styles.cardList, { marginTop: spacing.xl }]}>
         {options.map((option) => {
@@ -607,7 +607,7 @@ export function DailyTargetScreen({ navigation }: Props<'DailyTarget'>) {
             completeOnboarding();
           }}
         />
-        <Text style={styles.targetFootnote}>You can always adjust this in settings.</Text>
+        <Text style={styles.targetFootnote}>Adjust anytime in Settings.</Text>
       </View>
     </Screen>
   );

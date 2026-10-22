@@ -24,6 +24,8 @@ import {
   SmsProvider,
   SmsUnavailableError,
 } from './sms-provider';
+import { GoogleTokenVerifier } from './google-verifier';
+import { hashPassword, verifyPassword } from './password';
 
 export interface SessionTokens {
   accessToken: string;
@@ -35,7 +37,10 @@ export interface SessionTokens {
 
 export interface AccountView {
   id: string;
-  phoneE164: string;
+  phoneE164: string | null;
+  email: string | null;
+  displayName: string | null;
+  authProviders: ('phone' | 'email' | 'google')[];
   onboarded: boolean;
   createdAt: string;
   plan: Plan;
@@ -62,6 +67,7 @@ export interface OtpRequestResult {
 @Injectable()
 export class AuthService {
   private readonly logger = new NourishLogger('auth');
+  private readonly dummyPasswordHash = hashPassword('invalid-account-password');
 
   constructor(
     // Explicit tokens throughout: the esbuild-based CLI runner (tsx) does not
@@ -70,6 +76,7 @@ export class AuthService {
     @Inject(JwtService) private readonly jwt: JwtService,
     @Inject(ConfigService) private readonly config: ConfigService<EnvVars, true>,
     @Inject(SMS_PROVIDER) private readonly sms: SmsProvider,
+    @Inject(GoogleTokenVerifier) private readonly google: GoogleTokenVerifier,
   ) {}
 
   private get accessTtl(): number {
@@ -236,6 +243,77 @@ export class AuthService {
     return { tokens, account: await this.accountView(user), created };
   }
 
+  async registerEmail(
+    rawEmail: string,
+    password: string,
+    displayName?: string,
+    userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    const email = normalizeEmail(rawEmail);
+    if (await this.repo.findUserByEmail(email)) {
+      throw new NourishHttpException(
+        HttpStatus.CONFLICT,
+        ErrorCode.EMAIL_IN_USE,
+        'An account with that email already exists.',
+      );
+    }
+    const user = await this.repo.createEmailUser({
+      email,
+      passwordHash: await hashPassword(password),
+      displayName: displayName?.trim() || null,
+    });
+    const tokens = await this.issueSession(user, userAgent);
+    this.logger.log('email account created', { userId: user.id });
+    return {
+      tokens,
+      account: await this.accountView(user),
+      created: true,
+    };
+  }
+
+  async loginEmail(
+    rawEmail: string,
+    password: string,
+    userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    const email = normalizeEmail(rawEmail);
+    const user = await this.repo.findUserByEmail(email);
+    const encoded = user?.passwordHash ?? (await this.dummyPasswordHash);
+    const passwordMatches = await verifyPassword(password, encoded);
+    const valid = Boolean(user?.status === 'Active' && passwordMatches);
+    if (!user || !valid) {
+      // Do not reveal whether the email exists or has a password provider.
+      throw new NourishHttpException(
+        HttpStatus.UNAUTHORIZED,
+        ErrorCode.EMAIL_CREDENTIALS_INVALID,
+        'Email or password is incorrect.',
+      );
+    }
+    const activeUser = await this.repo.touchUser(user.id);
+    const tokens = await this.issueSession(activeUser, userAgent);
+    this.logger.log('email session started', { userId: user.id });
+    return {
+      tokens,
+      account: await this.accountView(activeUser),
+      created: false,
+    };
+  }
+
+  async signInWithGoogle(
+    idToken: string,
+    userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    const identity = await this.google.verify(idToken);
+    const { user, created } = await this.repo.upsertGoogleUser(identity);
+    const tokens = await this.issueSession(user, userAgent);
+    this.logger.log('google session started', { userId: user.id, created });
+    return {
+      tokens,
+      account: await this.accountView(user),
+      created,
+    };
+  }
+
   // ── AUTH-03: rotate, revoke, read ─────────────────────────────────────────
 
   async refresh(presentedToken: string, userAgent?: string): Promise<SessionTokens> {
@@ -316,6 +394,13 @@ export class AuthService {
     return {
       id: user.id,
       phoneE164: user.phoneE164,
+      email: user.email,
+      displayName: user.displayName,
+      authProviders: [
+        ...(user.phoneE164 ? (['phone'] as const) : []),
+        ...(user.email && user.passwordHash ? (['email'] as const) : []),
+        ...(user.googleSubject ? (['google'] as const) : []),
+      ],
       onboarded: user.onboardedAt != null,
       createdAt: user.createdAt.toISOString(),
       plan: entitlement.plan,
@@ -368,4 +453,8 @@ export class AuthService {
       { expiresIn: this.accessTtl },
     );
   }
+}
+
+function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
 }

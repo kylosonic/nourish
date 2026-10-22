@@ -118,6 +118,87 @@ export class AuthRepository {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  async findUserByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async findUserByGoogleSubject(googleSubject: string): Promise<User | null> {
+    return this.prisma.user.findUnique({ where: { googleSubject } });
+  }
+
+  async createEmailUser(input: {
+    email: string;
+    passwordHash: string;
+    displayName: string | null;
+  }): Promise<User> {
+    const user = await this.prisma.user.create({
+      data: {
+        email: input.email,
+        passwordHash: input.passwordHash,
+        displayName: input.displayName,
+        lastSeenAt: new Date(),
+      },
+    });
+    await this.ensureEntitlement(user.id);
+    return user;
+  }
+
+  /**
+   * Google `sub` is the identity key. If an email/password account already
+   * owns the verified email, link Google to that account rather than creating
+   * a duplicate.
+   */
+  async upsertGoogleUser(input: {
+    subject: string;
+    email: string;
+    displayName: string | null;
+  }): Promise<{ user: User; created: boolean }> {
+    const bySubject = await this.findUserByGoogleSubject(input.subject);
+    if (bySubject) {
+      const user = await this.prisma.user.update({
+        where: { id: bySubject.id },
+        data: {
+          lastSeenAt: new Date(),
+          displayName: bySubject.displayName ?? input.displayName,
+        },
+      });
+      await this.ensureEntitlement(user.id);
+      return { user, created: false };
+    }
+
+    const byEmail = await this.findUserByEmail(input.email);
+    if (byEmail) {
+      const user = await this.prisma.user.update({
+        where: { id: byEmail.id },
+        data: {
+          googleSubject: input.subject,
+          lastSeenAt: new Date(),
+          displayName: byEmail.displayName ?? input.displayName,
+        },
+      });
+      await this.ensureEntitlement(user.id);
+      return { user, created: false };
+    }
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: input.email,
+        googleSubject: input.subject,
+        displayName: input.displayName,
+        lastSeenAt: new Date(),
+      },
+    });
+    await this.ensureEntitlement(user.id);
+    return { user, created: true };
+  }
+
+  async touchUser(userId: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { lastSeenAt: new Date() },
+    });
+  }
+
   /** Default entitlement is FREE and server-owned (SUB-01). */
   async ensureEntitlement(userId: string): Promise<Entitlement> {
     return this.prisma.entitlement.upsert({

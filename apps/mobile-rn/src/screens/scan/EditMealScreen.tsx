@@ -162,7 +162,7 @@ export function EditMealScreen({ navigation, route }: Props) {
             {Math.round(totals.fatG)}g fat
           </Text>
           <Text style={styles.estimate}>
-            Portion changes recalculate from the food database. The AI is not called again.
+            Nutrition updates as portions change.
           </Text>
         </Card>
         <View style={styles.list}>

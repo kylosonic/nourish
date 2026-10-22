@@ -126,7 +126,7 @@ export function ResultScreen({ navigation, route }: Props) {
           </View>
           <View style={styles.divider} />
           {state.target ? <MacroSummary nutrition={nutrition} target={state.target} /> : null}
-          <Text style={styles.estimate}>~ Estimated from the meal photo. Edit anything before saving.</Text>
+          <Text style={styles.estimate}>~ Estimated. Edit anything before saving.</Text>
         </Card>
         <Text style={styles.ingredientsTitle}>DETECTED INGREDIENTS</Text>
         <View style={styles.ingredients}>

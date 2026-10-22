@@ -27,9 +27,7 @@ export function BarcodeScreen({ navigation, route }: Props) {
       ) : (
         <View style={styles.noCamera}>
           <Icon name="barcode-scan" size={46} color={colors.white} />
-          <Text style={styles.noCameraText}>
-            Barcode scanning uses the device camera. Open Nourish on Android or iOS.
-          </Text>
+          <Text style={styles.noCameraText}>Use the camera on Android or iOS.</Text>
           {Platform.OS !== 'web' && !permission?.granted ? (
             <Button label="ALLOW CAMERA" onPress={requestPermission} />
           ) : null}
@@ -63,8 +61,7 @@ export function BarcodeScreen({ navigation, route }: Props) {
             </View>
             <Text style={styles.resultTitle}>No verified product found</Text>
             <Text style={styles.resultCopy}>
-              Barcode {scanned} is not in the product catalog. Nourish will not estimate packaged
-              nutrition without a verified source.
+              {scanned} isn’t in the verified catalog.
             </Text>
             <Button
               label="SCAN AGAIN"
@@ -83,10 +80,7 @@ export function BarcodeScreen({ navigation, route }: Props) {
               onPress={() => navigation.replace('TextLog', { slot })}
               style={{ alignSelf: 'stretch', marginTop: spacing.sm }}
             />
-            <Text style={styles.honest}>
-              Nutrition-label OCR requires a configured product service and is not available in
-              this build.
-            </Text>
+            <Text style={styles.honest}>Packaged-food OCR isn’t available yet.</Text>
           </View>
         </View>
       ) : null}

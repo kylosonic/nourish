@@ -347,4 +347,59 @@ describe('S3 accounts (AUTH-01…03, ADR-0008)', () => {
       expect(dump).not.toContain(session.tokens.accessToken);
     });
   });
+
+  describe('email and Google account providers', () => {
+    it('creates an email account and signs in with its password', async () => {
+      const register = await request(app.getHttpServer())
+        .post('/v1/auth/email/register')
+        .send({
+          email: 'User@Example.COM',
+          password: 'correct horse battery staple',
+          displayName: 'Test User',
+        })
+        .expect(201);
+
+      expect(register.body.account.email).toBe('user@example.com');
+      expect(register.body.account.phoneE164).toBeNull();
+      expect(register.body.account.authProviders).toContain('email');
+      expect(register.body.tokens.refreshToken).toEqual(expect.any(String));
+
+      const login = await request(app.getHttpServer())
+        .post('/v1/auth/email/login')
+        .send({
+          email: 'user@example.com',
+          password: 'correct horse battery staple',
+        })
+        .expect(200);
+      expect(login.body.account.id).toBe(register.body.account.id);
+    });
+
+    it('refuses a duplicate email and a wrong password without leaking which failed', async () => {
+      await request(app.getHttpServer())
+        .post('/v1/auth/email/register')
+        .send({ email: 'user@example.com', password: 'password-1234' })
+        .expect(201);
+
+      const duplicate = await request(app.getHttpServer())
+        .post('/v1/auth/email/register')
+        .send({ email: 'USER@example.com', password: 'password-1234' })
+        .expect(409);
+      expect(duplicate.body.error.code).toBe('EMAIL_IN_USE');
+
+      const wrong = await request(app.getHttpServer())
+        .post('/v1/auth/email/login')
+        .send({ email: 'user@example.com', password: 'definitely-wrong' })
+        .expect(401);
+      expect(wrong.body.error.code).toBe('EMAIL_CREDENTIALS_INVALID');
+      expect(wrong.body.error.message).toBe('Email or password is incorrect.');
+    });
+
+    it('states honestly when Google sign-in is not configured', async () => {
+      const result = await request(app.getHttpServer())
+        .post('/v1/auth/google')
+        .send({ idToken: 'x'.repeat(100) })
+        .expect(503);
+      expect(result.body.error.code).toBe('GOOGLE_UNAVAILABLE');
+    });
+  });
 });

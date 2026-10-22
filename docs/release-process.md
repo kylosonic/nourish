@@ -4,6 +4,11 @@ How a Nourish build becomes a downloadable release, and what is guaranteed at
 each step. Behaviour contracts: `docs/behaviors/release-download-update.md`
 (REL-01…REL-04). Master prompt: §37–§52, §64–§68.
 
+> **Active React Native path:** use
+> `.github/workflows/react-native-artifacts.yml` for the current unsigned APK
+> and IPA release. The older Flutter `build-release.yml` workflow is retained as
+> reference and is not the active React Native release path.
+
 ## The pieces
 
 | Piece | Where | What it does |

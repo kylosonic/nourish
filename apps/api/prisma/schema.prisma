@@ -278,15 +278,21 @@ enum EntitlementSource {
 }
 
 model User {
-  id          String     @id @default(cuid())
+  id            String     @id @default(cuid())
   /// E.164, always +251… for this release (AUTH-01). Unique: two spellings of
   /// the same number are one account.
-  phoneE164   String     @unique
-  status      UserStatus @default(Active)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  lastSeenAt  DateTime?
-  onboardedAt DateTime?
+  phoneE164     String?    @unique
+  /// Lowercased application identity for email/password accounts.
+  email         String?    @unique
+  passwordHash  String?
+  /// Stable Google OAuth subject (`sub`), never the email as an identity key.
+  googleSubject String?    @unique
+  displayName   String?
+  status        UserStatus @default(Active)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  lastSeenAt    DateTime?
+  onboardedAt   DateTime?
 
   sessions    RefreshToken[]
   // OtpChallenge is deliberately NOT a relation: a challenge is keyed by phone

@@ -9,6 +9,7 @@ import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
 import { SMS_PROVIDER } from './auth.tokens';
 import { createSmsProvider } from './sms-provider.factory';
+import { GoogleTokenVerifier } from './google-verifier';
 
 /**
  * Accounts, sessions and consent (S3, ADR-0008).
@@ -32,6 +33,7 @@ import { createSmsProvider } from './sms-provider.factory';
     AuthRepository,
     AuthService,
     AuthGuard,
+    GoogleTokenVerifier,
     {
       provide: SMS_PROVIDER,
       inject: [ConfigService],

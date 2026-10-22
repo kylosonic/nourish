@@ -126,20 +126,33 @@ export function AnalysisScreen({ navigation, route }: Props) {
           <View style={styles.failureIcon}>
             <Icon name="image-search-outline" size={34} color={colors.error} />
           </View>
-          <Text style={styles.failureTitle}>We couldn’t analyze this meal</Text>
-          <Text style={styles.failureCopy}>{error}</Text>
+          <Text style={styles.failureTitle}>Scan didn’t finish</Text>
+          <Text style={styles.failureCopy}>
+            Try again or find the foods manually.
+          </Text>
+          <Button
+            label="FIND FOOD MANUALLY"
+            onPress={() => {
+              clearPendingAnalysisInput();
+              navigation.replace('FoodSearch', {
+                slot: pending?.slot || route.params.slot,
+              });
+            }}
+            style={{ alignSelf: 'stretch', marginTop: spacing.xl }}
+          />
           <Button
             label="TRY AGAIN"
+            variant="secondary"
             onPress={() => {
               setError(null);
               setStage(0);
               setAttempt((value) => value + 1);
             }}
-            style={{ alignSelf: 'stretch', marginTop: spacing.xl }}
+            style={{ alignSelf: 'stretch', marginTop: spacing.sm }}
           />
           <Button
             label="CANCEL"
-            variant="secondary"
+            variant="outline"
             onPress={() => {
               clearPendingAnalysisInput();
               navigation.reset({

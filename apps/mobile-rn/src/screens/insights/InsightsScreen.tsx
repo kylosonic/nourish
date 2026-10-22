@@ -70,7 +70,7 @@ export function InsightsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <Text style={styles.title}>Weekly Insights</Text>
         <Text style={styles.subcopy}>
-          Here is a breakdown of your nutrition over the past 7 days.
+          Your nutrition from the last 7 days.
         </Text>
 
         {insights.isEmpty ? (
@@ -132,7 +132,7 @@ export function InsightsScreen() {
                 <Text style={styles.chartNote}>
                   {insights.loggedDays === 7
                     ? 'All 7 days have logged meals.'
-                    : `${insights.loggedDays} of 7 days have logged meals.`}
+                    : `${insights.loggedDays} of 7 days logged.`}
                 </Text>
                 <Text style={styles.targetNote}>{target.targetKcal.toLocaleString()} target</Text>
               </View>
@@ -169,7 +169,7 @@ export function InsightsScreen() {
               <Text style={styles.cardTitle}>Highlights</Text>
               {insights.highlights.length === 0 ? (
                 <Text style={styles.noHighlights}>
-                  There isn’t enough consistent data for a specific finding yet.
+                  Log a little more to see patterns.
                 </Text>
               ) : (
                 <View style={{ gap: spacing.sm }}>
@@ -221,7 +221,7 @@ export function InsightsScreen() {
                 <Text style={styles.diversityCopy}>
                   {insights.ethiopianShare == null
                     ? 'There isn’t enough classified food data yet.'
-                    : `${Math.round(insights.ethiopianShare * 100)}% of logged items are Ethiopian foods.`}
+                    : `${Math.round(insights.ethiopianShare * 100)}% Ethiopian foods.`}
                 </Text>
               </View>
               <DiversityRing value={insights.ethiopianShare || 0} />

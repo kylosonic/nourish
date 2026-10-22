@@ -94,8 +94,7 @@ export function SettingsScreen({ navigation }: Props) {
                 <Macro value={`${state.target.fatG}g`} label="FAT" />
               </View>
               <Text style={styles.formula}>
-                Calculated with {state.target.formulaVersion}. Formula runs locally and never asks a
-                model to decide calories.
+                Calculated locally with {state.target.formulaVersion}.
               </Text>
             </>
           ) : null}
@@ -132,8 +131,7 @@ export function SettingsScreen({ navigation }: Props) {
             <View style={{ flex: 1 }}>
               <Text style={styles.rowTitle}>Hydration reminders</Text>
               <Text style={styles.rowDetail}>
-                Platform notifications are not configured in this build, so no reminders are
-                scheduled.
+                Not configured in this build.
               </Text>
             </View>
             <Switch
@@ -149,7 +147,7 @@ export function SettingsScreen({ navigation }: Props) {
           <ToggleRow
             icon="brain"
             title="Help improve food recognition"
-            detail="Off by default. Enabling is optional and never required to use Nourish."
+            detail="Optional. Off by default."
             value={state.settings.aiImprovementConsent}
             onChange={(value) => patchSettings({ aiImprovementConsent: value })}
           />
@@ -157,7 +155,7 @@ export function SettingsScreen({ navigation }: Props) {
           <ToggleRow
             icon="chart-donut"
             title="Product analytics"
-            detail="Share non-nutrition usage events. Declining keeps analytics disabled."
+            detail="Non-nutrition usage only."
             value={state.settings.analyticsConsent}
             onChange={(value) => patchSettings({ analyticsConsent: value })}
           />
@@ -165,7 +163,7 @@ export function SettingsScreen({ navigation }: Props) {
           <MenuRow
             icon="shield-lock-outline"
             title="Privacy & consent center"
-            detail="See how health and image data are handled"
+            detail="Control your data"
             onPress={() => navigation.navigate('Privacy')}
           />
         </Card>
@@ -187,7 +185,7 @@ export function SettingsScreen({ navigation }: Props) {
           />
         </Card>
         <Text style={styles.footer}>
-          Nourish · Nutrition, understood. Food values retain their source and version with every log.
+          Nourish · Nutrition, understood.
         </Text>
       </ScrollView>
     </SafeAreaView>

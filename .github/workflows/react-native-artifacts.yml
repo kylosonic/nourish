@@ -6,12 +6,12 @@ on:
       release_tag:
         description: GitHub release tag
         required: true
-        default: v1.1.0
+        default: v1.2.0
         type: string
       version:
         description: App version embedded in the build
         required: true
-        default: 1.1.0
+        default: 1.2.0
         type: string
       prerelease:
         description: Mark the GitHub release as a prerelease
@@ -25,6 +25,10 @@ permissions:
 env:
   APP_VERSION: ${{ inputs.version }}
   RELEASE_TAG: ${{ inputs.release_tag }}
+  EXPO_PUBLIC_API_URL: ${{ vars.NOURISH_API_URL }}
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.GOOGLE_WEB_CLIENT_ID }}
+  EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: ${{ vars.GOOGLE_IOS_CLIENT_ID }}
+  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: ${{ vars.GOOGLE_ANDROID_CLIENT_ID }}
 
 jobs:
   verify:
@@ -223,6 +227,13 @@ jobs:
 
             Built from commit `${{ github.sha }}`.
 
+            ### What’s new
+
+            - Email/password and Google account entry points, plus the existing phone OTP lane.
+            - iOS 26-inspired liquid-glass bottom navigation.
+            - Camera/gallery scanner recovery that always offers manual food search.
+            - Shorter copy across onboarding, scan, history, insights, progress, and settings.
+
             ### Android
 
             `Nourish-${{ env.APP_VERSION }}.apk` is an installable release APK
@@ -235,6 +246,14 @@ jobs:
             archive artifact**. It is not installable on a standard iPhone.
             Apple signing and an approved distribution channel are still
             required for TestFlight or App Store installation.
+
+            ### Service requirements
+
+            Automatic photo/text recognition and cloud account sign-in require a
+            reachable Nourish API plus the public Google OAuth client IDs. If those
+            repository variables are not configured, the app keeps offline search and
+            logging available and offers manual food selection instead of inventing a
+            result.
 
             ### Integrity
 

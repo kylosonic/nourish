@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -26,13 +26,14 @@ export function CameraScreen({ navigation, route }: Props) {
   const [flash, setFlash] = useState(false);
   const [busy, setBusy] = useState(false);
   const [facing, setFacing] = useState<CameraType>('back');
+  const libraryOpened = useRef(false);
 
-  const analyzeCapture = (base64: string, uri: string) => {
+  const analyzeCapture = useCallback((base64: string, uri: string) => {
     setPendingAnalysisInput({ imageBase64: base64, imageUri: uri, slot: route.params?.slot });
     navigation.replace('Analysis', { slot: route.params?.slot, imageUri: uri });
-  };
+  }, [navigation, route.params?.slot]);
 
-  const pickPhoto = async () => {
+  const pickPhoto = useCallback(async () => {
     setBusy(true);
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -49,7 +50,13 @@ export function CameraScreen({ navigation, route }: Props) {
     } finally {
       setBusy(false);
     }
-  };
+  }, [analyzeCapture]);
+
+  useEffect(() => {
+    if (route.params?.source !== 'library' || libraryOpened.current) return;
+    libraryOpened.current = true;
+    void pickPhoto();
+  }, [pickPhoto, route.params?.source]);
 
   const capture = async () => {
     if (Platform.OS === 'web') {
@@ -112,7 +119,7 @@ export function CameraScreen({ navigation, route }: Props) {
         </Pressable>
         <View style={styles.instruction}>
           <Icon name="focus-field" size={16} color={colors.white} />
-          <Text style={styles.instructionText}>Fit your whole meal in the frame</Text>
+          <Text style={styles.instructionText}>Fit your meal in frame</Text>
         </View>
         <Pressable
           accessibilityLabel="Toggle flash"

@@ -235,24 +235,69 @@ export async function verifyOtp(
   phone: string,
   code: string,
 ): Promise<{ session: AccountSession; created: boolean }> {
-  const result = await request<{
-    tokens: { accessToken: string; refreshToken: string };
-    account: { phoneE164: string; plan: string };
-    created: boolean;
-  }>('/v1/auth/otp/verify', {
+  const result = await request<AuthResponseWire>('/v1/auth/otp/verify', {
     method: 'POST',
     body: JSON.stringify({ phone, code }),
   });
-  return {
-    session: {
-      accessToken: result.tokens.accessToken,
-      refreshToken: result.tokens.refreshToken,
-      phone: result.account.phoneE164,
-      plan: result.account.plan,
-      createdAt: new Date().toISOString(),
-    },
-    created: result.created,
+  return { session: mapAccountSession(result), created: result.created };
+}
+
+interface AuthResponseWire {
+  tokens: { accessToken: string; refreshToken: string };
+  account: {
+    phoneE164: string | null;
+    email: string | null;
+    displayName: string | null;
+    authProviders: ('phone' | 'email' | 'google')[];
+    plan: string;
   };
+  created: boolean;
+}
+
+function mapAccountSession(result: AuthResponseWire): AccountSession {
+  return {
+    accessToken: result.tokens.accessToken,
+    refreshToken: result.tokens.refreshToken,
+    phone: result.account.phoneE164,
+    email: result.account.email,
+    displayName: result.account.displayName,
+    authProviders: result.account.authProviders,
+    plan: result.account.plan,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+export async function registerEmail(
+  email: string,
+  password: string,
+  displayName?: string,
+): Promise<{ session: AccountSession; created: boolean }> {
+  const result = await request<AuthResponseWire>('/v1/auth/email/register', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, displayName }),
+  });
+  return { session: mapAccountSession(result), created: result.created };
+}
+
+export async function loginEmail(
+  email: string,
+  password: string,
+): Promise<{ session: AccountSession; created: boolean }> {
+  const result = await request<AuthResponseWire>('/v1/auth/email/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  return { session: mapAccountSession(result), created: result.created };
+}
+
+export async function signInWithGoogle(
+  idToken: string,
+): Promise<{ session: AccountSession; created: boolean }> {
+  const result = await request<AuthResponseWire>('/v1/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ idToken }),
+  });
+  return { session: mapAccountSession(result), created: result.created };
 }
 
 export async function refreshSession(session: AccountSession): Promise<AccountSession> {

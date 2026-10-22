@@ -24,7 +24,9 @@ contracts continue to be shared.
 | Weekly insights | Implemented from actual logged meals and weigh-ins |
 | Water and weight | Implemented with local persistence and a reviewable sync queue |
 | Recommendations | Implemented as a deterministic budget/protein/preference ranking |
-| Phone + OTP account flow | Implemented with secure on-device token storage |
+| Phone, email/password, and Google account entry | Implemented; Google token verification is server-side, with secure on-device session storage |
+| Scanner recovery | Camera/gallery errors always expose manual food search, retry, and cancel |
+| Bottom navigation | Floating liquid-glass surface with an elevated scan action |
 | Local health-data storage | Encrypted AES-256-GCM blob; key held in platform secure storage |
 | Push-only backup | Implemented against `/v1/auth` and `/v1/sync`, including token rotation on a 401 |
 | Release update check | Implemented against `latest.json` using semantic version comparison |
@@ -97,15 +99,15 @@ No keystore, Apple private key, API key, or OTP code belongs in this repository.
 `.github/workflows/react-native-artifacts.yml` produces two directly downloadable
 GitHub release assets without EAS credentials:
 
-- `Nourish-1.1.0.apk` — release-mode Android APK signed with the generated
+- `Nourish-1.2.0.apk` — release-mode Android APK signed with the generated
   development debug key; installable for testing.
-- `Nourish-1.1.0-UNSIGNED.ipa` — an unsigned iOS payload archive for
+- `Nourish-1.2.0-UNSIGNED.ipa` — an unsigned iOS payload archive for
   inspection and signing work; **not installable on a standard iPhone**.
 
 The workflow writes `SHA256SUMS.txt` and creates the requested GitHub release
 only after both builds succeed.
 
-The first published React Native build is
+The current React Native release input is `1.2.0`. The earlier published build is
 [`v1.1.0`](https://github.com/kylosonic/nourish/releases/tag/v1.1.0), marked as
 a prerelease because the APK uses a development signing key and the iOS IPA is
 unsigned.

@@ -202,6 +202,15 @@ export class EnvVars {
   @Min(1000)
   @Max(60000)
   SMS_TIMEOUT_MS: number = 10000;
+
+  /**
+   * Comma-separated Google OAuth client IDs accepted as ID-token audiences.
+   * These are public client identifiers; the backend still verifies every
+   * Google token signature and audience before creating a session.
+   */
+  @IsOptional()
+  @IsString()
+  GOOGLE_CLIENT_IDS?: string;
 }
 
 /** Validate a raw config record; throws with a precise message on failure. */

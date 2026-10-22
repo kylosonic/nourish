@@ -34,13 +34,13 @@ export function ScanMenuScreen({ navigation, route }: Props) {
       label: 'TAKE PHOTO',
       icon: 'camera-outline',
       tint: colors.primary,
-      onPress: () => navigation.replace('Camera', { slot }),
+      onPress: () => navigation.replace('Camera', { slot, source: 'camera' }),
     },
     {
       label: 'CHOOSE PHOTO',
       icon: 'image-outline',
       tint: colors.primary,
-      onPress: () => navigation.replace('Camera', { slot }),
+      onPress: () => navigation.replace('Camera', { slot, source: 'library' }),
     },
     {
       label: 'DESCRIBE MEAL',
@@ -129,9 +129,6 @@ export function ScanMenuScreen({ navigation, route }: Props) {
             ),
           )}
         </View>
-        <Text style={styles.note}>
-          Nutrition values come from Nourish’s food database. Photo estimates are always editable before saving.
-        </Text>
       </View>
     </View>
   );
@@ -196,5 +193,4 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   actionLabel: { ...type.label, fontSize: 10, color: colors.onSurfaceVariant },
-  note: { ...type.caption, textAlign: 'center', marginTop: spacing.md, lineHeight: 16 },
 });

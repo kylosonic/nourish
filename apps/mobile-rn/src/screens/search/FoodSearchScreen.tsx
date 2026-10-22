@@ -196,7 +196,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
             </View>
             <Text style={styles.emptyTitle}>No matching food</Text>
             <Text style={styles.emptyCopy}>
-              Try another spelling or describe the meal so the analysis service can suggest a match.
+              Try another spelling.
             </Text>
             <Button
               label="DESCRIBE MEAL"
@@ -208,10 +208,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
         )}
         <View style={styles.tip}>
           <Icon name="information-outline" size={18} color={colors.primary} />
-          <Text style={styles.tipText}>
-            Search matches English names, Amharic names, and common spelling variants. Cached foods
-            remain available offline.
-          </Text>
+          <Text style={styles.tipText}>Offline search available.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

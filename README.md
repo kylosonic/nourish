@@ -53,6 +53,32 @@ lanes. With no API running it keeps the bundled seed catalog, supports offline
 manual search/logging/history, and tells the user when provider-dependent lanes
 cannot run.
 
+### Accounts, Google, and scanning
+
+The React Native app offers email/password registration, email login, Google
+sign-in, and the existing phone OTP lane. Email and Google accounts are created
+or linked by the API; Google ID tokens are verified server-side.
+
+Configure all OAuth client IDs in `apps/mobile-rn/.env` and the accepted
+audiences in `apps/api/.env`:
+
+```powershell
+# apps/mobile-rn/.env
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=...
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=...
+EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID=...
+
+# apps/api/.env
+GOOGLE_CLIENT_IDS=web-client-id,ios-client-id,android-client-id
+```
+
+For photo or text recognition, deploy the API with
+`AI_PROVIDER=openai-compatible`, `AI_BASE_URL`, and `AI_API_KEY`. Without this
+configuration a scan fails honestly and offers **Find food manually**; it never
+returns a canned recognition result. The release workflow reads
+`NOURISH_API_URL` and the three Google client IDs from GitHub repository
+variables.
+
 The legacy Flutter app remains runnable:
 
 ```powershell
@@ -91,14 +117,14 @@ flutter test                             # 27 and 13 tests
 npm run lint
 npm run build
 npx prisma validate
-npm test                                 # 91 unit tests
+npm test                                 # 93 unit tests
 npm run test:e2e                         # 83 e2e tests (needs Docker Postgres)
 
 # Repository tooling (root)
 node --test "scripts/*.test.mjs"                       # 9 tests
 node --test "apps/website/test/*.test.mjs"             # 12 tests
 node scripts/generate-latest-json.mjs --check
-```n
+```
 Two live checks need the API running (they are manual on purpose: the test suite must stay offline). They are what caught the wire mismatches the fakes had hidden:
 
 ```powershell
@@ -118,16 +144,17 @@ build — always pass an explicit glob, as above.
 | S1 — FCT 2025 import + catalog API | Built, verified (27 571 extracted values double-entry checked against the published table) |
 | S2 — meal analysis (text + photo) and edit-before-save | Built, verified. The real recognition path is implemented and unit-tested against a fake provider; **no AI provider key exists in this environment**, so it has never been exercised against a real model |
 | S3 — accounts, sessions, sync endpoints (server) | Built, verified over HTTP |
-| S3 — accounts and sessions (device) | Built and verified live against the local API: sign-in, secure token storage, session restore, sign-out, account screen |
+| S3 — accounts and sessions (device) | Built: phone OTP, email/password, and Google identity flows with secure token storage, session restore, sign-out, and account linking; live Google credentials are not present |
 | S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Restore is NOT BUILT**: the app can already *read* the account's rows (GET /v1/sync/changes, live-verified) but does not write them back into the local database yet, so this is a backup rather than a sync, and the account screen says so |
 | S4 — weekly insights, weight logging, adjustable water goal, "what can I eat" | Built, verified |
 | S4 — water reminders (WW-02), entitlements/paywall (SUB-01) | **NOT BUILT.** Reminders need platform notification support that cannot be verified here; the paywall has no design (P-SUB-1) and no payment provider (P-PROV-1) |
 | S5 — website, release metadata, in-app update check | Built, verified. The release pipeline itself has never run: it needs a remote and the secrets in `docs/release-process.md` |
 
-Honest limits, stated everywhere they matter: no AI provider key, no SMS
-gateway credential (SMS is exercised through the console gateway only), no store
-release, and **nothing is merged to `master`** — it still points at the S0
-release commit. Work happens on `feat/nourish-mvp`.
+Honest limits, stated everywhere they matter: no deployed API URL, Google OAuth
+client IDs, or AI provider key is configured in this repository; no production
+SMS gateway credential is present; and no store release is signed. The current
+unsigned CI release produces an installable Android APK and a non-installable
+unsigned iOS IPA.
 
 ## For contributors
 

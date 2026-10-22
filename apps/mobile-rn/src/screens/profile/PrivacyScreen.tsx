@@ -38,23 +38,20 @@ export function PrivacyScreen({ navigation }: Props) {
           <Icon name="shield-check-outline" size={34} color={colors.primary} />
         </View>
         <Text style={styles.heading}>Your health data is yours.</Text>
-        <Text style={styles.subcopy}>
-          Nourish keeps an offline copy of your log on this device. Optional processing is separate
-          from using the app, and declining never blocks core tracking.
-        </Text>
+        <Text style={styles.subcopy}>Your health data stays under your control.</Text>
 
         <Text style={styles.sectionLabel}>OPTIONAL CONSENT</Text>
         <Card style={styles.consentCard}>
           <ConsentRow
             title="AI improvement"
-            detail="Allow metadata-stripped corrections to help improve food recognition. This is off by default."
+            detail="Optional and off by default."
             value={state.settings.aiImprovementConsent}
             onChange={(value) => patchSettings({ aiImprovementConsent: value })}
           />
           <View style={styles.divider} />
           <ConsentRow
             title="Product analytics"
-            detail="Allow non-nutrition usage events. Meal names, weights, and body details are never sent."
+            detail="No meal names or body data."
             value={state.settings.analyticsConsent}
             onChange={(value) => patchSettings({ analyticsConsent: value })}
           />
@@ -65,21 +62,14 @@ export function PrivacyScreen({ navigation }: Props) {
           <Icon name="camera-off-outline" size={25} color={colors.primary} />
           <View style={{ flex: 1 }}>
             <Text style={styles.infoTitle}>Analyzed images are not retained</Text>
-            <Text style={styles.infoCopy}>
-              The current API keeps the uploaded bytes only for the analysis request. Location and
-              device metadata are not included. Analysis metadata may be purged on the configured
-              retention schedule.
-            </Text>
+            <Text style={styles.infoCopy}>Photos are processed for one request and not retained.</Text>
           </View>
         </Card>
 
         <Text style={styles.sectionLabel}>YOUR DATA RIGHTS</Text>
         <Card style={styles.rightsCard}>
           <Text style={styles.infoTitle}>Export</Text>
-          <Text style={styles.infoCopy}>
-            Create a machine-readable copy of your profile, target, meals, water, weight, and queues
-            from Profile → Export my data.
-          </Text>
+          <Text style={styles.infoCopy}>Download your profile and health logs as JSON.</Text>
           <Button
             label="GO TO PROFILE"
             variant="secondary"
@@ -93,17 +83,14 @@ export function PrivacyScreen({ navigation }: Props) {
           />
           <View style={styles.divider} />
           <Text style={styles.infoTitle}>Account deletion</Text>
-          <Text style={styles.infoCopy}>
-            Server-side account erasure is not enabled in this build. Deleting local app data is
-            available in Profile and immediately removes this device’s copy.
-          </Text>
+          <Text style={styles.infoCopy}>Local deletion is available now. Server deletion is not configured.</Text>
         </Card>
 
         <Banner
           tone="warning"
           icon="medical-bag"
           title="Health disclaimer"
-          message="Nourish is a general wellness tool. It does not diagnose, treat, or replace care from a qualified nutrition or medical professional."
+          message="Nourish does not diagnose, treat, or replace professional care."
         />
         <Button
           label="READ FULL PRIVACY POLICY"
@@ -113,10 +100,7 @@ export function PrivacyScreen({ navigation }: Props) {
           }
           style={{ marginTop: spacing.lg }}
         />
-        <Text style={styles.footer}>
-          Consent changes apply to future processing. Contact privacy@nourish.app for a data-rights
-          request while server-side deletion is being completed.
-        </Text>
+        <Text style={styles.footer}>Consent changes apply to future processing.</Text>
       </ScrollView>
     </SafeAreaView>
   );

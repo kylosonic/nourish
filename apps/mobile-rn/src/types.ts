@@ -121,7 +121,10 @@ export interface WeightLog {
 export interface AccountSession {
   accessToken: string;
   refreshToken: string;
-  phone: string;
+  phone: string | null;
+  email: string | null;
+  displayName: string | null;
+  authProviders: ('phone' | 'email' | 'google')[];
   plan: string;
   createdAt: string;
 }

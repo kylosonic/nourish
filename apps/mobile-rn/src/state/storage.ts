@@ -120,7 +120,28 @@ export async function loadSession(): Promise<AccountSession | null> {
     const available = await SecureStore.isAvailableAsync();
     if (!available) return null;
     const value = await SecureStore.getItemAsync(SESSION_KEY);
-    return value ? (JSON.parse(value) as AccountSession) : null;
+    if (!value) return null;
+    const parsed = JSON.parse(value) as Partial<AccountSession>;
+    if (!parsed.accessToken || !parsed.refreshToken) return null;
+    const phone = parsed.phone ?? null;
+    const providers = Array.isArray(parsed.authProviders)
+      ? parsed.authProviders.filter(
+          (provider): provider is AccountSession['authProviders'][number] =>
+            provider === 'phone' || provider === 'email' || provider === 'google',
+        )
+      : phone
+        ? (['phone'] as AccountSession['authProviders'])
+        : [];
+    return {
+      accessToken: parsed.accessToken,
+      refreshToken: parsed.refreshToken,
+      phone,
+      email: parsed.email ?? null,
+      displayName: parsed.displayName ?? null,
+      authProviders: providers,
+      plan: parsed.plan ?? 'FREE',
+      createdAt: parsed.createdAt ?? new Date().toISOString(),
+    };
   } catch {
     return null;
   }

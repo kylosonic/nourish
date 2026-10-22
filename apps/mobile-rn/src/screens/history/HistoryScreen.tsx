@@ -166,7 +166,7 @@ export function HistoryScreen({ navigation }: Props) {
             <Icon name="silverware-fork-knife" size={30} color={colors.primary} />
             <Text style={styles.emptyTitle}>Nothing logged for this day</Text>
             <Text style={styles.emptyCopy}>
-              Meals you confirm will appear here with the nutrition values recorded at the time.
+              Confirmed meals will appear here.
             </Text>
           </Card>
         ) : (

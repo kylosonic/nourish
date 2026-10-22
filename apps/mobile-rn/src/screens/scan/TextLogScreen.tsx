@@ -61,16 +61,13 @@ export function TextLogScreen({ navigation, route }: Props) {
             <Icon name={voice ? 'microphone-outline' : 'text-box-edit-outline'} size={30} color={colors.primary} />
           </View>
           <Text style={styles.title}>{voice ? 'Say what you ate' : 'Describe your meal'}</Text>
-          <Text style={styles.copy}>
-            Use everyday language. We’ll match your food to the Ethiopian food database and show
-            the portions before anything is saved.
-          </Text>
+          <Text style={styles.copy}>Add foods and portions.</Text>
           {voice ? (
             <Banner
               tone="info"
               icon="microphone-off"
-              title="Voice transcription isn’t configured"
-              message="No speech provider is set for this launch build. Type the same sentence below so you still reach the nutrition flow."
+              title="Voice isn’t available"
+              message="Type your meal below instead."
               action={
                 <Pressable onPress={() => input.current?.focus()} style={styles.bannerAction}>
                   <Text style={styles.bannerActionText}>TYPE TRANSCRIPT</Text>
@@ -117,9 +114,7 @@ export function TextLogScreen({ navigation, route }: Props) {
         </View>
         <View style={styles.footer}>
           <Button label="ANALYZE MEAL" icon="arrow-right" onPress={submit} />
-          <Text style={styles.footnote}>
-            Portions and nutrition are estimates until you review and confirm them.
-          </Text>
+          <Text style={styles.footnote}>Review before saving.</Text>
         </View>
       </SafeAreaView>
     </KeyboardAvoidingView>

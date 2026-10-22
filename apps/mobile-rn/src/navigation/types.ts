@@ -20,7 +20,7 @@ export type RootStackParamList = {
   SignIn: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   ScanMenu: { slot?: MealSlot } | undefined;
-  Camera: { slot?: MealSlot } | undefined;
+  Camera: { slot?: MealSlot; source?: 'camera' | 'library' } | undefined;
   Analysis: {
     slot?: MealSlot;
     imageUri?: string;

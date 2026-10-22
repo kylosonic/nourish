@@ -33,7 +33,11 @@ export function ProfileScreen() {
     resetLocalData,
   } = useApp();
   const [exporting, setExporting] = useState(false);
-  const accountName = state.session?.phone || 'Local profile';
+  const accountName =
+    state.session?.displayName ||
+    state.session?.email ||
+    state.session?.phone ||
+    'Local profile';
   const completedMeals = state.meals.length;
 
   const exportData = async () => {
@@ -43,6 +47,8 @@ export function ProfileScreen() {
         exportedAt: new Date().toISOString(),
         profile: {
           phone: state.session?.phone ?? null,
+          email: state.session?.email ?? null,
+          displayName: state.session?.displayName ?? null,
           onboarding: state.onboarding,
           target: state.target,
           settings: state.settings,
@@ -122,7 +128,7 @@ export function ProfileScreen() {
               <Text style={styles.accountName}>{accountName}</Text>
               <Text style={styles.accountMeta}>
                 {state.session
-                  ? `${state.session.plan === 'FREE' ? 'Free plan' : state.session.plan} · account connected`
+                  ? `${state.session.plan === 'FREE' ? 'Free plan' : state.session.plan} · ${state.session.authProviders[0] ?? 'account'}`
                   : 'Offline profile · no account connected'}
               </Text>
             </View>
@@ -173,8 +179,8 @@ export function ProfileScreen() {
               </Text>
               <Text style={styles.rowSubtext}>
                 {state.session
-                  ? state.syncMessage || 'Queued changes can be safely pushed when you are online.'
-                  : 'Sign in to push a backup. Offline logging remains fully available.'}
+                  ? state.syncMessage || 'Changes sync when you’re online.'
+                  : 'Offline logging still works without an account.'}
               </Text>
             </View>
           </View>
@@ -253,10 +259,7 @@ export function ProfileScreen() {
         <Pressable onPress={confirmReset} style={styles.deleteAction}>
           <Text style={styles.deleteText}>Delete local app data</Text>
         </Pressable>
-        <Text style={styles.legal}>
-          Nourish supports general wellness and does not diagnose or treat medical conditions.
-          Consult a qualified professional for personal medical or nutrition advice.
-        </Text>
+        <Text style={styles.legal}>General wellness guidance, not medical care.</Text>
       </ScrollView>
     </SafeAreaView>
   );

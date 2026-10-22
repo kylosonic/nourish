@@ -78,11 +78,8 @@ export function ProgressScreen() {
         </Pressable>
       </View>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        <Text style={styles.title}>Your progress, without the noise.</Text>
-        <Text style={styles.subcopy}>
-          Daily weight can move for many reasons. Nourish shows the logged trend and avoids framing
-          normal fluctuations as a judgment.
-        </Text>
+        <Text style={styles.title}>Your progress.</Text>
+        <Text style={styles.subcopy}>Focus on the trend.</Text>
 
         <Card style={styles.weightCard}>
           <View style={styles.weightTop}>
@@ -130,7 +127,7 @@ export function ProgressScreen() {
             <View style={styles.chartEmpty}>
               <Icon name="chart-line" size={30} color={colors.outline} />
               <Text style={styles.chartEmptyText}>
-                Log at least two weigh-ins to see a trend. Daily spikes are not used as a headline.
+                Log two weigh-ins to see a trend.
               </Text>
             </View>
           )}
@@ -185,7 +182,7 @@ export function ProgressScreen() {
           <EmptyState
             icon="scale-bathroom"
             title="No weigh-ins yet"
-            detail="Add a reading whenever it feels useful. The app will not invent a trend from a single entry."
+            detail="A trend needs at least two readings."
           />
         ) : (
           <Card style={styles.history}>
@@ -212,8 +209,7 @@ export function ProgressScreen() {
             <View style={styles.handle} />
             <Text style={styles.modalTitle}>Log today’s weight</Text>
             <Text style={styles.subcopy}>
-              Use the same scale and time of day when possible. Normal day-to-day shifts are not a
-              trend.
+              Use the same scale and time of day.
             </Text>
             <View style={styles.inputRow}>
               <TextInput
