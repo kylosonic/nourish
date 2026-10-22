@@ -1,6 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,11 +22,14 @@ import { nutritionFor } from '../../domain/nutrition';
 import { mealSlotForHour } from '../../domain/recommendations';
 import { newId } from '../../utils/date';
 import * as Haptics from 'expo-haptics';
+import type { Food, MealItem } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FoodSearch'>;
 
 const categories = ['All', 'Ethiopian', 'Breakfast', 'Lunch', 'Dinner', 'Snacks'];
 const commonOrder = ['injera', 'shiro_wot', 'beef_tibs', 'misir_wot'];
+const gramPresets = [50, 75, 100, 150, 200, 250, 300, 400];
+const maxGrams = 2000;
 
 const normalize = (value: string) =>
   value
@@ -34,11 +40,20 @@ const normalize = (value: string) =>
     .trim();
 
 export function FoodSearchScreen({ navigation, route }: Props) {
-  const { state, addDraftMeal } = useApp();
+  const { state, addResolvedMeal } = useApp();
   const [query, setQuery] = useState(route.params?.candidates?.[0]?.displayName ?? '');
   const [category, setCategory] = useState('All');
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [gramsInput, setGramsInput] = useState('');
   const candidateMode = route.params?.mode === 'candidate';
   const slot = route.params?.slot || mealSlotForHour();
+  const parsedGrams = Number(gramsInput);
+  const gramsValid =
+    Number.isFinite(parsedGrams) && parsedGrams >= 1 && parsedGrams <= maxGrams;
+  const selectedNutrition =
+    selectedFood && gramsValid
+      ? nutritionFor(selectedFood.per100g, parsedGrams)
+      : null;
 
   const results = useMemo(() => {
     const needle = normalize(query);
@@ -63,34 +78,46 @@ export function FoodSearchScreen({ navigation, route }: Props) {
       .slice(0, 40);
   }, [category, query, state.catalog]);
 
-  const choose = (foodId: string) => {
-    const food = state.catalog.find((candidate) => candidate.id === foodId);
-    if (!food) return;
-    const nutrition = nutritionFor(food.per100g, food.defaultPortion.grams);
-    const item = {
+  const openFood = (food: Food) => {
+    setSelectedFood(food);
+    setGramsInput(String(Math.round(food.defaultPortion.grams)));
+  };
+
+  const closeFood = () => {
+    setSelectedFood(null);
+    setGramsInput('');
+  };
+
+  const addSelectedFood = () => {
+    if (!selectedFood || !selectedNutrition || !gramsValid) return;
+    const item: MealItem = {
       id: newId('item'),
-      foodId: food.id,
-      foodName: food.canonicalName,
-      category: food.category,
-      portionUnit: food.defaultPortion.unit,
-      portionQuantity: food.defaultPortion.quantity,
-      grams: food.defaultPortion.grams,
-      nutrition,
+      foodId: selectedFood.id,
+      foodName: selectedFood.canonicalName,
+      category: selectedFood.category,
+      portionUnit: 'gram',
+      portionQuantity: parsedGrams,
+      grams: parsedGrams,
+      nutrition: selectedNutrition,
     };
+
     if (candidateMode) {
+      closeFood();
       navigation.replace('Result', {
         analysisId: route.params?.analysisId || newId('manual'),
         slot,
         imageUri: route.params?.imageUri,
         items: [item],
-        totals: nutrition,
+        totals: selectedNutrition,
         confidenceState: 'High',
         overallConfidence: 1,
       });
       return;
     }
-    addDraftMeal(slot, [{ food, unit: food.defaultPortion.unit, quantity: food.defaultPortion.quantity }], 'search');
+
+    addResolvedMeal(slot, [item], 'search');
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    closeFood();
     navigation.reset({
       index: 0,
       routes: [{ name: 'MainTabs', params: { screen: 'Home' } }],
@@ -163,29 +190,28 @@ export function FoodSearchScreen({ navigation, route }: Props) {
             {results.map((food) => {
               const kcal = nutritionFor(food.per100g, food.defaultPortion.grams).kcal;
               return (
-                <View key={food.id} style={styles.foodCard}>
+                <Pressable
+                  key={food.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Set grams for ${food.canonicalName}`}
+                  onPress={() => openFood(food)}
+                  style={({ pressed }) => [styles.foodCard, pressed && styles.pressed]}
+                >
                   <Image source={imageForFood(food)} style={styles.foodImage} />
                   <View style={styles.foodCopy}>
                     <Text style={styles.foodName}>{food.canonicalName}</Text>
                     <Text style={styles.foodPortion}>
-                      {food.defaultPortion.quantity} {food.defaultPortion.unit.replace(/([A-Z])/g, ' $1')} (
-                      {Math.round(food.defaultPortion.grams)}g) • {Math.round(kcal)} kcal
+                      Suggested: {Math.round(food.defaultPortion.grams)}g ·{' '}
+                      {Math.round(kcal)} kcal
                     </Text>
-                    {food.isSeed ? (
-                      <Text style={styles.provisional}>BOOTSTRAP VALUE</Text>
-                    ) : (
-                      <Text style={styles.verified}>FCT 2025</Text>
-                    )}
+                    <Text style={food.isSeed ? styles.provisional : styles.verified}>
+                      {food.isSeed ? 'BOOTSTRAP VALUE' : 'FCT 2025'}
+                    </Text>
                   </View>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Add ${food.canonicalName}`}
-                    onPress={() => choose(food.id)}
-                    style={styles.add}
-                  >
+                  <View style={styles.add}>
                     <Icon name="plus" size={20} color={colors.primary} />
-                  </Pressable>
-                </View>
+                  </View>
+                </Pressable>
               );
             })}
           </View>
@@ -195,22 +221,117 @@ export function FoodSearchScreen({ navigation, route }: Props) {
               <Icon name="silverware-fork-knife" size={32} color={colors.primary} />
             </View>
             <Text style={styles.emptyTitle}>No matching food</Text>
-            <Text style={styles.emptyCopy}>
-              Try another spelling.
-            </Text>
-            <Button
-              label="DESCRIBE MEAL"
-              variant="secondary"
-              onPress={() => navigation.navigate('TextLog', { slot })}
-              style={{ alignSelf: 'stretch', marginTop: spacing.sm }}
-            />
+            <Text style={styles.emptyCopy}>Try another spelling.</Text>
           </View>
         )}
         <View style={styles.tip}>
-          <Icon name="information-outline" size={18} color={colors.primary} />
-          <Text style={styles.tipText}>Offline search available.</Text>
+          <Icon name="scale-bathroom" size={18} color={colors.primary} />
+          <Text style={styles.tipText}>Tap any food to enter its exact grams.</Text>
         </View>
       </ScrollView>
+
+      <Modal
+        visible={selectedFood !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={closeFood}
+      >
+        <KeyboardAvoidingView
+          style={styles.modalRoot}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <Pressable style={styles.scrim} onPress={closeFood} />
+          <View style={styles.sheet}>
+            <View style={styles.handle} />
+            {selectedFood ? (
+              <>
+                <View style={styles.sheetHeader}>
+                  <Image source={imageForFood(selectedFood)} style={styles.sheetImage} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sheetTitle}>{selectedFood.canonicalName}</Text>
+                    <Text style={styles.sheetSubtitle}>
+                      {selectedFood.per100g.kcal} kcal per 100g
+                    </Text>
+                  </View>
+                  <Pressable
+                    accessibilityLabel="Close portion editor"
+                    onPress={closeFood}
+                    style={styles.close}
+                  >
+                    <Icon name="close" size={22} color={colors.onSurfaceVariant} />
+                  </Pressable>
+                </View>
+
+                <Text style={[type.label, styles.amountLabel]}>AMOUNT</Text>
+                <View style={styles.gramsField}>
+                  <TextInput
+                    accessibilityLabel="Amount in grams"
+                    value={gramsInput}
+                    onChangeText={(value) =>
+                      setGramsInput(value.replace(/[^0-9]/g, '').slice(0, 4))
+                    }
+                    keyboardType="number-pad"
+                    selectTextOnFocus
+                    style={styles.gramsInput}
+                    selectionColor={colors.primary}
+                    autoFocus
+                  />
+                  <Text style={styles.gramsSuffix}>grams</Text>
+                </View>
+                <Text style={styles.rangeHint}>Enter 1–2,000 grams.</Text>
+
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.presetRow}
+                >
+                  {Array.from(new Set([...gramPresets, Math.round(selectedFood.defaultPortion.grams)])).map(
+                    (preset) => (
+                      <Chip
+                        key={preset}
+                        label={`${preset}g`}
+                        selected={gramsInput === String(preset)}
+                        onPress={() => setGramsInput(String(preset))}
+                      />
+                    ),
+                  )}
+                </ScrollView>
+
+                <View style={styles.preview}>
+                  <View>
+                    <Text style={type.label}>CALCULATED</Text>
+                    <Text style={styles.previewKcal}>
+                      {selectedNutrition ? `${Math.round(selectedNutrition.kcal)} kcal` : '—'}
+                    </Text>
+                  </View>
+                  <View style={styles.previewMacros}>
+                    <Text style={styles.previewMacro}>
+                      P {selectedNutrition ? Math.round(selectedNutrition.proteinG) : 0}g
+                    </Text>
+                    <Text style={styles.previewMacro}>
+                      C {selectedNutrition ? Math.round(selectedNutrition.carbsG) : 0}g
+                    </Text>
+                    <Text style={styles.previewMacro}>
+                      F {selectedNutrition ? Math.round(selectedNutrition.fatG) : 0}g
+                    </Text>
+                  </View>
+                </View>
+
+                <Button
+                  label={
+                    candidateMode
+                      ? `USE ${gramsValid ? Math.round(parsedGrams) : '—'} G`
+                      : `ADD ${gramsValid ? Math.round(parsedGrams) : '—'} G`
+                  }
+                  disabled={!gramsValid}
+                  onPress={addSelectedFood}
+                  style={{ marginTop: spacing.lg }}
+                />
+              </>
+            ) : null}
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -261,7 +382,7 @@ const styles = StyleSheet.create({
   sectionTitle: { ...type.title, marginTop: spacing.lg, marginBottom: spacing.md },
   foodList: { gap: spacing.sm },
   foodCard: {
-    minHeight: 116,
+    minHeight: 108,
     borderRadius: radii.md,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.surfaceHighest,
@@ -271,7 +392,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
-  foodImage: { width: 88, height: 96, borderRadius: radii.sm },
+  pressed: { opacity: 0.72, transform: [{ scale: 0.992 }] },
+  foodImage: { width: 82, height: 88, borderRadius: radii.sm },
   foodCopy: { flex: 1 },
   foodName: { ...type.body, fontFamily: fonts.semibold },
   foodPortion: { ...type.caption, marginTop: 2 },
@@ -295,7 +417,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyTitle: { ...type.title, marginTop: spacing.md },
-  emptyCopy: { ...type.body, color: colors.onSurfaceVariant, textAlign: 'center', marginTop: spacing.xs },
+  emptyCopy: {
+    ...type.body,
+    color: colors.onSurfaceVariant,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
   tip: {
     flexDirection: 'row',
     gap: spacing.sm,
@@ -305,4 +432,74 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
   tipText: { ...type.bodySmall, color: colors.onSurfaceVariant, flex: 1 },
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  scrim: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: colors.scrim,
+  },
+  sheet: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radii.xxl,
+    borderTopRightRadius: radii.xxl,
+    padding: spacing.xl,
+    paddingBottom: spacing.xxl,
+  },
+  handle: {
+    width: 46,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.outlineVariant,
+    alignSelf: 'center',
+    marginBottom: spacing.lg,
+  },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  sheetImage: { width: 62, height: 62, borderRadius: radii.md },
+  sheetTitle: { ...type.title, fontSize: 22 },
+  sheetSubtitle: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2 },
+  close: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surfaceHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  amountLabel: { marginTop: spacing.xl },
+  gramsField: {
+    height: 66,
+    marginTop: spacing.xs,
+    borderRadius: radii.md,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    backgroundColor: colors.white,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  gramsInput: {
+    flex: 1,
+    fontFamily: fonts.bold,
+    fontSize: 34,
+    color: colors.onSurface,
+    outlineStyle: 'none' as never,
+  },
+  gramsSuffix: { ...type.body, color: colors.onSurfaceVariant },
+  rangeHint: { ...type.caption, marginTop: spacing.xs },
+  presetRow: { gap: spacing.xs, paddingTop: spacing.md },
+  preview: {
+    marginTop: spacing.lg,
+    borderRadius: radii.md,
+    backgroundColor: colors.primarySoft,
+    padding: spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  previewKcal: { fontFamily: fonts.bold, fontSize: 24, color: colors.primary, marginTop: 2 },
+  previewMacros: { alignItems: 'flex-end', gap: 2 },
+  previewMacro: { ...type.bodySmall, color: colors.onSurfaceVariant, fontFamily: fonts.semibold },
 });

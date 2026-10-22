@@ -34,7 +34,6 @@ import { CameraScreen } from '../screens/scan/CameraScreen';
 import { AnalysisScreen } from '../screens/scan/AnalysisScreen';
 import { ResultScreen } from '../screens/scan/ResultScreen';
 import { LowConfidenceScreen } from '../screens/scan/LowConfidenceScreen';
-import { TextLogScreen } from '../screens/scan/TextLogScreen';
 import { FoodSearchScreen } from '../screens/search/FoodSearchScreen';
 import { EditMealScreen } from '../screens/scan/EditMealScreen';
 import { BarcodeScreen } from '../screens/scan/BarcodeScreen';
@@ -160,7 +159,6 @@ function AppStack() {
           />
           <Stack.Screen name="Result" component={ResultScreen} />
           <Stack.Screen name="LowConfidence" component={LowConfidenceScreen} />
-          <Stack.Screen name="TextLog" component={TextLogScreen} />
           <Stack.Screen name="FoodSearch" component={FoodSearchScreen} />
           <Stack.Screen name="EditMeal" component={EditMealScreen} />
           <Stack.Screen name="Barcode" component={BarcodeScreen} />

@@ -43,18 +43,6 @@ export function ScanMenuScreen({ navigation, route }: Props) {
       onPress: () => navigation.replace('Camera', { slot, source: 'library' }),
     },
     {
-      label: 'DESCRIBE MEAL',
-      icon: 'text-box-edit-outline',
-      tint: colors.coral,
-      onPress: () => navigation.replace('TextLog', { slot, mode: 'text' }),
-    },
-    {
-      label: 'USE VOICE',
-      icon: 'microphone-outline',
-      tint: colors.primary,
-      onPress: () => navigation.replace('TextLog', { slot, mode: 'voice' }),
-    },
-    {
       label: 'SEARCH FOOD',
       icon: 'magnify',
       tint: colors.onSurfaceVariant,
@@ -111,7 +99,7 @@ export function ScanMenuScreen({ navigation, route }: Props) {
         </View>
         <Text style={styles.title}>What did you eat?</Text>
         <View style={styles.grid}>
-          {[actions.slice(0, 2), actions.slice(2, 4), actions.slice(4, 6)].map(
+          {[actions.slice(0, 2), actions.slice(2, 4)].map(
             (row, rowIndex) => (
               <View key={rowIndex} style={styles.actionRow}>
                 {row.map((action) => (

@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import {
   Animated,
+  Easing,
   Platform,
   Pressable,
   StyleSheet,
@@ -124,12 +125,11 @@ export function BottomNav({
         indicatorX.setValue(toValue);
         return;
       }
-      Animated.spring(indicatorX, {
+      Animated.timing(indicatorX, {
         toValue,
-        stiffness: 310,
-        damping: 28,
-        mass: 0.72,
-        useNativeDriver: true,
+        duration: 360,
+        easing: Easing.bezier(0.22, 1, 0.36, 1),
+        useNativeDriver: false,
       }).start();
     },
     [indicatorX, indexX, itemWidth],
@@ -137,11 +137,11 @@ export function BottomNav({
 
   const animateEngaged = useCallback(
     (engaged: boolean) => {
-      Animated.spring(engagedScale, {
+      Animated.timing(engagedScale, {
         toValue: engaged ? 1.03 : 1,
-        stiffness: 260,
-        damping: 24,
-        useNativeDriver: true,
+        duration: 180,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: false,
       }).start();
     },
     [engagedScale],

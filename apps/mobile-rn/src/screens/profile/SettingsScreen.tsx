@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   Alert,
   Linking,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,12 +19,17 @@ import { Card, Icon, type IconName } from '../../components/ui';
 import { fetchReleaseMetadata, releaseDownloadUrl } from '../../data/release';
 import { isNewerVersion } from '../../utils/version';
 import { APP_VERSION } from '../../data/appInfo';
+import {
+  hydrationReminderLabel,
+  setHydrationReminders,
+} from '../../services/notifications';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export function SettingsScreen({ navigation }: Props) {
   const { state, patchSettings } = useApp();
   const [checking, setChecking] = useState(false);
+  const [updatingReminders, setUpdatingReminders] = useState(false);
 
   const checkUpdate = async () => {
     setChecking(true);
@@ -56,6 +62,35 @@ export function SettingsScreen({ navigation }: Props) {
         Math.max(1500, state.settings.waterTargetMl + delta),
       ),
     });
+  };
+
+  const toggleReminders = async (enabled: boolean) => {
+    if (Platform.OS === 'web') {
+      Alert.alert(
+        'Device notifications required',
+        'Hydration notifications are available in the Android and iOS app.',
+      );
+      return;
+    }
+    setUpdatingReminders(true);
+    try {
+      const result = await setHydrationReminders(enabled);
+      if (result === 'denied') {
+        Alert.alert(
+          'Notifications are off',
+          'Allow notifications in your device settings to use hydration reminders.',
+        );
+        return;
+      }
+      patchSettings({ remindersEnabled: enabled });
+    } catch {
+      Alert.alert(
+        'Couldn’t update reminders',
+        'Please check your notification permission and try again.',
+      );
+    } finally {
+      setUpdatingReminders(false);
+    }
   };
 
   return (
@@ -128,17 +163,31 @@ export function SettingsScreen({ navigation }: Props) {
           </View>
           <View style={styles.divider} />
           <View style={styles.settingRow}>
-            <View style={styles.settingIcon}><Icon name="bell-ring-outline" size={23} color={colors.outline} /></View>
+            <View style={styles.settingIcon}>
+              <Icon
+                name={state.settings.remindersEnabled ? 'bell-ring' : 'bell-ring-outline'}
+                size={23}
+                color={state.settings.remindersEnabled ? colors.primary : colors.outline}
+              />
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.rowTitle}>Hydration reminders</Text>
               <Text style={styles.rowDetail}>
-                Not configured in this build.
+                {Platform.OS === 'web'
+                  ? 'Available in the installed app.'
+                  : updatingReminders
+                    ? 'Updating notifications…'
+                    : state.settings.remindersEnabled
+                      ? `Daily at ${hydrationReminderLabel}`
+                      : 'Off'}
               </Text>
             </View>
             <Switch
-              value={false}
-              disabled
+              value={state.settings.remindersEnabled}
+              disabled={Platform.OS === 'web' || updatingReminders}
+              onValueChange={(enabled) => void toggleReminders(enabled)}
               trackColor={{ true: colors.primaryContainer, false: colors.surfaceHighest }}
+              thumbColor={colors.white}
             />
           </View>
         </Card>

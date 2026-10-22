@@ -74,12 +74,6 @@ export function BarcodeScreen({ navigation, route }: Props) {
               onPress={() => navigation.replace('FoodSearch', { slot })}
               style={{ alignSelf: 'stretch', marginTop: spacing.sm }}
             />
-            <Button
-              label="DESCRIBE MEAL"
-              variant="secondary"
-              onPress={() => navigation.replace('TextLog', { slot })}
-              style={{ alignSelf: 'stretch', marginTop: spacing.sm }}
-            />
             <Text style={styles.honest}>Packaged-food OCR isn’t available yet.</Text>
           </View>
         </View>

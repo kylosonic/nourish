@@ -40,6 +40,7 @@ import {
 } from './storage';
 import { makeMealItem, targetFromOnboarding } from '../domain/nutrition';
 import { addDays, localDateKey, newId } from '../utils/date';
+import { reconcileHydrationReminders } from '../services/notifications';
 
 type Action =
   | { type: 'hydrate'; data: AppData; session: AccountSession | null }
@@ -284,6 +285,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (state.hydrated) void saveSession(state.session);
   }, [state.hydrated, state.session]);
+
+  useEffect(() => {
+    if (!state.hydrated) return;
+    void reconcileHydrationReminders(state.settings.remindersEnabled).catch(() => {
+      // Permission state and platform scheduling are reconciled again whenever
+      // the user opens the notification setting.
+    });
+  }, [state.hydrated, state.settings.remindersEnabled]);
 
   const startOnboarding = useCallback(() => dispatch({ type: 'startOnboarding' }), []);
 

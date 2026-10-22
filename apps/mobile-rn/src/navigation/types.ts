@@ -41,7 +41,6 @@ export type RootStackParamList = {
     imageUri?: string;
     candidates: { displayName: string; foodId: string | null; confidence: number }[];
   };
-  TextLog: { slot?: MealSlot; mode?: 'text' | 'voice' } | undefined;
   FoodSearch: {
     slot?: MealSlot;
     mode?: 'quick-add' | 'edit' | 'candidate';
