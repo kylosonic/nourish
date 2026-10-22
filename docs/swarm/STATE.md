@@ -9,7 +9,7 @@ agent's exact approval.
 | Field | Value |
 | --- | --- |
 | Phase | `PRERELEASE — React Native 1.2.0 artifacts published; live providers and store signing pending` |
-| Active branch | `feat/nourish-mvp` at `43ebf18`; the React Native release is pushed. Unrelated pre-existing worktree changes remain unstaged |
+| Active branch | `feat/nourish-mvp` at `41776d8`; release artifacts were built from `43ebf18`. Unrelated pre-existing worktree changes remain unstaged |
 | Batch | React Native rebuild of the S0–S5 mobile experience; Flutter retained as reference |
 | Active slice | `apps/mobile-rn` — first-release flow, offline state, analysis mapping, history, insights, account UI, privacy, and release scaffolding |
 | Active gate | API and React Native CI green for the release commit; downloaded artifact checksums and signing state independently verified. Human device UAT and external AI/Google credentials remain unavailable |
