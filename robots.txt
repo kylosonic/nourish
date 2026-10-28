@@ -1,5 +1,2 @@
 User-agent: *
 Allow: /
-Disallow: /assets/fonts/
-
-Sitemap: https://kylosonic.github.io/nourish/sitemap.xml
