@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors, fonts, radii, shadow, spacing, type } from '../theme';
+import { border, colors, fonts, radii, spacing, type } from '../theme';
 
 export type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -139,28 +139,36 @@ export function Button({
 
 const buttonVisual = {
   primary: {
-    container: { backgroundColor: colors.primary },
-    text: { color: colors.onPrimary },
-    disabled: { opacity: 0.48 },
+    container: {
+      backgroundColor: colors.charcoal,
+      borderColor: colors.ink,
+    },
+    text: { color: colors.inverseInk },
+    disabled: { opacity: 0.5 },
   },
   secondary: {
-    container: { backgroundColor: colors.surfaceHigh },
-    text: { color: colors.onSurface },
-    disabled: { opacity: 0.48 },
+    container: {
+      backgroundColor: colors.butterCard,
+      borderColor: colors.ink,
+    },
+    text: { color: colors.ink },
+    disabled: { opacity: 0.5 },
   },
   outline: {
     container: {
-      backgroundColor: 'transparent',
-      borderWidth: 1,
-      borderColor: colors.onSurface,
+      backgroundColor: colors.white,
+      borderColor: colors.ink,
     },
-    text: { color: colors.onSurface },
-    disabled: { opacity: 0.48 },
+    text: { color: colors.ink },
+    disabled: { opacity: 0.5 },
   },
   danger: {
-    container: { backgroundColor: colors.coralSoft },
-    text: { color: colors.error },
-    disabled: { opacity: 0.48 },
+    container: {
+      backgroundColor: colors.coralCard,
+      borderColor: colors.ink,
+    },
+    text: { color: colors.ink },
+    disabled: { opacity: 0.5 },
   },
 } as const;
 
@@ -265,7 +273,7 @@ export function Field({
       <View style={[styles.field, error && styles.fieldError]}>
         <TextInput
           {...props}
-          placeholderTextColor={colors.outline}
+          placeholderTextColor={colors.secondaryInk}
           style={styles.fieldInput}
           selectionColor={colors.primary}
         />
@@ -367,7 +375,7 @@ export function Chip({
   const tones = {
     neutral: { bg: colors.surfaceLow, text: colors.onSurfaceVariant },
     green: { bg: colors.primarySoft, text: colors.primary },
-    amber: { bg: colors.amberSoft, text: '#855300' },
+    amber: { bg: colors.butterCard, text: colors.ink },
     coral: { bg: colors.coralSoft, text: colors.error },
   }[tone];
   return (
@@ -376,10 +384,10 @@ export function Chip({
       onPress={onPress}
       style={[
         styles.chip,
-        { backgroundColor: selected ? colors.primary : tones.bg },
+        { backgroundColor: selected ? colors.activeLime : tones.bg },
       ]}
     >
-      <Text style={[type.label, { color: selected ? colors.white : tones.text, letterSpacing: 0.2 }]}>
+      <Text style={[type.label, { color: selected ? colors.ink : tones.text, letterSpacing: 0.2 }]}>
         {label}
       </Text>
     </Pressable>
@@ -425,7 +433,7 @@ export function Banner({
   const colorsByTone = {
     info: { bg: colors.surfaceLow, fg: colors.primary },
     success: { bg: colors.primarySoft, fg: colors.primary },
-    warning: { bg: colors.amberSoft, fg: '#855300' },
+    warning: { bg: colors.butterCard, fg: colors.ink },
     error: { bg: colors.coralSoft, fg: colors.error },
   }[tone];
   return (
@@ -449,16 +457,20 @@ export const styles = StyleSheet.create({
   content: { flex: 1 },
   scrollContent: { paddingBottom: spacing.xxl },
   iconButton: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
   },
-  pressed: { opacity: 0.68, transform: [{ scale: 0.985 }] },
+  pressed: { opacity: 0.7, transform: [{ scale: 0.985 }] },
   button: {
     height: 56,
-    borderRadius: radii.md,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
     paddingHorizontal: spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
@@ -466,54 +478,55 @@ export const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   buttonText: {
-    fontFamily: fonts.semibold,
-    fontSize: 16,
-    lineHeight: 22,
-    letterSpacing: 0.3,
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    lineHeight: 18,
+    letterSpacing: 0.2,
   },
   header: {
-    height: 68,
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: 0,
   },
   headerSlot: { width: 68, justifyContent: 'center' },
   headerRight: { alignItems: 'flex-end' },
   headerCenter: { flex: 1, alignItems: 'center' },
   wordmark: {
     fontFamily: fonts.bold,
-    fontSize: 30,
-    lineHeight: 38,
-    letterSpacing: -1.3,
-    color: colors.primary,
+    fontSize: 24,
+    lineHeight: 30,
+    letterSpacing: -0.7,
+    color: colors.ink,
   },
   headerTitle: {
-    fontFamily: fonts.semibold,
-    fontSize: 22,
-    color: colors.primary,
+    ...type.bodyLarge,
+    fontFamily: fonts.bold,
+    color: colors.ink,
   },
   card: {
     backgroundColor: colors.white,
     borderRadius: radii.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.surfaceHigh,
-    ...shadow,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
   },
   cardPadded: { padding: spacing.lg },
   sectionLabel: { marginBottom: spacing.sm },
   progressTrack: {
     width: '100%',
     borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     overflow: 'hidden',
   },
   progressFill: { height: '100%', borderRadius: radii.pill },
   fieldWrap: { gap: spacing.xs },
   field: {
     minHeight: 56,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    backgroundColor: colors.surfaceBright,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing.md,
@@ -521,19 +534,19 @@ export const styles = StyleSheet.create({
   fieldError: { borderColor: colors.error },
   fieldInput: {
     flex: 1,
-    fontSize: 17,
+    fontSize: 16,
     fontFamily: fonts.regular,
-    color: colors.onSurface,
+    color: colors.ink,
     paddingVertical: 12,
     outlineStyle: 'none' as never,
   },
-  fieldSuffix: { ...type.bodySmall, color: colors.onSurfaceVariant },
+  fieldSuffix: { ...type.bodySmall, color: colors.secondaryInk },
   fieldErrorText: { ...type.caption, color: colors.error },
   option: {
-    minHeight: 76,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
+    minHeight: 80,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     flexDirection: 'row',
     alignItems: 'center',
@@ -542,62 +555,67 @@ export const styles = StyleSheet.create({
   },
   optionCompact: { minHeight: 64 },
   optionSelected: {
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: '#F6FBF8',
+    borderColor: colors.ink,
+    backgroundColor: colors.mintCard,
   },
   optionIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: radii.md,
-    backgroundColor: colors.surfaceLow,
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    backgroundColor: colors.butterCard,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  optionIconSelected: { backgroundColor: colors.primarySoft },
+  optionIconSelected: { backgroundColor: colors.activeLime },
   optionCopy: { flex: 1, gap: 2 },
   optionTitle: { fontFamily: fonts.semibold },
-  optionDetail: { ...type.bodySmall, color: colors.onSurfaceVariant },
+  optionDetail: { ...type.bodySmall, color: colors.secondaryInk },
   radioRow: {
-    minHeight: 72,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
-    borderRadius: radii.md,
+    minHeight: 76,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    borderRadius: radii.lg,
     padding: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.white,
   },
-  radioRowSelected: { borderWidth: 1.5, borderColor: colors.primary },
+  radioRowSelected: { backgroundColor: colors.mintCard },
   radioOuter: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colors.outline,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  radioOuterSelected: { borderColor: colors.primary },
+  radioOuterSelected: { borderColor: colors.ink },
   radioInner: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.ink,
   },
   chip: {
     borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     paddingHorizontal: spacing.md,
-    minHeight: 34,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   empty: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xxl },
   emptyIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primarySoft,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xs,
@@ -611,7 +629,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.md,
   },
 });

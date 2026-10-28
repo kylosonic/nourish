@@ -1,39 +1,30 @@
 import React from 'react';
 import {
   Linking,
-  Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, spacing, type } from '../../theme';
+import { border, colors, fonts, spacing, type } from '../../theme';
 import { Banner, Button, Card, Icon } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Privacy'>;
 
 export function PrivacyScreen({ navigation }: Props) {
   const { state, patchSettings } = useApp();
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
-          <Icon name="arrow-left" size={24} color={colors.onSurfaceVariant} />
-        </Pressable>
-        <Text style={styles.title}>Privacy Center</Text>
-        <View style={{ width: 40 }} />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+    <NeoScreenWrapper tone="lavender" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Privacy center"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        onBack={() => navigation.goBack()}
+      />
         <View style={styles.heroIcon}>
           <Icon name="shield-check-outline" size={34} color={colors.primary} />
         </View>
@@ -96,13 +87,12 @@ export function PrivacyScreen({ navigation }: Props) {
           label="READ FULL PRIVACY POLICY"
           variant="secondary"
           onPress={() =>
-            void Linking.openURL('https://nourish.app/privacy')
+            void Linking.openURL('https://nourish-kylosonic.vercel.app/privacy')
           }
           style={{ marginTop: spacing.lg }}
         />
         <Text style={styles.footer}>Consent changes apply to future processing.</Text>
-      </ScrollView>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
@@ -126,7 +116,7 @@ function ConsentRow({
       <Switch
         value={value}
         onValueChange={onChange}
-        trackColor={{ true: colors.primaryContainer, false: colors.surfaceHighest }}
+        trackColor={{ true: colors.activeLime, false: colors.white }}
         thumbColor={colors.white}
       />
     </View>
@@ -134,28 +124,35 @@ function ConsentRow({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: { height: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl },
-  back: { width: 40, height: 40, justifyContent: 'center' },
-  title: { ...type.title, flex: 1, textAlign: 'center', fontSize: 22 },
-  content: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xxl },
+  content: {
+    paddingTop: spacing.xs,
+    paddingBottom: 96,
+  },
   heroIcon: {
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: colors.primarySoft,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.mintCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
   heading: { ...type.headline, marginTop: spacing.lg },
   subcopy: { ...type.body, color: colors.onSurfaceVariant, marginTop: spacing.xs },
   sectionLabel: { ...type.label, marginTop: spacing.xl, marginBottom: spacing.sm },
-  consentCard: { paddingHorizontal: spacing.md },
+  consentCard: { paddingHorizontal: spacing.md, backgroundColor: colors.white },
   consentRow: { minHeight: 96, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.surfaceHighest },
-  infoCard: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.md, padding: spacing.lg },
+  divider: { height: border.standard, backgroundColor: colors.ink },
+  infoCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+    padding: spacing.lg,
+    backgroundColor: colors.mintCard,
+  },
   infoTitle: { ...type.body, fontFamily: fonts.semibold },
   infoCopy: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 3, lineHeight: 20 },
-  rightsCard: { padding: spacing.lg },
+  rightsCard: { padding: spacing.lg, backgroundColor: colors.white },
   footer: { ...type.caption, textAlign: 'center', marginTop: spacing.lg, lineHeight: 18 },
 });

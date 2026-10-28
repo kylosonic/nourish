@@ -2,17 +2,16 @@ import React, { useMemo, useState } from 'react';
 import {
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp, useTodayTotals } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Card, Chip, EmptyState, Icon } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { mealSlotForHour, recommendFoods } from '../../domain/recommendations';
 import { imageForFood } from '../../data/images';
 import { localDateKey } from '../../utils/date';
@@ -65,19 +64,13 @@ export function RecommendationsScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityLabel="Go back"
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
-          <Icon name="arrow-left" size={24} color={colors.onSurfaceVariant} />
-        </Pressable>
-        <Text style={styles.wordmark}>Nourish</Text>
-        <View style={{ width: 40 }} />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+    <NeoScreenWrapper tone="peach" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Meal ideas"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        onBack={() => navigation.goBack()}
+      />
         <Text style={styles.title}>What can I eat?</Text>
         <Text style={styles.subcopy}>
           Foods ranked for your remaining budget.
@@ -164,30 +157,27 @@ export function RecommendationsScreen({ navigation }: Props) {
             </Text>
           </>
         )}
-      </ScrollView>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: { height: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl },
-  back: { width: 40, height: 40, justifyContent: 'center' },
-  wordmark: { flex: 1, textAlign: 'center', fontFamily: fonts.bold, fontSize: 29, color: colors.primary },
-  content: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xxl },
+  content: { paddingTop: spacing.xs },
   title: { ...type.headline },
   subcopy: { ...type.body, color: colors.onSurfaceVariant, marginTop: spacing.xs },
   budgetCard: {
     marginTop: spacing.xl,
     borderRadius: radii.xl,
-    backgroundColor: colors.primary,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.violetCard,
     flexDirection: 'row',
     padding: spacing.xl,
   },
   budgetItem: { flex: 1 },
-  budgetDivider: { width: 1, backgroundColor: 'rgba(255,255,255,0.2)', marginHorizontal: spacing.lg },
-  budgetLabel: { ...type.label, fontSize: 9, color: 'rgba(255,255,255,0.7)' },
-  budgetValue: { fontFamily: fonts.bold, fontSize: 40, color: colors.white, letterSpacing: -1, marginTop: 4 },
+  budgetDivider: { width: border.standard, backgroundColor: colors.ink, marginHorizontal: spacing.lg },
+  budgetLabel: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
+  budgetValue: { ...type.metric, fontSize: 40, marginTop: 4 },
   planningLabel: { ...type.label, marginTop: spacing.xl, marginBottom: spacing.sm },
   slotRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
   resultsHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: spacing.xl, marginBottom: spacing.md },
@@ -202,7 +192,7 @@ const styles = StyleSheet.create({
   bestFit: {
     ...type.label,
     fontSize: 8,
-    color: colors.primary,
+    color: colors.ink,
     backgroundColor: colors.primarySoft,
     paddingHorizontal: 5,
     paddingVertical: 2,
@@ -210,13 +200,15 @@ const styles = StyleSheet.create({
   },
   foodMeta: { ...type.caption, marginTop: 2 },
   tags: { flexDirection: 'row', gap: 5, marginTop: 6 },
-  localTag: { ...type.label, fontSize: 8, color: colors.primary },
-  slotTag: { ...type.label, fontSize: 8, color: '#855300' },
+  localTag: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
+  slotTag: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
   add: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -8,12 +8,11 @@ import {
   Text,
   View,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import {
   Button,
   Field,
@@ -21,8 +20,8 @@ import {
   Icon,
   ProgressBar,
   Radio,
-  Screen,
 } from '../../components/ui';
+import { NeoScreenWrapper } from '../../components/neo';
 import { images } from '../../data/images';
 import { targetFromOnboarding } from '../../domain/nutrition';
 import type {
@@ -47,11 +46,7 @@ export function WelcomeScreen({ navigation }: Props<'Welcome'>) {
         style={styles.welcomeImage}
         imageStyle={styles.welcomeImageInner}
       />
-      <LinearGradient
-        colors={['rgba(252,249,248,0.02)', 'rgba(252,249,248,0.12)', colors.surface, colors.surface]}
-        locations={[0, 0.34, 0.68, 1]}
-        style={StyleSheet.absoluteFill}
-      />
+      <View style={styles.welcomeWash} />
       <View style={[styles.brandMark, { top: insets.top + 28 }]}>
         <View style={styles.brandLeaf}>
           <Icon name="leaf" color={colors.primary} size={24} />
@@ -107,7 +102,7 @@ function OnboardingFrame({
   footer: React.ReactNode;
 }) {
   return (
-    <Screen style={{ backgroundColor: colors.surface }}>
+    <NeoScreenWrapper tone="lavender">
       <View style={styles.onboardingHeader}>
         <Header
           onBack={() => navigation.goBack()}
@@ -125,7 +120,7 @@ function OnboardingFrame({
         {children}
       </ScrollView>
       <View style={styles.onboardingFooter}>{footer}</View>
-    </Screen>
+    </NeoScreenWrapper>
   );
 }
 
@@ -571,13 +566,9 @@ export function DailyTargetScreen({ navigation }: Props<'DailyTarget'>) {
   }, [state.onboarding]);
 
   return (
-    <Screen style={styles.targetScreen}>
+    <NeoScreenWrapper tone="pink" contentStyle={styles.targetScreen}>
       <View style={styles.targetCard}>
         <Image source={images.dailyTarget} style={styles.targetImage} />
-        <LinearGradient
-          colors={['transparent', 'rgba(255,255,255,0.88)', colors.white]}
-          style={styles.targetGradient}
-        />
         <View style={styles.targetContent}>
           <Text style={styles.targetEyebrow}>YOUR DAILY TARGET</Text>
           {target ? (
@@ -609,7 +600,7 @@ export function DailyTargetScreen({ navigation }: Props<'DailyTarget'>) {
         />
         <Text style={styles.targetFootnote}>Adjust anytime in Settings.</Text>
       </View>
-    </Screen>
+    </NeoScreenWrapper>
   );
 }
 
@@ -624,24 +615,34 @@ function TargetMacro({ label, value, color }: { label: string; value: string; co
 }
 
 const styles = StyleSheet.create({
-  welcome: { flex: 1, backgroundColor: colors.surface },
+  welcome: { flex: 1, backgroundColor: colors.lavenderBackdrop },
   welcomeImage: {
     position: 'absolute',
     top: 0,
     right: 0,
-    bottom: 0,
+    bottom: '42%',
     left: 0,
     width: '100%',
-    height: '100%',
   },
   welcomeImageInner: { width: '100%', height: '100%' },
+  welcomeWash: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: '42%',
+    backgroundColor: colors.lavenderBackdrop,
+    opacity: 0.32,
+  },
   brandMark: {
     position: 'absolute',
     alignSelf: 'center',
     width: 70,
     height: 70,
-    borderRadius: 35,
-    backgroundColor: 'rgba(255,255,255,0.72)',
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -649,14 +650,20 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderWidth: 2,
-    borderColor: colors.primary,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
   welcomeCopy: {
     marginTop: 'auto',
-    paddingHorizontal: spacing.xl,
+    backgroundColor: colors.pinkCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.xxl,
   },
   welcomeTitle: {
@@ -672,7 +679,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   onboardingHeader: { paddingBottom: spacing.sm },
-  stepProgress: { paddingHorizontal: spacing.xl, gap: spacing.xs },
+  stepProgress: { gap: spacing.xs },
   stepLabel: {
     ...type.caption,
     fontFamily: fonts.bold,
@@ -682,17 +689,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   onboardingContent: {
-    paddingHorizontal: spacing.xl,
     paddingTop: spacing.xl,
     paddingBottom: 120,
   },
   onboardingFooter: {
-    paddingHorizontal: spacing.xl,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
-    backgroundColor: colors.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.surfaceHigh,
+    backgroundColor: colors.lavenderBackdrop,
+    borderTopWidth: border.standard,
+    borderTopColor: colors.ink,
   },
   onboardingTitle: { ...type.headline },
   centerTitle: { ...type.headline, textAlign: 'center', marginTop: spacing.sm },
@@ -708,36 +713,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     paddingHorizontal: spacing.lg,
   },
-  goalCardSelected: {
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: '#F7FCF9',
-  },
+  goalCardSelected: { backgroundColor: colors.activeLime },
   goalIcon: {
     width: 48,
     height: 48,
-    borderRadius: radii.md,
-    backgroundColor: colors.surfaceLow,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goalTitle: { fontFamily: fonts.semibold },
   segmented: {
     flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-    borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    borderRadius: radii.pill,
     overflow: 'hidden',
     backgroundColor: colors.white,
   },
   segment: { flex: 1, minHeight: 48, alignItems: 'center', justifyContent: 'center' },
-  segmentSelected: { backgroundColor: colors.primarySoft },
+  segmentSelected: { backgroundColor: colors.activeLime },
   segmentText: { ...type.body, color: colors.onSurfaceVariant },
   segmentTextSelected: { color: colors.primary, fontFamily: fonts.semibold },
   fieldGrid: {
@@ -750,9 +753,9 @@ const styles = StyleSheet.create({
   skip: { ...type.body, color: colors.onSurface, fontFamily: fonts.semibold },
   paceCard: {
     minHeight: 130,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
-    borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    borderRadius: radii.lg,
     backgroundColor: colors.white,
     padding: spacing.md,
     flexDirection: 'row',
@@ -763,7 +766,9 @@ const styles = StyleSheet.create({
   paceTitle: { ...type.body, fontFamily: fonts.semibold },
   paceTag: {
     backgroundColor: colors.primarySoft,
-    borderRadius: radii.xs,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
@@ -788,39 +793,44 @@ const styles = StyleSheet.create({
   optionDetail: { ...type.bodySmall, color: colors.onSurfaceVariant },
   preferenceCard: {
     minHeight: 112,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
-    borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    borderRadius: radii.lg,
     backgroundColor: colors.white,
     padding: spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
   },
-  preferenceImage: { width: 92, height: 92, borderRadius: radii.sm },
+  preferenceImage: {
+    width: 92,
+    height: 92,
+    borderRadius: radii.sm,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
   preferenceCopy: { flex: 1, gap: spacing.xs },
   preferenceTitle: { ...type.bodyLarge, fontFamily: fonts.semibold },
-  targetScreen: { padding: spacing.xl },
+  targetScreen: { padding: spacing.lg, paddingBottom: spacing.xxl },
   targetCard: {
     flex: 1,
-    borderRadius: radii.xl,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     overflow: 'hidden',
     backgroundColor: colors.white,
   },
-  targetImage: { width: '100%', height: '58%' },
-  targetGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: '34%',
-    height: '36%',
+  targetImage: {
+    width: '100%',
+    height: '48%',
+    borderBottomWidth: border.standard,
+    borderBottomColor: colors.ink,
   },
   targetContent: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
-    bottom: 28,
+    flex: 1,
+    padding: spacing.lg,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   targetEyebrow: { ...type.label, color: colors.onSurfaceVariant },
   targetNumberRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 4 },
@@ -835,7 +845,14 @@ const styles = StyleSheet.create({
   targetMacro: { flex: 1, gap: 4 },
   targetMacroLabel: { ...type.caption, fontFamily: fonts.bold },
   targetMacroValue: { ...type.bodyLarge, fontFamily: fonts.semibold },
-  targetMacroBar: { height: 4, borderRadius: 2, width: '72%', marginTop: 3 },
+  targetMacroBar: {
+    height: 8,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    width: '72%',
+    marginTop: 3,
+  },
   targetFooter: { paddingTop: spacing.lg, gap: spacing.sm },
   targetFootnote: { ...type.bodySmall, textAlign: 'center', color: colors.onSurfaceVariant },
 });

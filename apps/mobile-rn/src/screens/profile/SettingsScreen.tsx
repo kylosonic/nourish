@@ -4,18 +4,17 @@ import {
   Linking,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Switch,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Card, Icon, type IconName } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { fetchReleaseMetadata, releaseDownloadUrl } from '../../data/release';
 import { isNewerVersion } from '../../utils/version';
 import { APP_VERSION } from '../../data/appInfo';
@@ -94,20 +93,13 @@ export function SettingsScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
-          <Icon name="arrow-left" size={24} color={colors.onSurfaceVariant} />
-        </Pressable>
-        <Text style={styles.title}>Settings</Text>
-        <View style={{ width: 40 }} />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+    <NeoScreenWrapper tone="lavender" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Settings"
+        leftColor={colors.butterCard}
+        rightColor={colors.mintCard}
+        onBack={() => navigation.goBack()}
+      />
         <Text style={styles.sectionLabel}>YOUR PLAN</Text>
         <Card style={styles.planCard}>
           <View style={styles.planTop}>
@@ -186,7 +178,7 @@ export function SettingsScreen({ navigation }: Props) {
               value={state.settings.remindersEnabled}
               disabled={Platform.OS === 'web' || updatingReminders}
               onValueChange={(enabled) => void toggleReminders(enabled)}
-              trackColor={{ true: colors.primaryContainer, false: colors.surfaceHighest }}
+              trackColor={{ true: colors.activeLime, false: colors.white }}
               thumbColor={colors.white}
             />
           </View>
@@ -231,14 +223,15 @@ export function SettingsScreen({ navigation }: Props) {
             icon="file-document-outline"
             title="Open release page"
             detail="View Android downloads and checksums"
-            onPress={() => void Linking.openURL('https://nourish.app/#download')}
+            onPress={() =>
+              void Linking.openURL('https://nourish-kylosonic.vercel.app/#download')
+            }
           />
         </Card>
         <Text style={styles.footer}>
           Nourish · Nutrition, understood.
         </Text>
-      </ScrollView>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
@@ -274,7 +267,7 @@ function ToggleRow({
       <Switch
         value={value}
         onValueChange={onChange}
-        trackColor={{ true: colors.primaryContainer, false: colors.surfaceHighest }}
+        trackColor={{ true: colors.activeLime, false: colors.white }}
         thumbColor={colors.white}
       />
     </View>
@@ -310,37 +303,40 @@ function MenuRow({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: { height: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl },
-  back: { width: 40, height: 40, justifyContent: 'center' },
-  title: { ...type.title, flex: 1, textAlign: 'center' },
-  content: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xxl },
+  content: {
+    paddingTop: spacing.xs,
+    paddingBottom: 96,
+  },
   sectionLabel: { ...type.label, marginTop: spacing.xl, marginBottom: spacing.sm },
-  planCard: { padding: spacing.lg, backgroundColor: colors.primarySoft, borderColor: colors.primarySoft },
+  planCard: { padding: spacing.lg, backgroundColor: colors.mintCard },
   planTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   planValueRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: spacing.xs },
-  planValue: { fontFamily: fonts.bold, fontSize: 43, color: colors.primary, letterSpacing: -1.4 },
-  planUnit: { ...type.body, color: colors.primary, marginLeft: 5, marginBottom: 6 },
+  planValue: { ...type.metric, fontSize: 42, lineHeight: 46 },
+  planUnit: { ...type.body, marginLeft: 5, marginBottom: 6 },
   targetIcon: {
     width: 48,
     height: 48,
     borderRadius: 24,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
   macros: { flexDirection: 'row', gap: spacing.lg, marginTop: spacing.md },
   macro: { flex: 1 },
-  macroLabel: { ...type.label, fontSize: 9, color: colors.primary },
+  macroLabel: { ...type.caption, fontFamily: fonts.bold },
   macroValue: { ...type.bodyLarge, fontFamily: fonts.semibold, marginTop: 2 },
   formula: { ...type.caption, marginTop: spacing.md, lineHeight: 17 },
-  settingCard: { paddingHorizontal: spacing.md },
+  settingCard: { paddingHorizontal: spacing.md, backgroundColor: colors.white },
   settingRow: { minHeight: 76, flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
   settingIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.surfaceLow,
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -349,12 +345,14 @@ const styles = StyleSheet.create({
   step: {
     width: 34,
     height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.mintCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
   disabled: { opacity: 0.35 },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.surfaceHighest },
+  divider: { height: border.standard, backgroundColor: colors.ink },
   footer: { ...type.caption, textAlign: 'center', marginTop: spacing.xl, lineHeight: 18 },
 });

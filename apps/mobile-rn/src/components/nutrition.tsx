@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { colors, fonts, radii, spacing, type } from '../theme';
+import { border, colors, fonts, radii, spacing, type } from '../theme';
 import { ProgressBar } from './ui';
 import type { DailyTarget, Nutrition } from '../types';
 
@@ -25,8 +25,8 @@ export function CalorieRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={colors.surfaceHighest}
-          strokeWidth={stroke}
+          stroke={colors.chartBlue}
+          strokeWidth={stroke + 3}
           fill="none"
         />
         <G transform={`rotate(-90 ${size / 2} ${size / 2})`}>
@@ -34,7 +34,7 @@ export function CalorieRing({
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke={over ? colors.coral : colors.primary}
+            stroke={over ? colors.selectedCoral : colors.activeLime}
             strokeWidth={stroke}
             fill="none"
             strokeLinecap="round"
@@ -56,20 +56,20 @@ export function MacroPills({ consumed, target }: { consumed: Nutrition; target: 
     {
       name: 'Protein',
       value: target.proteinG - consumed.proteinG,
-      tone: colors.primarySoft,
-      dot: colors.primary,
+      tone: colors.mintCard,
+      dot: colors.ink,
     },
     {
       name: 'Carbs',
       value: target.carbsG - consumed.carbsG,
-      tone: colors.amberSoft,
-      dot: colors.amber,
+      tone: colors.butterCard,
+      dot: colors.ink,
     },
     {
       name: 'Fat',
       value: target.fatG - consumed.fatG,
-      tone: colors.coralSoft,
-      dot: colors.coral,
+      tone: colors.coralCard,
+      dot: colors.ink,
     },
   ];
   return (
@@ -93,9 +93,9 @@ export function MacroSummary({
   target: DailyTarget;
 }) {
   const macros = [
-    { label: 'PROTEIN', value: nutrition.proteinG, target: target.proteinG, color: colors.primaryContainer },
-    { label: 'CARBS', value: nutrition.carbsG, target: target.carbsG, color: colors.amber },
-    { label: 'FAT', value: nutrition.fatG, target: target.fatG, color: colors.coral },
+    { label: 'PROTEIN', value: nutrition.proteinG, target: target.proteinG, color: colors.activeLime },
+    { label: 'CARBS', value: nutrition.carbsG, target: target.carbsG, color: colors.butterCard },
+    { label: 'FAT', value: nutrition.fatG, target: target.fatG, color: colors.coralCard },
   ];
   return (
     <View style={styles.macroGrid}>
@@ -117,11 +117,11 @@ export function MacroSummary({
 const styles = StyleSheet.create({
   ringValue: {
     ...type.metric,
-    color: colors.primary,
+    color: colors.ink,
   },
   ringLabel: {
     ...type.label,
-    color: colors.primary,
+    color: colors.ink,
     marginTop: 2,
   },
   pills: {
@@ -135,6 +135,8 @@ const styles = StyleSheet.create({
     minWidth: 86,
     minHeight: 84,
     borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.xs,

@@ -8,13 +8,23 @@ import {
   StyleSheet,
   Text,
   View,
+  type StyleProp,
+  type ViewStyle,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
-import { Card, Chip, Icon, IconButton } from '../../components/ui';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
+import {
+  NeoFeatureCard,
+  NeoFilterRow,
+  NeoFoodMascot,
+  NeoScreenWrapper,
+  NeoSplitMetricRow,
+  NeoTopBar,
+} from '../../components/neo';
+import { Button, Chip, Icon } from '../../components/ui';
 import {
   dayNumber,
   dateStrip,
@@ -23,20 +33,49 @@ import {
   weekdayShort,
 } from '../../utils/date';
 import { imageForFood } from '../../data/images';
-import { totalsForDate } from '../../domain/nutrition';
+import type { Meal } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'History'>;
+type LogRange = 'All' | 'Year' | 'Month';
+
+function totalsForMeals(meals: Meal[]) {
+  const items = meals.flatMap((meal) => meal.items);
+  return items.reduce(
+    (total, item) => ({
+      kcal: total.kcal + item.nutrition.kcal,
+      proteinG: total.proteinG + item.nutrition.proteinG,
+      carbsG: total.carbsG + item.nutrition.carbsG,
+      fatG: total.fatG + item.nutrition.fatG,
+    }),
+    { kcal: 0, proteinG: 0, carbsG: 0, fatG: 0 },
+  );
+}
 
 export function HistoryScreen({ navigation }: Props) {
   const { state, deleteMeal } = useApp();
   const [selectedDate, setSelectedDate] = useState(localDateKey());
+  const [range, setRange] = useState<LogRange>('All');
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  const dates = useMemo(() => dateStrip(selectedDate), [selectedDate]);
-  const meals = state.meals
-    .filter((meal) => meal.dateKey === selectedDate)
-    .sort((a, b) => b.loggedAt.localeCompare(a.loggedAt));
-  const nutrition = totalsForDate(state.meals, selectedDate);
-  const target = state.target;
+  const dates = useMemo(() => dateStrip(selectedDate, 3, 3), [selectedDate]);
+  const meals = useMemo(() => {
+    const matching = state.meals.filter((meal) => {
+      if (range === 'All') return meal.dateKey === selectedDate;
+      if (range === 'Month') {
+        return meal.dateKey.startsWith(selectedDate.slice(0, 7));
+      }
+      return meal.dateKey.startsWith(selectedDate.slice(0, 4));
+    });
+    return [...matching].sort((a, b) =>
+      b.loggedAt.localeCompare(a.loggedAt),
+    );
+  }, [range, selectedDate, state.meals]);
+  const total = totalsForMeals(meals);
+  const periodLabel =
+    range === 'All'
+      ? selectedDate
+      : range === 'Month'
+        ? selectedDate.slice(0, 7)
+        : selectedDate.slice(0, 4);
 
   const openMeal = (mealId: string) => {
     const meal = state.meals.find((candidate) => candidate.id === mealId);
@@ -55,151 +94,173 @@ export function HistoryScreen({ navigation }: Props) {
           text: 'Delete meal',
           style: 'destructive',
           onPress: () =>
-            Alert.alert('Delete this meal?', 'A tombstone is queued so the removal also syncs.', [
-              { text: 'Keep', style: 'cancel' },
-              { text: 'Delete', style: 'destructive', onPress: () => deleteMeal(meal.id) },
-            ]),
+            Alert.alert(
+              'Delete this meal?',
+              'A tombstone is queued so the removal also syncs.',
+              [
+                { text: 'Keep', style: 'cancel' },
+                {
+                  text: 'Delete',
+                  style: 'destructive',
+                  onPress: () => deleteMeal(meal.id),
+                },
+              ],
+            ),
         },
       ],
     );
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back to home"
-          onPress={() => navigation.goBack()}
-          style={styles.avatar}
+    <NeoScreenWrapper tone="pink" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Meal log"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        onBack={() => navigation.goBack()}
+        rightIcon="calendar-month-outline"
+        rightLabel="Choose a date"
+        onRight={() => setDatePickerOpen(true)}
+      />
+
+      <Text style={styles.title}>Your meals.</Text>
+      <Text style={styles.subcopy}>A clear record of what you ate.</Text>
+
+      <NeoFilterRow
+        items={['All', 'Year', 'Month']}
+        selected={range}
+        onSelect={(value) => setRange(value as LogRange)}
+      />
+      <Text style={styles.period}>{periodLabel}</Text>
+
+      {range === 'All' ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.dateStrip}
         >
-          <Icon name="account" size={24} color={colors.primary} />
-        </Pressable>
-        <Text style={styles.wordmark}>Nourish</Text>
-        <IconButton
-          name="calendar-month-outline"
-          accessibilityLabel="Choose a date"
-          color={colors.onSurface}
-          onPress={() => setDatePickerOpen(true)}
-        />
+          {dates.map((dateKey) => {
+            const active = dateKey === selectedDate;
+            return (
+              <Pressable
+                key={dateKey}
+                accessibilityRole="button"
+                accessibilityLabel={`Show ${weekdayShort(dateKey)} ${dateKey}`}
+                accessibilityState={{ selected: active }}
+                onPress={() => setSelectedDate(dateKey)}
+                style={[styles.dateCard, active && styles.dateCardActive]}
+              >
+                <Text style={styles.dateWeekday}>{weekdayShort(dateKey)}</Text>
+                <Text style={styles.dateDay}>{dayNumber(dateKey)}</Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      ) : null}
+
+      <NeoFeatureCard
+        title={`${range.toUpperCase()}\nTOTAL`}
+        value={`${Math.round(total.kcal).toLocaleString()}`}
+        caption={`${Math.round(total.proteinG)}g protein · ${Math.round(total.carbsG)}g carbs · ${Math.round(total.fatG)}g fat`}
+        backgroundColor={colors.mintCard}
+        art={<NeoFoodMascot size={112} />}
+      />
+
+      <NeoSplitMetricRow
+        left={{
+          label: 'PROTEIN',
+          value: `${Math.round(total.proteinG)}g`,
+          trend: `${targetProgress(total.proteinG, state.target?.proteinG)}% of goal`,
+        }}
+        right={{
+          label: 'CARBS',
+          value: `${Math.round(total.carbsG)}g`,
+          trend: `${targetProgress(total.carbsG, state.target?.carbsG)}% of goal`,
+        }}
+      />
+
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Logged meals</Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countText}>{meals.length}</Text>
+        </View>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.dateStrip}
-        contentContainerStyle={styles.dateStripContent}
-      >
-        {dates.map((dateKey) => {
-          const active = dateKey === selectedDate;
-          const today = dateKey === localDateKey();
-          return (
-            <Pressable
-              key={dateKey}
-              accessibilityRole="button"
-              accessibilityLabel={`Show ${weekdayShort(dateKey)} ${dateKey}`}
-              accessibilityState={{ selected: active }}
-              onPress={() => setSelectedDate(dateKey)}
-              style={[styles.dateCard, active && styles.dateCardActive]}
-            >
-              <Text style={[styles.dateWeekday, active && styles.dateTextActive]}>
-                {weekdayShort(dateKey)}
-              </Text>
-              <Text style={[styles.dateDay, active && styles.dateTextActive]}>
-                {dayNumber(dateKey)}
-              </Text>
-              {today && !active ? <View style={styles.todayDot} /> : null}
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      >
-        <Text style={styles.pageTitle}>Daily Summary</Text>
-        <Card style={styles.calorieCard}>
-          <View style={styles.cardHeading}>
-            <View>
-              <Text style={type.label}>CALORIES</Text>
-              <View style={styles.calorieValueRow}>
-                <Text style={styles.calorieValue}>{Math.round(nutrition.kcal).toLocaleString()}</Text>
-                <Text style={styles.calorieUnit}>kcal</Text>
-              </View>
-            </View>
-            <View style={styles.flame}><Icon name="fire" size={19} color={colors.primary} /></View>
-          </View>
-          <View style={styles.progressLine}>
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${Math.min(
-                    100,
-                    target ? (nutrition.kcal / target.targetKcal) * 100 : 0,
-                  )}%`,
-                },
-              ]}
-            />
-          </View>
-          <Text style={styles.ofTarget}>
-            OF {target?.targetKcal.toLocaleString() ?? '—'}
+
+      {meals.length === 0 ? (
+        <View style={styles.empty}>
+          <Sparkle style={styles.sparkleTop} size={32} />
+          <Sparkle style={styles.sparkleLeft} size={22} />
+          <Sparkle style={styles.sparkleRight} size={26} />
+          <NeoFoodMascot size={154} />
+          <Text style={styles.emptyTitle}>Nothing here yet</Text>
+          <Text style={styles.emptyCopy}>
+            Add a meal and your nutrition will appear here.
           </Text>
-        </Card>
-        <View style={styles.macroCards}>
-          <MacroCard label="PROTEIN" value={nutrition.proteinG} color={colors.primaryContainer} />
-          <MacroCard label="CARBS" value={nutrition.carbsG} color={colors.amber} />
-          <MacroCard label="FAT" value={nutrition.fatG} color={colors.coral} />
         </View>
-        <View style={styles.mealsHeading}>
-          <Text style={styles.pageTitle}>Today’s Meals</Text>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => navigation.navigate('ScanMenu')}
-            style={styles.logButton}
-          >
-            <Icon name="plus" size={18} color={colors.white} />
-            <Text style={styles.logButtonText}>LOG MEAL</Text>
-          </Pressable>
-        </View>
-        {meals.length === 0 ? (
-          <Card style={styles.empty}>
-            <Icon name="silverware-fork-knife" size={30} color={colors.primary} />
-            <Text style={styles.emptyTitle}>Nothing logged for this day</Text>
-            <Text style={styles.emptyCopy}>
-              Confirmed meals will appear here.
-            </Text>
-          </Card>
-        ) : (
-          <View style={{ gap: spacing.sm }}>
-            {meals.map((meal) => {
-              const food = state.catalog.find((candidate) => candidate.id === meal.items[0]?.foodId);
-              const total = meal.items.reduce((sum, item) => sum + item.nutrition.kcal, 0);
-              const protein = meal.items.reduce((sum, item) => sum + item.nutrition.proteinG, 0);
-              const carbs = meal.items.reduce((sum, item) => sum + item.nutrition.carbsG, 0);
-              const fat = meal.items.reduce((sum, item) => sum + item.nutrition.fatG, 0);
-              return (
-                <Pressable key={meal.id} onPress={() => openMeal(meal.id)} style={styles.mealCard}>
-                  <Image source={imageForFood(food)} style={styles.mealImage} />
-                  <View style={styles.mealCopy}>
-                    <Text style={styles.mealMeta}>
-                      {meal.slot.toUpperCase()} · {formatTime(meal.loggedAt)}
-                    </Text>
-                    <Text style={styles.mealTitle}>
-                      {meal.items.map((item) => item.foodName).join(' with ')}
-                    </Text>
-                    <View style={styles.macroChips}>
-                      <Chip label={`P: ${Math.round(protein)}g`} />
-                      <Chip label={`C: ${Math.round(carbs)}g`} />
-                      <Chip label={`F: ${Math.round(fat)}g`} />
-                    </View>
+      ) : (
+        <View style={styles.mealList}>
+          {meals.map((meal) => {
+            const food = state.catalog.find(
+              (candidate) => candidate.id === meal.items[0]?.foodId,
+            );
+            const mealTotal = meal.items.reduce(
+              (sum, item) => sum + item.nutrition.kcal,
+              0,
+            );
+            const protein = meal.items.reduce(
+              (sum, item) => sum + item.nutrition.proteinG,
+              0,
+            );
+            const carbs = meal.items.reduce(
+              (sum, item) => sum + item.nutrition.carbsG,
+              0,
+            );
+            const fat = meal.items.reduce(
+              (sum, item) => sum + item.nutrition.fatG,
+              0,
+            );
+            return (
+              <Pressable
+                key={meal.id}
+                accessibilityRole="button"
+                onPress={() => openMeal(meal.id)}
+                style={({ pressed }) => [
+                  styles.mealCard,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Image source={imageForFood(food)} style={styles.mealImage} />
+                <View style={styles.mealCopy}>
+                  <Text style={styles.mealMeta}>
+                    {meal.slot.toUpperCase()} · {formatTime(meal.loggedAt)}
+                  </Text>
+                  <Text style={styles.mealTitle} numberOfLines={2}>
+                    {meal.items.map((item) => item.foodName).join(' with ')}
+                  </Text>
+                  <View style={styles.macroChips}>
+                    <Chip label={`P ${Math.round(protein)}g`} />
+                    <Chip label={`C ${Math.round(carbs)}g`} />
+                    <Chip label={`F ${Math.round(fat)}g`} />
                   </View>
-                  <Text style={styles.mealKcal}>{Math.round(total)}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
-      </ScrollView>
+                </View>
+                <View style={styles.mealKcal}>
+                  <Text style={styles.mealKcalValue}>
+                    {Math.round(mealTotal)}
+                  </Text>
+                  <Text style={styles.mealKcalLabel}>kcal</Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
+
+      <Button
+        label="ADD MORE"
+        icon="plus"
+        onPress={() => navigation.navigate('ScanMenu')}
+        style={styles.addButton}
+      />
 
       <Modal
         visible={datePickerOpen}
@@ -207,28 +268,39 @@ export function HistoryScreen({ navigation }: Props) {
         animationType="fade"
         onRequestClose={() => setDatePickerOpen(false)}
       >
-        <Pressable style={styles.modalScrim} onPress={() => setDatePickerOpen(false)}>
+        <Pressable
+          accessibilityLabel="Close date picker"
+          style={styles.modalScrim}
+          onPress={() => setDatePickerOpen(false)}
+        >
           <Pressable style={styles.datePicker} onPress={() => undefined}>
             <View style={styles.pickerHandle} />
-            <Text style={styles.pageTitle}>Choose a date</Text>
-            <Text style={styles.emptyCopy}>The last 14 days</Text>
-            <ScrollView style={{ maxHeight: 360 }} contentContainerStyle={{ gap: spacing.xs }}>
+            <Text style={styles.pickerTitle}>Choose a date</Text>
+            <ScrollView
+              style={styles.pickerList}
+              contentContainerStyle={styles.pickerListContent}
+            >
               {Array.from({ length: 14 }, (_, index) => {
                 const key = dateStrip(localDateKey(), index, 0)[0];
                 return (
                   <Pressable
                     key={key}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: key === selectedDate }}
                     onPress={() => {
                       setSelectedDate(key);
                       setDatePickerOpen(false);
                     }}
-                    style={styles.dateOption}
+                    style={[
+                      styles.dateOption,
+                      key === selectedDate && styles.dateOptionSelected,
+                    ]}
                   >
                     <Text style={styles.dateOptionText}>
                       {weekdayShort(key)}, {key}
                     </Text>
                     {key === selectedDate ? (
-                      <Icon name="check" size={20} color={colors.primary} />
+                      <Icon name="check" size={20} color={colors.ink} />
                     ) : null}
                   </Pressable>
                 );
@@ -237,147 +309,180 @@ export function HistoryScreen({ navigation }: Props) {
           </Pressable>
         </Pressable>
       </Modal>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
-function MacroCard({ label, value, color }: { label: string; value: number; color: string }) {
+function targetProgress(value: number, target?: number) {
+  if (!target) return 0;
+  return Math.round((value / target) * 100);
+}
+
+function Sparkle({
+  size,
+  style,
+}: {
+  size: number;
+  style?: StyleProp<ViewStyle>;
+}) {
   return (
-    <Card style={styles.macroCard}>
-      <Text style={type.label}>{label}</Text>
-      <Text style={styles.macroValue}>{Math.round(value)}g</Text>
-      <View style={[styles.macroBar, { backgroundColor: color }]} />
-    </Card>
+    <View style={[styles.sparkle, style]}>
+      <Svg width={size} height={size} viewBox="0 0 32 32">
+        <Path
+          d="M16 2c1.4 8.1 5.9 12.6 14 14-8.1 1.4-12.6 5.9-14 14C14.6 21.9 10.1 17.4 2 16 10.1 14.6 14.6 10.1 16 2Z"
+          fill={colors.white}
+          stroke={colors.ink}
+          strokeWidth={border.standard}
+          strokeLinejoin="round"
+        />
+      </Svg>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    height: 66,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.surfaceHighest,
+  content: { paddingTop: spacing.xs },
+  title: { ...type.headline, marginTop: spacing.lg },
+  subcopy: { ...type.body, color: colors.secondaryInk, marginTop: spacing.xs },
+  period: {
+    ...type.caption,
+    fontFamily: fonts.bold,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
   },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
+  dateStrip: {
+    gap: spacing.xs,
+    paddingBottom: spacing.md,
   },
-  wordmark: { flex: 1, textAlign: 'center', fontFamily: fonts.bold, fontSize: 27, color: colors.primary },
-  dateStrip: { flexGrow: 0 },
-  dateStripContent: { paddingHorizontal: spacing.md, paddingVertical: spacing.md, gap: spacing.xs },
   dateCard: {
     width: 58,
-    height: 72,
-    borderRadius: radii.md,
-    backgroundColor: colors.surfaceHigh,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  dateCardActive: { backgroundColor: colors.primaryContainer, borderColor: colors.primary },
-  dateWeekday: { ...type.label, color: colors.outline },
-  dateDay: { fontFamily: fonts.semibold, fontSize: 23, color: colors.outline },
-  dateTextActive: { color: colors.white },
-  todayDot: {
-    position: 'absolute',
-    bottom: 8,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.primary,
-  },
-  content: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.section },
-  pageTitle: { ...type.title, marginBottom: spacing.md },
-  calorieCard: { padding: spacing.lg },
-  cardHeading: { flexDirection: 'row', justifyContent: 'space-between' },
-  calorieValueRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: spacing.xs },
-  calorieValue: { fontFamily: fonts.bold, fontSize: 38, letterSpacing: -1.5, color: colors.onSurface },
-  calorieUnit: { ...type.bodySmall, marginBottom: 5, marginLeft: 3 },
-  flame: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: colors.primaryContainer,
+    height: 70,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressLine: {
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.surfaceLow,
-    marginTop: spacing.md,
-    overflow: 'hidden',
-  },
-  progressFill: { height: '100%', backgroundColor: colors.primaryContainer, borderRadius: 4 },
-  ofTarget: { ...type.label, textAlign: 'right', marginTop: spacing.xs },
-  macroCards: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.md },
-  macroCard: { width: '48%', flexGrow: 0, padding: spacing.md, minHeight: 112 },
-  macroValue: { fontFamily: fonts.bold, fontSize: 27, marginVertical: spacing.xs },
-  macroBar: { width: '72%', height: 5, borderRadius: 3 },
-  mealsHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.xl },
-  logButton: {
-    height: 38,
-    borderRadius: radii.sm,
-    backgroundColor: colors.primary,
+  dateCardActive: { backgroundColor: colors.activeLime },
+  dateWeekday: { ...type.caption, fontFamily: fonts.bold },
+  dateDay: { ...type.cardTitle, marginTop: 2 },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    justifyContent: 'space-between',
+    marginTop: spacing.xl,
+    marginBottom: spacing.sm,
   },
-  logButtonText: { ...type.label, color: colors.white },
+  sectionTitle: { ...type.headline },
+  countBadge: {
+    minWidth: 38,
+    height: 38,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countText: { ...type.bodyLarge, fontFamily: fonts.bold },
+  empty: {
+    minHeight: 264,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
+    overflow: 'hidden',
+  },
+  emptyTitle: { ...type.cardTitle, marginTop: spacing.xs },
+  emptyCopy: {
+    ...type.body,
+    color: colors.secondaryInk,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+  },
+  sparkle: {
+    position: 'absolute',
+    width: 32,
+    height: 32,
+  },
+  sparkleTop: { top: 26, right: '28%' },
+  sparkleLeft: { left: 40, top: 112 },
+  sparkleRight: { right: 42, bottom: 74 },
+  mealList: { gap: spacing.sm },
   mealCard: {
-    minHeight: 120,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
+    minHeight: 122,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     padding: spacing.sm,
     flexDirection: 'row',
     gap: spacing.sm,
   },
-  mealImage: { width: 92, height: 92, borderRadius: radii.sm },
+  mealImage: {
+    width: 88,
+    height: 88,
+    borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
   mealCopy: { flex: 1, paddingTop: 2 },
-  mealMeta: { ...type.caption, fontFamily: fonts.semibold, letterSpacing: 0.5 },
-  mealTitle: { ...type.body, fontFamily: fonts.semibold, marginTop: 2 },
-  macroChips: { flexDirection: 'row', gap: 4, flexWrap: 'wrap', marginTop: spacing.xs },
-  mealKcal: { fontFamily: fonts.regular, fontSize: 25, color: colors.onSurface },
-  empty: { alignItems: 'center', gap: spacing.sm },
-  emptyTitle: { ...type.body, fontFamily: fonts.semibold },
-  emptyCopy: { ...type.bodySmall, color: colors.onSurfaceVariant, textAlign: 'center', maxWidth: 280 },
-  modalScrim: { flex: 1, backgroundColor: colors.scrim, justifyContent: 'flex-end' },
+  mealMeta: {
+    ...type.caption,
+    fontFamily: fonts.bold,
+    letterSpacing: 0.5,
+  },
+  mealTitle: { ...type.body, fontFamily: fonts.bold, marginTop: 2 },
+  macroChips: {
+    flexDirection: 'row',
+    gap: 4,
+    flexWrap: 'wrap',
+    marginTop: spacing.xs,
+  },
+  mealKcal: { alignItems: 'flex-end' },
+  mealKcalValue: { ...type.cardTitle },
+  mealKcalLabel: { ...type.caption },
+  addButton: { marginTop: spacing.xl },
+  modalScrim: {
+    flex: 1,
+    backgroundColor: colors.lavenderBackdrop,
+    justifyContent: 'flex-end',
+  },
   datePicker: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
+    backgroundColor: colors.pinkCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.xl,
-    gap: spacing.xs,
   },
   pickerHandle: {
-    width: 46,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.outlineVariant,
+    width: 52,
+    height: 6,
+    borderRadius: radii.pill,
+    backgroundColor: colors.ink,
     alignSelf: 'center',
     marginBottom: spacing.md,
   },
+  pickerTitle: { ...type.headline, marginBottom: spacing.md },
+  pickerList: { maxHeight: 360 },
+  pickerListContent: { gap: spacing.xs },
   dateOption: {
-    minHeight: 50,
+    minHeight: 52,
     paddingHorizontal: spacing.md,
-    borderRadius: radii.md,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  dateOptionText: { ...type.body },
+  dateOptionSelected: { backgroundColor: colors.activeLime },
+  dateOptionText: { ...type.body, fontFamily: fonts.bold },
+  pressed: { opacity: 0.72 },
 });

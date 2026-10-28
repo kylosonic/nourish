@@ -10,12 +10,12 @@ import {
   View,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Button, Card, Chip, Icon } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { nutritionFor, portionToGrams } from '../../domain/nutrition';
 import type { Food, MealItem, Nutrition, PortionUnit } from '../../types';
 import { newId } from '../../utils/date';
@@ -138,18 +138,13 @@ export function EditMealScreen({ navigation, route }: Props) {
     .slice(0, 30);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityLabel="Go back"
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
-          <Icon name="arrow-left" size={24} color={colors.onSurfaceVariant} />
-        </Pressable>
-        <Text style={styles.title}>Edit Meal</Text>
-        <View style={{ width: 40 }} />
-      </View>
+    <NeoScreenWrapper tone="peach">
+      <NeoTopBar
+        title="Edit meal"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        onBack={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <Card style={styles.summary}>
           <Text style={type.label}>LIVE TOTAL</Text>
@@ -279,7 +274,7 @@ export function EditMealScreen({ navigation, route }: Props) {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
@@ -295,30 +290,48 @@ function scaleNutrition(nutrition: Nutrition, ratio: number): Nutrition {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: { height: 64, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.xl },
-  back: { width: 40, height: 40, justifyContent: 'center' },
-  title: { ...type.title, flex: 1, textAlign: 'center' },
-  content: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: 120 },
-  summary: { backgroundColor: colors.primary, borderColor: colors.primary },
+  content: { paddingTop: spacing.sm, paddingBottom: 120 },
+  title: {
+    ...type.headline,
+    textAlign: 'center',
+    marginBottom: spacing.md,
+  },
+  summary: { backgroundColor: colors.violetCard },
   totalRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: spacing.xs },
-  totalValue: { fontFamily: fonts.bold, fontSize: 42, color: colors.white, letterSpacing: -1 },
-  totalUnit: { ...type.body, color: colors.white, marginLeft: 5, marginBottom: 5 },
-  macroLine: { ...type.bodySmall, color: colors.white, marginTop: spacing.xs },
-  estimate: { ...type.caption, color: 'rgba(255,255,255,0.76)', marginTop: spacing.sm },
+  totalValue: { ...type.metric, fontSize: 42, lineHeight: 46 },
+  totalUnit: { ...type.body, marginLeft: 5, marginBottom: 5 },
+  macroLine: { ...type.bodySmall, marginTop: spacing.xs },
+  estimate: { ...type.caption, marginTop: spacing.sm },
   list: { gap: spacing.sm, marginTop: spacing.lg },
   item: { padding: spacing.md },
   itemTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  itemImage: { width: 54, height: 54, borderRadius: radii.sm },
+  itemImage: {
+    width: 54,
+    height: 54,
+    borderRadius: radii.sm,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
   itemName: { ...type.body, fontFamily: fonts.semibold },
   itemMeta: { ...type.caption, marginTop: 2 },
-  remove: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  remove: {
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.coralCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   amountRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs, marginTop: spacing.md },
   step: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.surfaceLow,
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -330,27 +343,44 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: spacing.xl,
-    backgroundColor: colors.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.surfaceHighest,
+    backgroundColor: colors.peachCanvas,
+    borderTopWidth: border.standard,
+    borderTopColor: colors.ink,
   },
   modal: { flex: 1, justifyContent: 'flex-end' },
-  modalScrim: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: colors.scrim },
+  modalScrim: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: colors.lavenderBackdrop,
+  },
   picker: {
     maxHeight: '82%',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
+    backgroundColor: colors.pinkCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.xl,
     gap: spacing.md,
   },
-  handle: { width: 46, height: 4, borderRadius: 2, backgroundColor: colors.outlineVariant, alignSelf: 'center' },
+  handle: {
+    width: 52,
+    height: 6,
+    borderRadius: radii.pill,
+    backgroundColor: colors.ink,
+    alignSelf: 'center',
+  },
   search: {
     height: 48,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    backgroundColor: colors.surfaceHigh,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
   },
@@ -362,7 +392,15 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     backgroundColor: colors.white,
     borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.xs,
   },
-  foodOptionImage: { width: 52, height: 52, borderRadius: radii.sm },
+  foodOptionImage: {
+    width: 52,
+    height: 52,
+    borderRadius: radii.sm,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
 });

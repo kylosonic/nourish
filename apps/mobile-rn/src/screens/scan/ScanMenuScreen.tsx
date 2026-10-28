@@ -1,17 +1,11 @@
 import React from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Icon, type IconName } from '../../components/ui';
-import { images } from '../../data/images';
+import { NeoTopBar } from '../../components/neo';
 import { localDateKey } from '../../utils/date';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ScanMenu'>;
@@ -27,31 +21,31 @@ export function ScanMenuScreen({ navigation, route }: Props) {
   const actions: {
     label: string;
     icon: IconName;
-    tint: string;
+    backgroundColor: string;
     onPress: () => void;
   }[] = [
     {
       label: 'TAKE PHOTO',
       icon: 'camera-outline',
-      tint: colors.primary,
+      backgroundColor: colors.mintCard,
       onPress: () => navigation.replace('Camera', { slot, source: 'camera' }),
     },
     {
       label: 'CHOOSE PHOTO',
       icon: 'image-outline',
-      tint: colors.primary,
+      backgroundColor: colors.coralCard,
       onPress: () => navigation.replace('Camera', { slot, source: 'library' }),
     },
     {
       label: 'SEARCH FOOD',
       icon: 'magnify',
-      tint: colors.onSurfaceVariant,
+      backgroundColor: colors.butterCard,
       onPress: () => navigation.replace('FoodSearch', { slot }),
     },
     {
       label: 'SCAN BARCODE',
       icon: 'barcode-scan',
-      tint: colors.amber,
+      backgroundColor: colors.skyAccent,
       onPress: () => navigation.replace('Barcode', { slot }),
     },
   ];
@@ -63,59 +57,67 @@ export function ScanMenuScreen({ navigation, route }: Props) {
         accessibilityRole="button"
         style={styles.scrim}
         onPress={() => navigation.goBack()}
-      >
-        <Image source={images.scanMenu} style={styles.scanBackdrop} />
-      </Pressable>
+      />
       <View style={styles.sheet}>
-        <View style={styles.handle} />
-        <View style={styles.topRow}>
-          <Text style={styles.wordmark}>Nourish</Text>
-          <Pressable
-            accessibilityLabel="Close"
-            onPress={() => navigation.goBack()}
-            style={styles.close}
-          >
-            <Icon name="close" size={24} color={colors.onSurfaceVariant} />
-          </Pressable>
+        <NeoTopBar
+          title="Add a meal"
+          leftColor={colors.butterCard}
+          rightColor={colors.coralButton}
+          rightIcon="close"
+          onBack={() => navigation.goBack()}
+          onRight={() => navigation.goBack()}
+        />
+
+        <View style={styles.progressCard}>
+          <View>
+            <Text style={styles.progressLabel}>TODAY’S PROGRESS</Text>
+            <Text style={styles.progressValue}>
+              {Math.round(todayCalories).toLocaleString()}
+              <Text style={styles.progressTarget}>
+                {' '}
+                / {state.target?.targetKcal.toLocaleString() ?? '—'} kcal
+              </Text>
+            </Text>
+          </View>
+          <View style={styles.progressIcon}>
+            <Icon name="chart-donut" size={22} color={colors.ink} />
+          </View>
+          <View style={styles.progressTrack}>
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${Math.min(
+                    100,
+                    state.target
+                      ? (todayCalories / state.target.targetKcal) * 100
+                      : 0,
+                  )}%`,
+                },
+              ]}
+            />
+          </View>
         </View>
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>TODAY’S PROGRESS</Text>
-          <Text style={styles.progressValue}>
-            {Math.round(todayCalories).toLocaleString()} / {state.target?.targetKcal.toLocaleString() ?? '—'} kcal
-          </Text>
-        </View>
-        <View style={styles.progressTrack}>
-          <View
-            style={[
-              styles.progressFill,
-              {
-                width: `${Math.min(
-                  100,
-                  state.target ? (todayCalories / state.target.targetKcal) * 100 : 0,
-                )}%`,
-              },
-            ]}
-          />
-        </View>
+
         <Text style={styles.title}>What did you eat?</Text>
         <View style={styles.grid}>
-          {[actions.slice(0, 2), actions.slice(2, 4)].map(
-            (row, rowIndex) => (
-              <View key={rowIndex} style={styles.actionRow}>
-                {row.map((action) => (
-                  <Pressable
-                    key={action.label}
-                    accessibilityRole="button"
-                    onPress={action.onPress}
-                    style={({ pressed }) => [styles.action, pressed && { opacity: 0.62 }]}
-                  >
-                    <Icon name={action.icon} size={27} color={action.tint} />
-                    <Text style={styles.actionLabel}>{action.label}</Text>
-                  </Pressable>
-                ))}
+          {actions.map((action) => (
+            <Pressable
+              key={action.label}
+              accessibilityRole="button"
+              onPress={action.onPress}
+              style={({ pressed }) => [
+                styles.action,
+                { backgroundColor: action.backgroundColor },
+                pressed && styles.pressed,
+              ]}
+            >
+              <View style={styles.actionIcon}>
+                <Icon name={action.icon} size={26} color={colors.ink} />
               </View>
-            ),
-          )}
+              <Text style={styles.actionLabel}>{action.label}</Text>
+            </Pressable>
+          ))}
         </View>
       </View>
     </View>
@@ -123,62 +125,91 @@ export function ScanMenuScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-end' },
-  scrim: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: 'rgba(20,20,20,0.66)',
+  page: {
+    flex: 1,
+    backgroundColor: colors.lavenderBackdrop,
+    justifyContent: 'flex-end',
   },
-  scanBackdrop: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    opacity: 0.22,
-  },
+  scrim: { flex: 1 },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.sm,
+    backgroundColor: colors.peachCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xs,
     paddingBottom: spacing.xxl,
   },
-  handle: {
-    width: 48,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: colors.outlineVariant,
-    alignSelf: 'center',
-    marginBottom: spacing.md,
-  },
-  topRow: { flexDirection: 'row', alignItems: 'center' },
-  wordmark: { flex: 1, fontFamily: fonts.bold, fontSize: 25, color: colors.primary },
-  close: { padding: spacing.xs },
-  progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.md },
-  progressLabel: { ...type.label, fontSize: 10 },
-  progressValue: { ...type.bodySmall, fontFamily: fonts.semibold },
-  progressTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.surfaceHighest,
+  progressCard: {
+    position: 'relative',
     overflow: 'hidden',
-    marginTop: spacing.xs,
-  },
-  progressFill: { height: '100%', backgroundColor: colors.primaryContainer },
-  title: { ...type.title, textAlign: 'center', marginTop: spacing.xl, marginBottom: spacing.lg },
-  grid: { gap: spacing.xs },
-  actionRow: { flexDirection: 'row', gap: spacing.xs },
-  action: {
-    flex: 1,
-    minHeight: 92,
+    marginTop: spacing.md,
     borderRadius: radii.md,
-    backgroundColor: colors.surfaceHigh,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.violetCard,
+    padding: spacing.md,
+  },
+  progressLabel: { ...type.caption, fontFamily: fonts.bold },
+  progressValue: { ...type.metric, marginTop: spacing.xxs },
+  progressTarget: { ...type.body },
+  progressIcon: {
+    position: 'absolute',
+    top: spacing.md,
+    right: spacing.md,
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.chartBlue,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: spacing.xs,
   },
-  actionLabel: { ...type.label, fontSize: 10, color: colors.onSurfaceVariant },
+  progressTrack: {
+    height: 12,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
+    overflow: 'hidden',
+    marginTop: spacing.md,
+  },
+  progressFill: { height: '100%', backgroundColor: colors.skyAccent },
+  title: {
+    ...type.headline,
+    textAlign: 'center',
+    marginTop: spacing.xl,
+    marginBottom: spacing.md,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  action: {
+    width: '47%',
+    flexGrow: 1,
+    minHeight: 112,
+    borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    padding: spacing.sm,
+  },
+  actionIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: { ...type.body, fontFamily: fonts.bold, textAlign: 'center' },
+  pressed: { opacity: 0.7 },
 });

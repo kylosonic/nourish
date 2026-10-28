@@ -2,16 +2,15 @@ import React from 'react';
 import {
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Button, Card, Icon } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { images } from '../../data/images';
 import { useApp } from '../../state/AppProvider';
 import { nutritionFor } from '../../domain/nutrition';
@@ -76,34 +75,34 @@ export function LowConfidenceScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityLabel="Close"
-          onPress={() =>
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'MainTabs', params: { screen: 'Home' } }],
-            })
-          }
-          style={styles.close}
-        >
-          <Icon name="close" size={25} color={colors.primary} />
-        </Pressable>
-        <Text style={styles.wordmark}>Nourish</Text>
-        <Icon name="bell-outline" size={23} color={colors.onSurfaceVariant} />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+    <NeoScreenWrapper tone="pink" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Confirm meal"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        rightIcon="close"
+        onBack={() =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainTabs', params: { screen: 'Home' } }],
+          })
+        }
+        onRight={() =>
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainTabs', params: { screen: 'Home' } }],
+          })
+        }
+      />
         <View style={styles.heroWrap}>
           <Image
             source={imageUri ? { uri: imageUri } : images.candidateShiro}
             style={StyleSheet.absoluteFill}
             resizeMode="cover"
-            blurRadius={8}
           />
           <View style={styles.heroWash} />
           <View style={styles.warning}>
-            <Icon name="alert-outline" size={15} color="#855300" />
+            <Icon name="alert-outline" size={15} color={colors.ink} />
             <Text style={styles.warningText}>LOW CONFIDENCE</Text>
           </View>
         </View>
@@ -170,8 +169,7 @@ export function LowConfidenceScreen({ navigation, route }: Props) {
         <Text style={styles.footnote}>
           Your selection is used only to finish this entry and is never guessed for you.
         </Text>
-      </ScrollView>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
@@ -183,31 +181,22 @@ function imageForCandidate(name: string): number {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    height: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
+  content: { paddingTop: spacing.xs },
+  heroWrap: {
+    height: 156,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    overflow: 'hidden',
   },
-  close: { width: 40, height: 40, justifyContent: 'center' },
-  wordmark: {
-    flex: 1,
-    textAlign: 'center',
-    fontFamily: fonts.bold,
-    fontSize: 35,
-    letterSpacing: -1.5,
-    color: colors.primary,
-  },
-  content: { paddingHorizontal: spacing.md, paddingBottom: spacing.xxl },
-  heroWrap: { height: 156, borderRadius: radii.sm, overflow: 'hidden' },
   heroWash: {
     position: 'absolute',
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: 'rgba(252,249,248,0.15)',
+    backgroundColor: colors.lavenderBackdrop,
+    opacity: 0.22,
   },
   warning: {
     position: 'absolute',
@@ -217,30 +206,40 @@ const styles = StyleSheet.create({
     right: '25%',
     height: 31,
     borderRadius: radii.pill,
-    backgroundColor: 'rgba(255,248,232,0.95)',
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
   },
-  warningText: { ...type.label, fontSize: 9, color: '#855300' },
+  warningText: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
   copyWrap: { paddingHorizontal: spacing.sm, paddingVertical: spacing.lg },
   title: { ...type.title, textAlign: 'center' },
   subcopy: { ...type.bodySmall, color: colors.onSurfaceVariant, textAlign: 'center', marginTop: spacing.xs },
   candidates: { gap: spacing.sm },
   candidate: { minHeight: 94, flexDirection: 'row', alignItems: 'center', padding: spacing.sm, gap: spacing.sm },
-  candidateImage: { width: 70, height: 70, borderRadius: radii.sm },
+  candidateImage: {
+    width: 70,
+    height: 70,
+    borderRadius: radii.sm,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
   candidateCopy: { flex: 1 },
   candidateName: { ...type.body, fontFamily: fonts.semibold },
   candidateDetail: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2 },
   select: {
-    height: 30,
-    borderRadius: radii.xs,
-    backgroundColor: colors.primarySoft,
+    minHeight: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.activeLime,
     paddingHorizontal: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  selectText: { ...type.label, fontSize: 9, color: colors.primary },
+  selectText: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
   footnote: { ...type.caption, textAlign: 'center', marginTop: spacing.md },
 });

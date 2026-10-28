@@ -11,12 +11,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Button, Chip, Icon } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { imageForFood } from '../../data/images';
 import { nutritionFor } from '../../domain/nutrition';
 import { mealSlotForHour } from '../../domain/recommendations';
@@ -125,18 +125,13 @@ export function FoodSearchScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityLabel="Go back"
-          onPress={() => navigation.goBack()}
-          style={styles.back}
-        >
-          <Icon name="arrow-left" size={24} color={colors.onSurfaceVariant} />
-        </Pressable>
-        <Text style={styles.title}>Search Foods</Text>
-        <View style={{ width: 40 }} />
-      </View>
+    <NeoScreenWrapper tone="lavender">
+      <NeoTopBar
+        title="Search foods"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        onBack={() => navigation.goBack()}
+      />
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
           <Icon name="magnify" size={21} color={colors.onSurfaceVariant} />
@@ -144,7 +139,7 @@ export function FoodSearchScreen({ navigation, route }: Props) {
             value={query}
             onChangeText={setQuery}
             placeholder="Search food in English or አማርኛ"
-            placeholderTextColor={colors.outline}
+            placeholderTextColor={colors.secondaryInk}
             style={styles.searchInput}
             selectionColor={colors.primary}
             autoFocus={candidateMode}
@@ -332,31 +327,23 @@ export function FoodSearchScreen({ navigation, route }: Props) {
           </View>
         </KeyboardAvoidingView>
       </Modal>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    height: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  back: { width: 40, height: 40, justifyContent: 'center' },
-  title: { ...type.title, flex: 1, textAlign: 'center', fontSize: 22 },
   searchRow: {
     flexDirection: 'row',
     gap: spacing.sm,
-    paddingHorizontal: spacing.xl,
     marginTop: spacing.xs,
   },
   searchBox: {
     flex: 1,
     height: 48,
     borderRadius: radii.pill,
-    backgroundColor: colors.surfaceHigh,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     paddingHorizontal: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
@@ -371,21 +358,23 @@ const styles = StyleSheet.create({
   barcode: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.surfaceHigh,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
   chipsScroller: { flexGrow: 0 },
-  chips: { paddingHorizontal: spacing.xl, paddingVertical: spacing.md, gap: spacing.xs },
-  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl },
+  chips: { paddingVertical: spacing.md, gap: spacing.xs },
+  content: { paddingBottom: 96 },
   sectionTitle: { ...type.title, marginTop: spacing.lg, marginBottom: spacing.md },
   foodList: { gap: spacing.sm },
   foodCard: {
     minHeight: 108,
     borderRadius: radii.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.surfaceHighest,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     padding: spacing.sm,
     flexDirection: 'row',
@@ -393,17 +382,25 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   pressed: { opacity: 0.72, transform: [{ scale: 0.992 }] },
-  foodImage: { width: 82, height: 88, borderRadius: radii.sm },
+  foodImage: {
+    width: 82,
+    height: 88,
+    borderRadius: radii.sm,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
   foodCopy: { flex: 1 },
   foodName: { ...type.body, fontFamily: fonts.semibold },
   foodPortion: { ...type.caption, marginTop: 2 },
-  provisional: { ...type.caption, fontSize: 9, color: '#855300', marginTop: spacing.xs },
-  verified: { ...type.caption, fontSize: 9, color: colors.primary, marginTop: spacing.xs },
+  provisional: { ...type.caption, color: colors.ink, marginTop: spacing.xs },
+  verified: { ...type.caption, color: colors.ink, marginTop: spacing.xs },
   add: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.activeLime,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -411,8 +408,10 @@ const styles = StyleSheet.create({
   emptyIcon: {
     width: 68,
     height: 68,
-    borderRadius: 34,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -426,8 +425,10 @@ const styles = StyleSheet.create({
   tip: {
     flexDirection: 'row',
     gap: spacing.sm,
-    borderRadius: radii.md,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.mintCard,
     padding: spacing.md,
     marginTop: spacing.lg,
   },
@@ -439,12 +440,14 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: colors.scrim,
+    backgroundColor: colors.lavenderBackdrop,
   },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
+    backgroundColor: colors.pinkCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.xl,
     paddingBottom: spacing.xxl,
   },
@@ -457,14 +460,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   sheetHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  sheetImage: { width: 62, height: 62, borderRadius: radii.md },
+  sheetImage: {
+    width: 62,
+    height: 62,
+    borderRadius: radii.md,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+  },
   sheetTitle: { ...type.title, fontSize: 22 },
   sheetSubtitle: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2 },
   close: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceHigh,
+    height: 44,
+    width: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -473,8 +484,8 @@ const styles = StyleSheet.create({
     height: 66,
     marginTop: spacing.xs,
     borderRadius: radii.md,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     flexDirection: 'row',
     alignItems: 'center',
@@ -493,13 +504,15 @@ const styles = StyleSheet.create({
   preview: {
     marginTop: spacing.lg,
     borderRadius: radii.md,
-    backgroundColor: colors.primarySoft,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.mintCard,
     padding: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  previewKcal: { fontFamily: fonts.bold, fontSize: 24, color: colors.primary, marginTop: 2 },
+  previewKcal: { ...type.metricSmall, fontSize: 24, marginTop: 2 },
   previewMacros: { alignItems: 'flex-end', gap: 2 },
   previewMacro: { ...type.bodySmall, color: colors.onSurfaceVariant, fontFamily: fonts.semibold },
 });

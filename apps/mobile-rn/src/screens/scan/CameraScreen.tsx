@@ -13,7 +13,7 @@ import { CameraView, useCameraPermissions, type CameraType } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
-import { colors, fonts, radii, spacing } from '../../theme';
+import { border, colors, fonts, radii, spacing } from '../../theme';
 import { Icon } from '../../components/ui';
 import { images } from '../../data/images';
 import { setPendingAnalysisInput } from '../../state/analysisSession';
@@ -115,10 +115,10 @@ export function CameraScreen({ navigation, route }: Props) {
           onPress={() => navigation.goBack()}
           style={styles.glassButton}
         >
-          <Icon name="close" size={24} color={colors.white} />
+          <Icon name="close" size={24} color={colors.ink} />
         </Pressable>
         <View style={styles.instruction}>
-          <Icon name="focus-field" size={16} color={colors.white} />
+          <Icon name="focus-field" size={16} color={colors.ink} />
           <Text style={styles.instructionText}>Fit your meal in frame</Text>
         </View>
         <Pressable
@@ -126,7 +126,7 @@ export function CameraScreen({ navigation, route }: Props) {
           onPress={() => setFlash((value) => !value)}
           style={styles.glassButton}
         >
-          <Icon name={flash ? 'flash' : 'flash-off'} size={22} color={colors.white} />
+          <Icon name={flash ? 'flash' : 'flash-off'} size={22} color={colors.ink} />
         </Pressable>
       </View>
       <View style={styles.frame} pointerEvents="none">
@@ -152,7 +152,7 @@ export function CameraScreen({ navigation, route }: Props) {
           style={styles.shutterOuter}
         >
           {busy ? (
-            <ActivityIndicator color={colors.white} />
+            <ActivityIndicator color={colors.ink} />
           ) : (
             <View style={styles.shutterInner} />
           )}
@@ -162,7 +162,7 @@ export function CameraScreen({ navigation, route }: Props) {
           onPress={() => setFacing((value) => (value === 'back' ? 'front' : 'back'))}
           style={styles.glassButton}
         >
-          <Icon name="camera-flip-outline" size={23} color={colors.white} />
+          <Icon name="camera-flip-outline" size={23} color={colors.ink} />
         </Pressable>
       </View>
     </View>
@@ -170,7 +170,7 @@ export function CameraScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.black },
+  page: { flex: 1, backgroundColor: colors.charcoal },
   topOverlay: {
     position: 'absolute',
     top: 52,
@@ -184,10 +184,10 @@ const styles = StyleSheet.create({
   glassButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.34)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
+    borderRadius: radii.pill,
+    backgroundColor: colors.butterCard,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -195,13 +195,15 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 38,
     borderRadius: radii.pill,
-    backgroundColor: 'rgba(0,0,0,0.34)',
+    backgroundColor: colors.white,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: 6,
   },
-  instructionText: { fontFamily: fonts.regular, fontSize: 13, color: colors.white },
+  instructionText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.ink },
   frame: {
     position: 'absolute',
     left: '15%',
@@ -213,7 +215,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 46,
     height: 46,
-    borderColor: 'rgba(255,255,255,0.95)',
+    borderColor: colors.butterCard,
   },
   cornerTopLeft: { top: 0, left: 0, borderTopWidth: 3, borderLeftWidth: 3, borderTopLeftRadius: 10 },
   cornerTopRight: { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3, borderTopRightRadius: 10 },
@@ -234,9 +236,9 @@ const styles = StyleSheet.create({
   reticle: {
     width: 34,
     height: 34,
-    borderRadius: 17,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.65)',
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.butterCard,
     alignSelf: 'center',
     marginTop: 'auto',
     marginBottom: 'auto',
@@ -253,18 +255,18 @@ const styles = StyleSheet.create({
   gallery: {
     width: 52,
     height: 52,
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
     overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: colors.white,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
   },
   shutterOuter: {
     width: 82,
     height: 82,
     borderRadius: 41,
-    borderWidth: 4,
-    borderColor: colors.white,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderWidth: border.heavy,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -272,6 +274,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.coralCard,
   },
 });

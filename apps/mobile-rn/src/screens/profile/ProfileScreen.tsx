@@ -3,12 +3,10 @@ import {
   Alert,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -16,8 +14,9 @@ import * as Sharing from 'expo-sharing';
 import { File, Paths } from 'expo-file-system';
 import type { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
-import { Banner, Button, Card, Icon, IconButton, type IconName } from '../../components/ui';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
+import { Banner, Button, Card, Icon, type IconName } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { localDateKey } from '../../utils/date';
 import { APP_VERSION } from '../../data/appInfo';
 
@@ -106,20 +105,16 @@ export function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <View style={styles.headerAvatar}>
-          <Icon name="account" size={25} color={colors.primary} />
-        </View>
-        <Text style={styles.title}>Profile</Text>
-        <IconButton
-          name="cog-outline"
-          accessibilityLabel="Settings"
-          onPress={() => navigation?.navigate('Settings')}
-          color={colors.onSurfaceVariant}
-        />
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+    <NeoScreenWrapper tone="lavender" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Profile"
+        leftColor={colors.pinkAccent}
+        rightColor={colors.skyAccent}
+        onBack={() => tabs.navigate('Home')}
+        rightIcon="cog-outline"
+        rightLabel="Settings"
+        onRight={() => navigation?.navigate('Settings')}
+      />
         <Card style={styles.accountCard}>
           <View style={styles.accountTop}>
             <View style={styles.avatar}>
@@ -158,7 +153,7 @@ export function ProfileScreen() {
             <Text
               style={[
                 styles.queueText,
-                state.queue.length > 0 && { color: '#855300' },
+                state.queue.length > 0 && { color: colors.ink },
               ]}
             >
               {state.queue.length} queued
@@ -261,8 +256,7 @@ export function ProfileScreen() {
           <Text style={styles.deleteText}>Delete local app data</Text>
         </Pressable>
         <Text style={styles.legal}>General wellness guidance, not medical care.</Text>
-      </ScrollView>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
@@ -308,75 +302,80 @@ function MenuRow({
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: { height: 68, paddingHorizontal: spacing.xl, flexDirection: 'row', alignItems: 'center' },
-  headerAvatar: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.primarySoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: { flex: 1, textAlign: 'center', fontFamily: fonts.semibold, fontSize: 23, color: colors.primary },
-  content: { padding: spacing.xl, paddingTop: spacing.sm, paddingBottom: spacing.xxl },
-  accountCard: { padding: spacing.lg },
+  content: { paddingTop: spacing.xs },
+  accountCard: { padding: spacing.lg, marginTop: spacing.md, backgroundColor: colors.coralCard },
   accountTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   avatar: {
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: colors.primary,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontFamily: fonts.bold, fontSize: 25, color: colors.white },
+  avatarText: { fontFamily: fonts.bold, fontSize: 25, color: colors.ink },
   accountName: { ...type.bodyLarge, fontFamily: fonts.semibold },
   accountMeta: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2 },
   stats: {
     marginTop: spacing.lg,
     paddingTop: spacing.lg,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.surfaceHighest,
+    borderTopWidth: border.standard,
+    borderTopColor: colors.ink,
     flexDirection: 'row',
     alignItems: 'center',
   },
   stat: { flex: 1, alignItems: 'center' },
   statValue: { fontFamily: fonts.bold, fontSize: 24, color: colors.onSurface },
   statLabel: { ...type.label, fontSize: 8, marginTop: 2, textAlign: 'center' },
-  statDivider: { width: 1, height: 30, backgroundColor: colors.surfaceHighest },
+  statDivider: { width: border.standard, height: 34, backgroundColor: colors.ink },
   sectionHeading: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: spacing.xl, marginBottom: spacing.md },
   sectionTitle: { ...type.title, marginTop: spacing.xl, marginBottom: spacing.md },
-  queueBadge: { backgroundColor: colors.primarySoft, borderRadius: radii.pill, paddingHorizontal: spacing.sm, paddingVertical: 4 },
-  queueBadgePending: { backgroundColor: colors.amberSoft },
-  queueText: { ...type.label, fontSize: 9, color: colors.primary },
-  backupCard: { padding: spacing.lg, gap: spacing.md },
+  queueBadge: {
+    backgroundColor: colors.mintCard,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+  },
+  queueBadgePending: { backgroundColor: colors.butterCard },
+  queueText: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
+  backupCard: { padding: spacing.lg, gap: spacing.md, backgroundColor: colors.mintCard },
   backupRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   backupIcon: {
     width: 46,
     height: 46,
-    borderRadius: 23,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
   rowTitle: { ...type.body, fontFamily: fonts.semibold },
   rowSubtext: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2 },
-  menu: { overflow: 'hidden' },
+  menu: {
+    overflow: 'hidden',
+    backgroundColor: colors.white,
+  },
   menuRow: {
     minHeight: 72,
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.surfaceHighest,
+    borderBottomWidth: border.standard,
+    borderBottomColor: colors.ink,
   },
   menuIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceLow,
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },

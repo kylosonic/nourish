@@ -3,17 +3,16 @@ import {
   Alert,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Button, Card, Icon } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { MacroSummary } from '../../components/nutrition';
 import { images } from '../../data/images';
 import { useApp } from '../../state/AppProvider';
@@ -73,18 +72,15 @@ export function ResultScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable accessibilityLabel="Close results" onPress={discard} style={styles.close}>
-          <Icon name="close" size={27} color={colors.primary} />
-        </Pressable>
-        <Text style={styles.wordmark}>Nourish</Text>
-        <View style={{ width: 40 }} />
-      </View>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      >
+    <NeoScreenWrapper tone="pink" scroll contentStyle={styles.content}>
+      <NeoTopBar
+        title="Review scan"
+        leftColor={colors.butterCard}
+        rightColor={colors.coralButton}
+        rightIcon="close"
+        onBack={discard}
+        onRight={discard}
+      />
         <View style={styles.heroWrap}>
           <Image
             source={imageUri ? { uri: imageUri } : images.result}
@@ -169,25 +165,19 @@ export function ResultScreen({ navigation, route }: Props) {
           }
           style={{ marginTop: spacing.sm }}
         />
-      </ScrollView>
-    </SafeAreaView>
+    </NeoScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.surface },
-  header: { height: 64, paddingHorizontal: spacing.xl, flexDirection: 'row', alignItems: 'center' },
-  close: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
-  wordmark: {
-    flex: 1,
-    textAlign: 'center',
-    fontFamily: fonts.bold,
-    fontSize: 38,
-    letterSpacing: -1.7,
-    color: colors.primary,
+  content: { paddingTop: spacing.xs },
+  heroWrap: {
+    borderRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    overflow: 'hidden',
+    height: 312,
   },
-  content: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl },
-  heroWrap: { borderRadius: radii.md, overflow: 'hidden', height: 312 },
   hero: { width: '100%', height: '100%' },
   scanBadge: {
     position: 'absolute',
@@ -196,7 +186,9 @@ const styles = StyleSheet.create({
     height: 32,
     paddingHorizontal: spacing.sm,
     borderRadius: radii.pill,
-    backgroundColor: 'rgba(255,255,255,0.94)',
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
@@ -209,10 +201,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: colors.surfaceLow,
-    borderColor: colors.surfaceLow,
-    shadowOpacity: 0,
-    elevation: 0,
+    backgroundColor: colors.butterCard,
   },
   confidenceValue: {
     fontFamily: fonts.bold,
@@ -228,15 +217,15 @@ const styles = StyleSheet.create({
   totalRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: spacing.lg },
   totalValue: { fontFamily: fonts.bold, fontSize: 39, letterSpacing: -1.5 },
   totalUnit: { ...type.body, color: colors.onSurfaceVariant, marginLeft: 4, marginBottom: 4 },
-  divider: { height: 1, backgroundColor: colors.surfaceHighest, marginVertical: spacing.lg },
+  divider: { height: border.standard, backgroundColor: colors.ink, marginVertical: spacing.lg },
   estimate: { ...type.caption, color: colors.onSurfaceVariant, marginTop: spacing.lg, fontStyle: 'italic' },
   ingredientsTitle: { ...type.label, marginTop: spacing.xl, marginBottom: spacing.sm },
   ingredients: { gap: spacing.xs },
   ingredient: {
     minHeight: 86,
     padding: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.surfaceHighest,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     borderRadius: radii.md,
     backgroundColor: colors.white,
     flexDirection: 'row',
@@ -246,8 +235,10 @@ const styles = StyleSheet.create({
   ingredientIcon: {
     width: 56,
     height: 56,
-    borderRadius: radii.sm,
-    backgroundColor: colors.surfaceHigh,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.skyAccent,
     alignItems: 'center',
     justifyContent: 'center',
   },

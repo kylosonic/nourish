@@ -14,7 +14,7 @@ import {
   clearPendingAnalysisInput,
   getPendingAnalysisInput,
 } from '../../state/analysisSession';
-import { colors, fonts, radii, spacing, type } from '../../theme';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Button, Icon } from '../../components/ui';
 import { images } from '../../data/images';
 import { useApp } from '../../state/AppProvider';
@@ -173,7 +173,6 @@ export function AnalysisScreen({ navigation, route }: Props) {
         source={pending?.imageUri ? { uri: pending.imageUri } : images.analysis}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
-        blurRadius={12}
       />
       <View style={styles.wash} />
       <Text style={styles.wordmark}>Nourish</Text>
@@ -242,13 +241,21 @@ function mapAnalysisItem(item: AnalysisItem, catalog: ReturnType<typeof useApp>[
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.surface, overflow: 'hidden' },
-  wash: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(252,249,248,0.68)' },
+  page: { flex: 1, backgroundColor: colors.lavenderBackdrop, overflow: 'hidden' },
+  wash: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: colors.lavenderBackdrop,
+    opacity: 0.84,
+  },
   wordmark: {
     fontFamily: fonts.bold,
     fontSize: 44,
     letterSpacing: -2,
-    color: colors.primary,
+    color: colors.ink,
     textAlign: 'center',
     marginTop: 72,
   },
@@ -266,15 +273,17 @@ const styles = StyleSheet.create({
     width: 182,
     height: 182,
     borderRadius: 91,
-    borderWidth: 1,
-    borderColor: colors.outline,
-    backgroundColor: colors.surfaceHigh,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.mintCard,
   },
   scanner: {
     width: 84,
     height: 84,
-    borderRadius: 42,
-    backgroundColor: colors.surfaceLow,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -290,37 +299,44 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colors.outlineVariant,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusDotActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  activeDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.white },
-  statusText: { ...type.bodyLarge, color: colors.outline },
-  statusTextActive: { color: colors.onSurface },
+  statusDotActive: {
+    backgroundColor: colors.activeLime,
+    borderColor: colors.ink,
+  },
+  activeDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.ink },
+  statusText: { ...type.bodyLarge, color: colors.ink, opacity: 0.55 },
+  statusTextActive: { color: colors.ink, opacity: 1 },
   powered: {
     ...type.label,
     position: 'absolute',
     bottom: 52,
     alignSelf: 'center',
-    color: colors.outline,
+    color: colors.ink,
     fontSize: 10,
   },
   failureOverlay: {
     flex: 1,
     marginTop: 'auto',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
+    backgroundColor: colors.pinkCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.xxl,
     paddingTop: spacing.xxl,
   },
   failureIcon: {
     width: 66,
     height: 66,
-    borderRadius: 33,
-    backgroundColor: colors.coralSoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.coralCard,
     alignItems: 'center',
     justifyContent: 'center',
   },

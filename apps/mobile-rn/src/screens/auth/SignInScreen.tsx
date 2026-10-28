@@ -20,8 +20,9 @@ import {
   verifyOtp,
 } from '../../data/api';
 import { useApp } from '../../state/AppProvider';
-import { colors, fonts, radii, spacing, type } from '../../theme';
-import { Banner, Button, Field, Icon, Screen } from '../../components/ui';
+import { border, colors, fonts, radii, spacing, type } from '../../theme';
+import { Banner, Button, Field } from '../../components/ui';
+import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import type { AccountSession } from '../../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
@@ -170,15 +171,14 @@ export function SignInScreen({ navigation }: Props) {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Screen>
-        <View style={styles.header}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={goBack}>
-            <Icon name="arrow-left" size={24} color={colors.onSurfaceVariant} />
-          </Pressable>
-          <Text style={styles.wordmark}>Nourish</Text>
-          <View style={{ width: 24 }} />
-        </View>
-
+      <NeoScreenWrapper tone="lavender">
+        <NeoTopBar
+          title="Nourish"
+          leftColor={colors.butterCard}
+          rightColor={colors.pinkAccent}
+          onBack={goBack}
+          rightIcon="account-outline"
+        />
         <View style={styles.body}>
           <View style={styles.mark}>
             <Text style={styles.markText}>N</Text>
@@ -336,7 +336,7 @@ export function SignInScreen({ navigation }: Props) {
                       style={styles.codeInput}
                       selectionColor={colors.primary}
                       placeholder="000000"
-                      placeholderTextColor={colors.outlineVariant}
+                      placeholderTextColor={colors.secondaryInk}
                     />
                     <Pressable onPress={() => void sendCode()} disabled={busy} style={styles.resend}>
                       <Text style={styles.resendText}>Resend code</Text>
@@ -360,7 +360,7 @@ export function SignInScreen({ navigation }: Props) {
           ) : null}
         </View>
         <Text style={styles.privacy}>By continuing you accept our Terms and Privacy Policy.</Text>
-      </Screen>
+      </NeoScreenWrapper>
     </KeyboardAvoidingView>
   );
 }
@@ -413,29 +413,18 @@ function GoogleSignInButton({
 }
 
 const styles = StyleSheet.create({
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.xl,
-  },
-  wordmark: {
-    flex: 1,
-    textAlign: 'center',
-    fontFamily: fonts.bold,
-    fontSize: 26,
-    color: colors.primary,
-  },
-  body: { flex: 1, paddingHorizontal: spacing.xl, paddingTop: spacing.lg },
+  body: { flex: 1, paddingTop: spacing.lg, paddingBottom: spacing.lg },
   mark: {
     width: 54,
     height: 54,
     borderRadius: 27,
-    backgroundColor: colors.primarySoft,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  markText: { fontFamily: fonts.bold, fontSize: 28, color: colors.primary },
+  markText: { fontFamily: fonts.bold, fontSize: 28, color: colors.ink },
   title: { ...type.headline, marginTop: spacing.xl },
   copy: { ...type.body, color: colors.onSurfaceVariant, marginTop: spacing.xs },
   actions: { gap: spacing.sm, marginTop: spacing.xxl },
@@ -444,18 +433,18 @@ const styles = StyleSheet.create({
   switchText: { ...type.bodySmall, color: colors.primary, fontFamily: fonts.semibold },
   codeInput: {
     height: 68,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     backgroundColor: colors.white,
     textAlign: 'center',
     fontFamily: fonts.semibold,
     fontSize: 28,
     letterSpacing: 12,
-    color: colors.onSurface,
+    color: colors.ink,
     outlineStyle: 'none' as never,
   },
   resend: { alignSelf: 'flex-end', paddingVertical: spacing.xs },
   resendText: { ...type.bodySmall, color: colors.primary, fontFamily: fonts.semibold },
-  privacy: { ...type.caption, textAlign: 'center', padding: spacing.xl },
+  privacy: { ...type.caption, textAlign: 'center', padding: spacing.lg },
 });

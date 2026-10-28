@@ -3,7 +3,7 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/types';
-import { colors, radii, spacing, type } from '../../theme';
+import { border, colors, radii, spacing, type } from '../../theme';
 import { Button, Icon } from '../../components/ui';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Barcode'>;
@@ -39,10 +39,10 @@ export function BarcodeScreen({ navigation, route }: Props) {
           onPress={() => navigation.goBack()}
           style={styles.close}
         >
-          <Icon name="close" size={24} color={colors.white} />
+          <Icon name="close" size={24} color={colors.ink} />
         </Pressable>
         <Text style={styles.title}>Scan barcode</Text>
-        <View style={{ width: 42 }} />
+        <View style={{ width: 44 }} />
       </View>
       <View style={styles.scanWindow}>
         <View style={[styles.corner, styles.tl]} />
@@ -83,7 +83,7 @@ export function BarcodeScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: colors.black },
+  page: { flex: 1, backgroundColor: colors.charcoal },
   header: {
     position: 'absolute',
     top: 54,
@@ -93,10 +93,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   close: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(0,0,0,0.36)',
+    width: 44,
+    height: 44,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
   tr: { right: 0, top: 0, borderRightWidth: 3, borderTopWidth: 3, borderTopRightRadius: 10 },
   bl: { left: 0, bottom: 0, borderLeftWidth: 3, borderBottomWidth: 3, borderBottomLeftRadius: 10 },
   br: { right: 0, bottom: 0, borderRightWidth: 3, borderBottomWidth: 3, borderBottomRightRadius: 10 },
-  laser: { height: 2, backgroundColor: colors.primaryContainer },
+  laser: { height: border.standard, backgroundColor: colors.activeLime },
   hint: {
     ...type.body,
     position: 'absolute',
@@ -141,17 +143,21 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   result: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xxl,
-    borderTopRightRadius: radii.xxl,
+    backgroundColor: colors.pinkCanvas,
+    borderTopLeftRadius: radii.lg,
+    borderTopRightRadius: radii.lg,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
     padding: spacing.xl,
     alignItems: 'center',
   },
   resultIcon: {
     width: 66,
     height: 66,
-    borderRadius: 33,
-    backgroundColor: colors.coralSoft,
+    borderRadius: radii.pill,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.coralCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
