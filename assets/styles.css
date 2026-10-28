@@ -1,7 +1,11 @@
 /* Hallmark · pre-emit critique: P5 H4 E5 S5 R4 V5
  * Hallmark · macrostructure: Feature Stack · tone: neo-brutalist · anchor hue: emerald
  * genre: playful · theme: Brutal · enrichment: real app captures + food photography
+ * H2 knobs: ratio=6.8/5.2 · right=photo+capture · divider=negative space
+ * F2 knobs: pinned=left · content=capture · steps=3
  * nav: N7 Brutal slab · dock: C4 sticky bottom bar · footer: Ft8 Marquee scroll
+ * contrast: pass (40–41) · nav/footer: pass (42–45) · honest: pass (46)
+ * chrome: pass (47) · tokens: pass (48) · responsive: pass (49, 50–57)
  */
 
 *,
@@ -20,7 +24,6 @@ body {
   min-width: 20rem;
   margin: 0;
   overflow-x: clip;
-  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
   color: var(--color-ink);
   background: var(--color-paper);
   font-family: var(--font-body);
@@ -28,6 +31,10 @@ body {
   line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+body.has-dock {
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
 }
 
 img {
@@ -40,6 +47,10 @@ a {
   color: inherit;
   text-decoration-thickness: var(--rule-2);
   text-underline-offset: 0.22em;
+}
+
+a:active {
+  opacity: 0.65;
 }
 
 button,
@@ -356,10 +367,10 @@ h3 {
 .hero h1 span {
   background-image: linear-gradient(
     to bottom,
-    var(--color-paper) 45%,
-    var(--color-accent) 45%,
-    var(--color-accent) 92%,
-    var(--color-paper) 92%
+    var(--color-paper) 52%,
+    var(--color-accent) 52%,
+    var(--color-accent) 88%,
+    var(--color-paper) 88%
   );
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -1099,6 +1110,12 @@ h3 {
   list-style: none;
 }
 
+.faq summary:hover {
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-2);
+  text-underline-offset: 0.22em;
+}
+
 .faq summary::-webkit-details-marker {
   display: none;
 }
@@ -1198,7 +1215,6 @@ h3 {
 }
 
 .footer-links a:hover {
-  color: var(--color-accent);
   text-decoration: underline;
 }
 
@@ -1235,8 +1251,24 @@ h3 {
   transform: translateX(-50%);
 }
 
+.store-dock__indicator {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  z-index: 0;
+  width: 0;
+  background: var(--color-accent-soft);
+  border-inline-end: var(--rule-1) solid var(--color-rule-soft);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(0);
+  transition: transform var(--dur-short) var(--ease-out);
+}
+
 .store-dock__item,
 .store-dock__buy {
+  position: relative;
+  z-index: var(--z-base);
   display: grid;
   place-items: center;
   align-content: center;
@@ -1268,6 +1300,9 @@ h3 {
 .store-dock__item:hover,
 .store-dock__item.is-active {
   color: var(--color-ink);
+}
+
+.store-dock__item:hover {
   background: var(--color-accent-soft);
 }
 
@@ -1406,8 +1441,13 @@ h3 {
   .tour-step.is-active,
   .text-link:hover span,
   .store-dock__item:active,
-  .store-dock__buy:active {
+  .store-dock__buy:active,
+  .store-dock__indicator {
     transform: none;
+  }
+
+  .store-dock__indicator {
+    transition: none;
   }
 }
 
@@ -1454,19 +1494,6 @@ h3 {
 
   .portion-card__nutrition {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .download-panel {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-  }
-
-  .download-panel__header {
-    grid-column: 1 / -1;
-  }
-
-  .download-panel .download-note {
-    align-self: center;
   }
 
   .footer-main {
@@ -1573,6 +1600,19 @@ h3 {
   .faq {
     grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
     gap: var(--space-3xl);
+  }
+
+  .download-panel {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .download-panel__header {
+    grid-column: 1 / -1;
+  }
+
+  .download-panel .download-note {
+    align-self: center;
   }
 
   .site-nav {

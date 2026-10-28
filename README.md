@@ -3,6 +3,8 @@
 The public marketing site for Nourish. It is a dependency-free static site built
 with semantic HTML, CSS, and small ES modules.
 
+Live site: <https://kylosonic.github.io/nourish/>
+
 The current design is a neo-brutalist product tour built around real app
 captures and approved Ethiopian food photography. The fixed bottom dock behaves
 like an Apple Store product tab bar: it stays reachable, tracks the section in

@@ -46,8 +46,8 @@ export function downloadPlan(platform, metadata, options = {}) {
       secondaryLabel: null,
       secondaryHref: null,
       note:
-        'No public release has been published yet. Every build and its checksums ' +
-        'will appear on the releases page.',
+        'Release details are temporarily unavailable. View the latest files and ' +
+        'checksums on GitHub Releases.',
       assets: [],
     };
   }
@@ -117,10 +117,11 @@ export function downloadPlan(platform, metadata, options = {}) {
       metadata.android?.apk?.url ?? metadata.android?.universal_apk?.url ?? releasesUrl,
     secondaryLabel: 'VIEW RELEASES',
     secondaryHref: releasesUrl,
-    note:
+    note: `Android ${metadata.version} — direct download. ${
       metadata.ios?.installable
-        ? 'Android and iOS builds are available.'
-        : 'iOS distribution requires Apple signing and distribution approval.',
+        ? 'iOS is also available.'
+        : 'iOS requires Apple signing.'
+    }`,
     assets,
   };
 }
