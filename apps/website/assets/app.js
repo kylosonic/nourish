@@ -139,6 +139,24 @@ function updateDock(sectionId) {
       link.removeAttribute('aria-current');
     }
   });
+
+  positionDockIndicator();
+}
+
+function positionDockIndicator() {
+  const dock = document.querySelector('.store-dock');
+  const indicator = document.querySelector('[data-dock-indicator]');
+  const activeItem = document.querySelector('.store-dock__item.is-active');
+  if (!dock || !indicator || !activeItem) {
+    if (indicator) indicator.style.opacity = '0';
+    return;
+  }
+
+  const dockRect = dock.getBoundingClientRect();
+  const itemRect = activeItem.getBoundingClientRect();
+  indicator.style.width = `${itemRect.width}px`;
+  indicator.style.transform = `translateX(${itemRect.left - dockRect.left}px)`;
+  indicator.style.opacity = '1';
 }
 
 function observeDock() {
@@ -163,6 +181,12 @@ function observeDock() {
   );
 
   sections.forEach((section) => observer.observe(section));
+
+  const dock = document.querySelector('.store-dock');
+  if (dock && 'ResizeObserver' in window) {
+    const resizeObserver = new ResizeObserver(positionDockIndicator);
+    resizeObserver.observe(dock);
+  }
 }
 
 function syncTourStage(step) {
@@ -252,6 +276,7 @@ const year = document.getElementById('year');
 if (year) year.textContent = String(new Date().getFullYear());
 
 setInitialReleaseLink();
+positionDockIndicator();
 observeDock();
 observeTour();
 connectPortionPreview();

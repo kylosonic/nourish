@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /assets/fonts/
 
-Sitemap: https://nourish.app/sitemap.xml
+Sitemap: https://kylosonic.github.io/nourish/sitemap.xml
