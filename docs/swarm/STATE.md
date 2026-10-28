@@ -17,7 +17,7 @@ agent's exact approval.
 | Latest release build | `v1.3.0`, source commit `88a1af4`, GitHub Actions run `39783149395` |
 
 > **2026-09-19 session note (read this first).** The swarm agent dispatches
-> (the `.opencode` orchestration) were stopped at the human's instruction
+> were stopped at the human's instruction
 > part-way through this session; everything after that point was done directly,
 > without agent hand-offs. S1 and S2 were each taken through implementation →
 > tests → independent QA (S1 only) → security-relevant review → commit, and the
@@ -946,9 +946,9 @@ From Gate C (`@qa` independent review, 2026-08-26) — 7 findings, none blocking
     `docs/adr/0006-fct-import-and-catalog-authority.md` approved; D1–D5
     resolved.
   - Track A (`apps/api`) — DID NOT EXECUTE: `@build` subagent returned without
-    building, citing its charter (`.opencode/agents/build.md` denies task
-    delegation except qa/security) and a misinterpreted delegation
-    instruction. Verified: ZERO files under `apps/api/` created/modified.
+    building, citing its build-agent charter, which permitted task delegation
+    only for QA and security, and a misinterpreted delegation instruction.
+    Verified: ZERO files under `apps/api/` created/modified.
     Re-dispatch required with a self-contained brief explicitly forbidding
     any subagent delegation.
   - Track B (`apps/mobile`) — INTERRUPTED mid-flight (user-initiated session
