@@ -34,7 +34,7 @@ test('a generated document is valid and drives every platform correctly', () => 
     tag: 'v1.2.3',
     releaseDate: '2026-09-19',
     publicBaseUrl: 'https://downloads.nourish.app',
-    repository: 'nourish-app/nourish',
+    repository: 'kylosonic/nourish',
     androidDir,
     iosDir: null,
   });

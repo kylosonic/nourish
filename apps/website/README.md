@@ -1,67 +1,72 @@
 # Nourish website
 
-The marketing site for Nourish: static HTML, CSS and one ES module, deployed to
-Cloudflare Pages. It contains **no cookies, no analytics and no third-party
-requests** — including the fonts, which are bundled in `assets/fonts/`.
+The public marketing site for Nourish. It is a dependency-free static site built
+with semantic HTML, CSS, and small ES modules.
+
+The current design is a neo-brutalist product tour built around real app
+captures and approved Ethiopian food photography. The fixed bottom dock behaves
+like an Apple Store product tab bar: it stays reachable, tracks the section in
+view, and keeps the download action available without covering page content.
+
+## Structure
 
 ```
 apps/website/
-  index.html                 hero, demo, how it works, Ethiopian food, features,
-                             privacy, pricing, download, FAQ, contact
-  privacy.html               Privacy Policy
-  terms.html                 Terms of Service
-  cookies.html               Cookie & Tracking Notice
-  health-disclaimer.html     Health & Nutrition Disclaimer
-  data-deletion.html         Data Deletion
+  index.html                 marketing page and live release panel
+  privacy.html               privacy policy
+  terms.html                 terms of service
+  cookies.html               cookie and tracking notice
+  health-disclaimer.html     health and nutrition disclaimer
+  data-deletion.html         data deletion
   robots.txt / sitemap.xml   SEO
-  latest.json                (not committed — copied from releases/latest.json at deploy)
+  latest.json                copied from releases/latest.json at deploy time
   assets/
-    styles.css               tokens taken from Design/nourish/DESIGN.md
-    app.js                   DOM wiring only
-    download-logic.mjs       device detection + download decisions (unit tested)
-    screens/                 approved Stitch screens
-    fonts/                   Inter 400/600/700
-  test/download-logic.test.mjs
+    tokens.css               colour, type, spacing, rule, and motion tokens
+    styles.css               layout and interaction styles
+    app.js                   release panel, bottom dock, tour, and gram preview
+    download-logic.mjs       platform and download decisions
+    screens/                 current app captures
+    images/                  approved Ethiopian food photography
+    fonts/                   bundled Inter and Bricolage Grotesque faces
+  test/                      download and release integration tests
 ```
 
-## Run it locally
+The site makes no third-party requests. Fonts, images, and icons are local or
+inline SVG.
+
+## Run locally
+
+From the repository root:
 
 ```bash
-# from the repository root — any static server works
 npx http-server -p 8080 -c-1
-# then open http://127.0.0.1:8080/apps/website/
 ```
 
-`app.js` looks for the release metadata at `latest.json` (next to the site, how
-it is deployed) and then at `../releases/latest.json` (the repository copy,
-which is what a local preview serves). If neither is reachable the download area
-degrades to the GitHub Releases link — it never shows a stale hardcoded URL.
+Open <http://127.0.0.1:8080/apps/website/>. Serving from the repository root
+lets the page read `releases/latest.json`; deployed builds use the copied
+`latest.json` beside the site instead.
 
-## Verify it
+## Verify
 
 ```bash
-node --test "apps/website/test/*.test.mjs"   # device + download rules
-npx --yes html-validate@9 "apps/website/*.html"          # markup
-node scripts/generate-latest-json.mjs --check            # release metadata
+node --test "apps/website/test/*.test.mjs"
+npx --yes html-validate@9 "apps/website/*.html"
+node scripts/generate-latest-json.mjs --check
 ```
 
-## What the download area guarantees
+The page is checked at 320, 375, 414, and 768 CSS pixels with no horizontal page
+scroll and no wrapped navigation or CTA labels.
 
-- **Android** visitors get a direct APK link taken from the release metadata,
-  with the version, file size and SHA-256 shown so the file can be verified.
-- **iPhone/iPad** visitors get “IPHONE VERSION COMING SOON” and an explanation,
-  and **no download link at all**, until a genuinely signed Apple distribution
-  build exists. An unsigned IPA is never presented as an installable app.
-- **Desktop** visitors get the Android call to action plus the releases page.
-- A binary is only linked when its checksum is published; a release that has not
-  happened yet is a real state, not a broken link.
+## Release behavior
 
-These rules live in `assets/download-logic.mjs` and are asserted by
-`test/download-logic.test.mjs`, because a rule this easy to get wrong should not
-be enforced by a comment.
+- Android visitors receive the direct APK link only when release metadata
+  contains a checksummed APK.
+- iPhone and iPad visitors receive no install link until a signed Apple
+  distribution build exists. The unsigned IPA is never offered.
+- If metadata cannot be reached, all visitors fall back to
+  [GitHub Releases](https://github.com/kylosonic/nourish/releases).
+- The release table shows version, file size, and SHA-256 for every available
+  Android artifact.
 
-## Publishing a release
-
-See [the release process](../../docs/release-process.md). The site reads the
-metadata at runtime, so publishing a new APK never requires editing or
-rebuilding the website.
+The decision logic lives in `assets/download-logic.mjs` and is covered by the
+tests in `test/`, rather than being enforced by comments alone.

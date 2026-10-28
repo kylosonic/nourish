@@ -1,0 +1,27 @@
+{
+  "scanned_at": "2026-10-28",
+  "project_kind": "vanilla-static-site",
+  "entry": "apps/website/index.html",
+  "fonts": {
+    "existing": ["Inter 400", "Inter 600", "Inter 700"],
+    "source": "apps/website/assets/fonts",
+    "planned_display": "Bricolage Grotesque 800"
+  },
+  "palette": {
+    "source": "Design/nourish/DESIGN.md",
+    "anchor": "emerald",
+    "existing_values": ["#006c49", "#10b981", "#fcf9f8"]
+  },
+  "motion": {
+    "libraries": [],
+    "stance": "CSS-only"
+  },
+  "spacing": "8px design-system base; website-local implementation",
+  "framework": "static HTML, CSS, and ES modules",
+  "preserve": [
+    "release metadata loading",
+    "Android-only installable download logic",
+    "legal pages",
+    "bundled assets and offline-friendly requests"
+  ]
+}

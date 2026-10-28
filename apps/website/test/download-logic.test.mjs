@@ -38,8 +38,8 @@ const PUBLISHED = {
     ipa: null,
     note: 'iOS distribution requires Apple signing and distribution approval.',
   },
-  github_release: 'https://github.com/nourish-app/nourish/releases/tag/v1.0.0',
-  github_releases_url: 'https://github.com/nourish-app/nourish/releases',
+  github_release: 'https://github.com/kylosonic/nourish/releases/tag/v1.0.0',
+  github_releases_url: 'https://github.com/kylosonic/nourish/releases',
 };
 
 test('detects Android, iOS and desktop user agents', () => {
