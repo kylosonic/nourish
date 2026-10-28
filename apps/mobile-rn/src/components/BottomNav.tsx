@@ -568,6 +568,9 @@ export function BottomNav({
                   accessibilityState={
                     action.kind === 'tab' ? { selected } : undefined
                   }
+                  aria-selected={
+                    action.kind === 'tab' ? selected : undefined
+                  }
                   hitSlop={4}
                   onPressIn={() => showGlowAt(index)}
                   onPressOut={() =>
