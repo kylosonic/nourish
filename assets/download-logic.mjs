@@ -11,7 +11,7 @@
 
 /** @typedef {'android' | 'ios' | 'desktop'} Platform */
 
-export const GITHUB_RELEASES_FALLBACK = 'https://github.com/nourish-app/nourish/releases';
+export const GITHUB_RELEASES_FALLBACK = 'https://github.com/kylosonic/nourish/releases';
 
 /** Detect the visitor's platform from a user agent string. */
 export function detectPlatform(userAgent) {

@@ -1,0 +1,109 @@
+/* Hallmark · macrostructure: Feature Stack · tone: neo-brutalist
+ * genre: playful · theme: Brutal · nav: N7 · footer: Ft8
+ * palette: warm paper / emerald accent / ink rules
+ */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("fonts/BricolageGrotesque-ExtraBold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter";
+  src: url("fonts/Inter-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* Colour */
+  --color-paper: oklch(96.5% 0.022 92);
+  --color-paper-bright: oklch(98.6% 0.012 92);
+  --color-paper-deep: oklch(91.5% 0.035 91);
+  --color-paper-accent: oklch(94.5% 0.06 90);
+  --color-ink: oklch(18% 0.025 155);
+  --color-ink-soft: oklch(32% 0.026 155);
+  --color-muted: oklch(43% 0.018 150);
+  --color-rule: oklch(18% 0.025 155);
+  --color-rule-soft: oklch(72% 0.022 95);
+  --color-accent: oklch(71% 0.19 153);
+  --color-accent-ink: oklch(18% 0.025 155);
+  --color-accent-strong: oklch(43% 0.13 157);
+  --color-accent-soft: oklch(91% 0.07 151);
+  --color-sun: oklch(84% 0.15 83);
+  --color-focus: oklch(57% 0.19 156);
+  --color-danger: oklch(54% 0.18 31);
+  --color-on-dark: oklch(96% 0.025 92);
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", "Arial Black", sans-serif;
+  --font-body: "Inter", "Segoe UI", sans-serif;
+  --text-xs: 0.75rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-xl: clamp(1.95rem, 2.3vw + 1.2rem, 3.05rem);
+  --text-display: clamp(3rem, 6vw + 1rem, 6rem);
+  --lh-tight: 1.04;
+  --lh-body: 1.58;
+
+  /* Space */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+  --page-gutter: clamp(1rem, 4vw, 3rem);
+  --content-max: 82rem;
+  --prose-max: 64ch;
+
+  /* Rules, shape, elevation */
+  --rule-1: 1px;
+  --rule-2: 2px;
+  --rule-3: 3px;
+  --rule-heavy: 4px;
+  --radius-none: 0;
+  --radius-dot: 999px;
+  --shadow-hard: 0.45rem 0.45rem 0 var(--color-ink);
+  --shadow-hard-sm: 0.25rem 0.25rem 0 var(--color-ink);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 100ms;
+  --dur-short: 180ms;
+  --dur-long: 420ms;
+
+  /* Layers */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-tooltip: 600;
+}
