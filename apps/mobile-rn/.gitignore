@@ -10,6 +10,7 @@ dist-check/
 dist-all/
 dist-final/
 dist-final2/
+dist-nav-check/
 web-build/
 expo-env.d.ts
 

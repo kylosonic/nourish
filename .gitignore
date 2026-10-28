@@ -47,3 +47,4 @@ apps/api/fct-downloads/
 # Release artifacts
 release/
 .vercel
+artifacts/
