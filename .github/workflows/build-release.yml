@@ -323,7 +323,7 @@ jobs:
       - name: Commit the metadata back to the default branch
         run: |
           set -euo pipefail
-          if git diff --quiet -- releases/latest.json; then
+          if git diff --quiet -- releases/latest.json apps/website/latest.json; then
             echo "metadata unchanged — nothing to commit"
             exit 0
           fi
