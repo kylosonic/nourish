@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "published": true,
-  "version": "1.3.1",
-  "release_tag": "v1.3.1",
+  "version": "1.3.2",
+  "release_tag": "v1.3.2",
   "release_date": "2026-10-28",
   "android": {
     "available": true,
     "apk": null,
     "universal_apk": {
-      "url": "https://github.com/kylosonic/nourish/releases/download/v1.3.1/Nourish-1.3.1.apk",
-      "size_bytes": 110828911,
-      "sha256": "770cf5108e8ec7a0e000d379ca276ef57ee3830a0e71f9d70ce4dd26b5cfc905"
+      "url": "https://github.com/kylosonic/nourish/releases/download/v1.3.2/Nourish-1.3.2.apk",
+      "size_bytes": 111470722,
+      "sha256": "daddcc309e7c37fae6a1b7bda233a8eb82b9cec2aa5e393a8565d6111c377db0"
     },
     "aab": null
   },
@@ -20,6 +20,6 @@
     "ipa": null,
     "note": "iOS distribution requires Apple signing and distribution approval."
   },
-  "github_release": "https://github.com/kylosonic/nourish/releases/tag/v1.3.1",
+  "github_release": "https://github.com/kylosonic/nourish/releases/tag/v1.3.2",
   "github_releases_url": "https://github.com/kylosonic/nourish/releases"
 }
