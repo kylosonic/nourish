@@ -17,7 +17,7 @@ each step. Behaviour contracts: `docs/behaviors/release-download-update.md`
 | Metadata generator | `scripts/generate-latest-json.mjs` + `scripts/release-metadata.mjs` | Builds and validates that document from the actual artifacts (checksums, sizes, iOS signing state). |
 | Release pipeline | `.github/workflows/build-release.yml` | Tests → Android (APK/AAB) → iOS artifact → GitHub Release → R2 upload → metadata update. |
 | Mobile CI | `.github/workflows/android-ci.yml` | Analyse, test and debug-build on every mobile change. |
-| Website CI | `.github/workflows/website.yml` | Validates the site and publishes it to Cloudflare Pages. |
+| Website CI | `.github/workflows/website.yml` | Validates the site. Vercel deploys `apps/website` from the connected GitHub repository. |
 
 ## Cutting a release
 

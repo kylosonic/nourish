@@ -101,3 +101,13 @@ test('the committed latest.json is valid and drives each platform honestly', () 
     assert.equal(committed.ios?.ipa ?? null, null, 'an unsigned iOS build must not be linked as installable');
   }
 });
+
+test('the Vercel-visible release metadata matches the canonical release document', () => {
+  const canonical = JSON.parse(
+    fs.readFileSync(path.resolve(import.meta.dirname, '../../../releases/latest.json'), 'utf8'),
+  );
+  const websiteCopy = JSON.parse(
+    fs.readFileSync(path.resolve(import.meta.dirname, '../latest.json'), 'utf8'),
+  );
+  assert.deepEqual(websiteCopy, canonical);
+});

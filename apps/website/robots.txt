@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /assets/fonts/
 
-Sitemap: https://kylosonic.github.io/nourish/sitemap.xml
+Sitemap: https://nourish-kylosonic.vercel.app/sitemap.xml

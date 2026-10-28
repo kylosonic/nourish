@@ -1205,9 +1205,10 @@ it becomes available; otherwise continue recording the limitation.
 | `Nourish-v1.0.0-universal.apk` | 61,174,761 bytes (sha256 `b63674f3…8b7fff`) | **Yes** — sideload; signed with the Android debug key, so not Play-publishable |
 | `Nourish-v1.0.0-unsigned-development.ipa` | 9,379,311 bytes | **No** — iOS requires Apple code signing; built for inspection |
 
-- **Launch site (live):** https://kylosonic.github.io/nourish/ — GitHub Pages from
-  the `gh-pages` branch. Its download button reads `latest.json` beside the page
-  and links the APK above. Verified end to end: the live `latest.json` reports
+- **Launch site (live):** https://nourish-kylosonic.vercel.app/ — Vercel,
+  connected to this repository with `apps/website` as its root directory. Its
+  download button reads `latest.json` beside the page and links the APK above.
+  Verified end to end: the live `latest.json` reports
   `published=true version=1.0.0 android=true`, and fetching the URL it advertises
   returns **HTTP 200 with 61,174,761 bytes**, matching the recorded size.
 - **Repository:** https://github.com/kylosonic/nourish — public; `feat/nourish-mvp`

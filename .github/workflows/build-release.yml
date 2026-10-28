@@ -327,9 +327,10 @@ jobs:
             echo "metadata unchanged — nothing to commit"
             exit 0
           fi
+          cp releases/latest.json apps/website/latest.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add releases/latest.json
+          git add releases/latest.json apps/website/latest.json
           git commit -m "chore(release): publish ${RELEASE_TAG} metadata"
           git push origin "HEAD:${{ github.event.repository.default_branch }}"
 

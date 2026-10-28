@@ -3,7 +3,7 @@
 The public marketing site for Nourish. It is a dependency-free static site built
 with semantic HTML, CSS, and small ES modules.
 
-Live site: <https://kylosonic.github.io/nourish/>
+Live site: <https://nourish-kylosonic.vercel.app/>
 
 The current design is a neo-brutalist product tour built around real app
 captures and approved Ethiopian food photography. The fixed bottom dock behaves
@@ -21,7 +21,7 @@ apps/website/
   health-disclaimer.html     health and nutrition disclaimer
   data-deletion.html         data deletion
   robots.txt / sitemap.xml   SEO
-  latest.json                copied from releases/latest.json at deploy time
+  latest.json                Vercel copy of releases/latest.json
   assets/
     tokens.css               colour, type, spacing, rule, and motion tokens
     styles.css               layout and interaction styles
@@ -44,9 +44,9 @@ From the repository root:
 npx http-server -p 8080 -c-1
 ```
 
-Open <http://127.0.0.1:8080/apps/website/>. Serving from the repository root
-lets the page read `releases/latest.json`; deployed builds use the copied
-`latest.json` beside the site instead.
+Open <http://127.0.0.1:8080/apps/website/>. The site reads its local
+`latest.json` first and the canonical `releases/latest.json` as a development
+fallback.
 
 ## Verify
 
@@ -72,3 +72,14 @@ scroll and no wrapped navigation or CTA labels.
 
 The decision logic lives in `assets/download-logic.mjs` and is covered by the
 tests in `test/`, rather than being enforced by comments alone.
+
+## Deployment
+
+Production is served by the Vercel project `nourish`, with `apps/website` as its
+repository root. The custom project domain is
+<https://nourish-kylosonic.vercel.app/>.
+
+Vercel's GitHub integration handles production and preview deployments.
+`latest.json` is committed beside the site so a static deployment always has
+working release metadata; the release workflow updates both copies together.
+GitHub Pages is not used.
