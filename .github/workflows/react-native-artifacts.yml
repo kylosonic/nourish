@@ -6,12 +6,12 @@ on:
       release_tag:
         description: GitHub release tag
         required: true
-        default: v1.3.0
+        default: v1.3.1
         type: string
       version:
         description: App version embedded in the build
         required: true
-        default: 1.3.0
+        default: 1.3.1
         type: string
       prerelease:
         description: Mark the GitHub release as a prerelease
@@ -234,7 +234,7 @@ jobs:
             ### What’s new
 
             - Email/password and Google account entry points, plus the existing phone OTP lane.
-            - iOS 26-inspired liquid-glass navigation with a smoothly sliding selection lens.
+            - Native iOS 26 liquid glass navigation with an animated selection lens, plus a cross-platform blur fallback.
             - Camera/gallery scanner recovery that always offers manual food search.
             - Gram-level portion editing for every food-search result.
             - Scheduled hydration notifications with an immediate confirmation notification.

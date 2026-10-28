@@ -88,7 +88,7 @@ flutter run
 ```
 
 The current React Native preview is
-[`v1.3.0`](https://github.com/kylosonic/nourish/releases/tag/v1.3.0). It includes
+[`v1.3.1`](https://github.com/kylosonic/nourish/releases/tag/v1.3.1). It includes
 the supplied liquid-glass navigation with a sliding selection lens,
 email/Google/phone entry points, exact-gram food portions, scheduled hydration
 notifications, shorter copy, and manual scanner recovery. The Android APK is
