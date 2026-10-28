@@ -5,6 +5,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Platform,
@@ -16,6 +17,10 @@ import {
   type PointerEvent as RNPointerEvent,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
+import {
+  GlassView,
+  isLiquidGlassAvailable,
+} from 'expo-glass-effect';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import Svg, {
@@ -31,11 +36,12 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, fonts } from '../theme';
 import { Icon, type IconName } from './ui';
 
-const NAV_HEIGHT = 76;
-const ITEM_HEIGHT = 60;
-const HORIZONTAL_PADDING = 10;
-const GAP = 6;
-const DRAG_THRESHOLD = 6;
+const NAV_HEIGHT = 72;
+const ITEM_HEIGHT = 58;
+const HORIZONTAL_PADDING = 8;
+const GAP = 2;
+const DRAG_THRESHOLD = 5;
+const USE_NATIVE_DRIVER = Platform.OS !== 'web';
 
 type TabName = 'Home' | 'Progress' | 'Insights' | 'Profile';
 type NavAction =
@@ -99,11 +105,17 @@ export function BottomNav({
   const [navLeft, setNavLeft] = useState(0);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [scanActive, setScanActive] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
   const [glow, setGlow] = useState({ active: false, x: 0, y: NAV_HEIGHT / 2 });
   const [indicatorX] = useState(
     () => new Animated.Value(HORIZONTAL_PADDING),
   );
+  const [indicatorScale] = useState(() => new Animated.Value(1));
+  const [indicatorGlint] = useState(() => new Animated.Value(0));
   const [engagedScale] = useState(() => new Animated.Value(1));
+  const scanTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const canUseNativeGlass =
+    Platform.OS === 'ios' && isLiquidGlassAvailable();
 
   const itemWidth =
     navWidth > 0
@@ -121,36 +133,93 @@ export function BottomNav({
     (index: number, animated = true) => {
       if (itemWidth <= 0) return;
       const toValue = indexX(index);
-      if (!animated) {
+      if (!animated || reduceMotion) {
         indicatorX.setValue(toValue);
+        indicatorScale.setValue(1);
+        indicatorGlint.setValue(0);
         return;
       }
-      Animated.timing(indicatorX, {
-        toValue,
-        duration: 360,
-        easing: Easing.bezier(0.22, 1, 0.36, 1),
-        useNativeDriver: false,
-      }).start();
+
+      indicatorX.stopAnimation();
+      indicatorScale.stopAnimation();
+      indicatorGlint.stopAnimation();
+      indicatorScale.setValue(0.94);
+      indicatorGlint.setValue(0);
+
+      Animated.parallel([
+        Animated.spring(indicatorX, {
+          toValue,
+          stiffness: 245,
+          damping: 27,
+          mass: 0.78,
+          useNativeDriver: USE_NATIVE_DRIVER,
+        }),
+        Animated.spring(indicatorScale, {
+          toValue: 1,
+          stiffness: 300,
+          damping: 24,
+          mass: 0.72,
+          useNativeDriver: USE_NATIVE_DRIVER,
+        }),
+        Animated.timing(indicatorGlint, {
+          toValue: 1,
+          duration: 420,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: USE_NATIVE_DRIVER,
+        }),
+      ]).start();
     },
-    [indicatorX, indexX, itemWidth],
+    [
+      indicatorGlint,
+      indicatorScale,
+      indicatorX,
+      indexX,
+      itemWidth,
+      reduceMotion,
+    ],
   );
 
   const animateEngaged = useCallback(
     (engaged: boolean) => {
+      if (reduceMotion) {
+        engagedScale.setValue(1);
+        return;
+      }
       Animated.timing(engagedScale, {
         toValue: engaged ? 1.03 : 1,
         duration: 180,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }).start();
     },
-    [engagedScale],
+    [engagedScale, reduceMotion],
   );
+
+  useEffect(() => {
+    let mounted = true;
+    void AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
+      if (mounted) setReduceMotion(enabled);
+    });
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceMotionChanged',
+      setReduceMotion,
+    );
+    return () => {
+      mounted = false;
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     animateIndicator(activeIndex, hasPositioned.current);
     hasPositioned.current = itemWidth > 0;
   }, [activeIndex, animateIndicator, itemWidth]);
+
+  useEffect(() => {
+    return () => {
+      if (scanTimer.current) clearTimeout(scanTimer.current);
+    };
+  }, []);
 
   const measureNav = useCallback(() => {
     navRef.current?.measureInWindow((x) => {
@@ -194,10 +263,12 @@ export function BottomNav({
       if (action.kind === 'scan') {
         setScanActive(true);
         onScan();
-        setTimeout(() => {
+        if (scanTimer.current) clearTimeout(scanTimer.current);
+        scanTimer.current = setTimeout(() => {
           setScanActive(false);
           animateIndicator(activeIndex);
-        }, 360);
+          scanTimer.current = null;
+        }, 480);
       } else {
         setScanActive(false);
         navigation.navigate(action.tab);
@@ -259,6 +330,7 @@ export function BottomNav({
         ),
       );
       indicatorX.setValue(nextX);
+      if (!reduceMotion) indicatorScale.setValue(1.035);
       setDragIndex(nextIndex);
       setGlow({ active: true, x: localX, y: NAV_HEIGHT / 2 });
     },
@@ -266,10 +338,12 @@ export function BottomNav({
       animateEngaged,
       indexFromX,
       indicatorX,
+      indicatorScale,
       itemStep,
       itemWidth,
       navLeft,
       navWidth,
+      reduceMotion,
     ],
   );
 
@@ -323,7 +397,13 @@ export function BottomNav({
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.container, { paddingBottom: Math.max(8, insets.bottom) }]}
+      style={[
+        styles.container,
+        {
+          height: NAV_HEIGHT + Math.max(8, insets.bottom) + 16,
+          paddingBottom: Math.max(8, insets.bottom),
+        },
+      ]}
     >
       <Animated.View style={[styles.shell, { transform: [{ scale: engagedScale }] }]}>
         <View
@@ -335,21 +415,35 @@ export function BottomNav({
           onPointerUpCapture={handlePointerUp}
           onPointerCancelCapture={handlePointerCancel}
         >
-          <BlurView
-            intensity={82}
-            tint="light"
-            experimentalBlurMethod={
-              Platform.OS === 'android' ? 'dimezisBlurView' : 'none'
-            }
-            style={StyleSheet.absoluteFill}
-          />
+          {canUseNativeGlass ? (
+            <GlassView
+              pointerEvents="none"
+              glassEffectStyle={{ style: 'regular', animate: true }}
+              tintColor="rgba(255,255,255,0.16)"
+              colorScheme="light"
+              style={StyleSheet.absoluteFill}
+            />
+          ) : (
+            <BlurView
+              pointerEvents="none"
+              intensity={68}
+              tint="light"
+              blurMethod={
+                Platform.OS === 'android'
+                  ? 'dimezisBlurViewSdk31Plus'
+                  : undefined
+              }
+              style={StyleSheet.absoluteFill}
+            />
+          )}
           <LinearGradient
+            pointerEvents="none"
             colors={[
-              'rgba(255,255,255,0.72)',
-              'rgba(238,247,243,0.48)',
-              'rgba(255,255,255,0.28)',
+              'rgba(255,255,255,0.78)',
+              'rgba(238,247,243,0.46)',
+              'rgba(227,237,239,0.28)',
             ]}
-            locations={[0, 0.52, 1]}
+            locations={[0, 0.56, 1]}
             start={{ x: 0.08, y: 0 }}
             end={{ x: 0.9, y: 1 }}
             style={StyleSheet.absoluteFill}
@@ -395,20 +489,69 @@ export function BottomNav({
               styles.indicator,
               {
                 width: itemWidth,
-                transform: [{ translateX: indicatorX }],
+                transform: [
+                  { translateX: indicatorX },
+                  { scale: indicatorScale },
+                ],
               },
             ]}
           >
             <View style={styles.indicatorFill}>
+              {canUseNativeGlass ? (
+                <GlassView
+                  pointerEvents="none"
+                  glassEffectStyle={{
+                    style: 'clear',
+                    animate: true,
+                    animationDuration: 0.42,
+                  }}
+                  tintColor="rgba(255,255,255,0.22)"
+                  colorScheme="light"
+                  style={StyleSheet.absoluteFill}
+                />
+              ) : (
+                <BlurView
+                  pointerEvents="none"
+                  intensity={42}
+                  tint="light"
+                  blurMethod={
+                    Platform.OS === 'android'
+                      ? 'dimezisBlurViewSdk31Plus'
+                      : undefined
+                  }
+                  style={StyleSheet.absoluteFill}
+                />
+              )}
               <LinearGradient
+                pointerEvents="none"
                 colors={[
-                  'rgba(255,255,255,0.54)',
-                  'rgba(223,247,236,0.34)',
-                  'rgba(255,255,255,0.18)',
+                  'rgba(255,255,255,0.64)',
+                  'rgba(220,250,237,0.3)',
+                  'rgba(235,244,255,0.2)',
                 ]}
+                locations={[0, 0.54, 1]}
+                start={{ x: 0, y: 0.12 }}
+                end={{ x: 1, y: 0.9 }}
                 style={StyleSheet.absoluteFill}
               />
+              <Animated.View
+                style={[
+                  styles.lensGlint,
+                  {
+                    transform: [
+                      {
+                        translateX: indicatorGlint.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [-itemWidth * 0.34, itemWidth * 0.34],
+                        }),
+                      },
+                      { rotate: '12deg' },
+                    ],
+                  },
+                ]}
+              />
               <View style={styles.indicatorSpecular} />
+              <View style={styles.indicatorLowerEdge} />
             </View>
           </Animated.View>
 
@@ -464,72 +607,96 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: 108,
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
+    alignItems: 'center',
     justifyContent: 'flex-end',
     backgroundColor: 'transparent',
   },
   shell: {
+    width: '100%',
+    maxWidth: 560,
     borderRadius: NAV_HEIGHT / 2,
-    shadowColor: '#26483A',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.2,
-    shadowRadius: 30,
-    elevation: 18,
+    borderCurve: 'continuous',
+    shadowColor: '#203D31',
+    shadowOffset: { width: 0, height: 14 },
+    shadowOpacity: 0.18,
+    shadowRadius: 26,
+    elevation: 16,
   },
   glass: {
     height: NAV_HEIGHT,
     borderRadius: NAV_HEIGHT / 2,
+    borderCurve: 'continuous',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.82)',
-    backgroundColor: 'rgba(234,240,237,0.5)',
+    borderColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: 'rgba(232,240,237,0.42)',
     overflow: 'hidden',
     userSelect: 'none',
   },
   topSpecular: {
     position: 'absolute',
     top: 1,
-    left: 30,
-    right: 30,
+    left: 44,
+    right: 44,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.96)',
+    backgroundColor: 'rgba(255,255,255,0.98)',
   },
   bottomInnerShadow: {
     position: 'absolute',
-    left: 22,
-    right: 22,
+    left: 34,
+    right: 34,
     bottom: 1,
     height: 1,
-    backgroundColor: 'rgba(0,91,62,0.12)',
+    backgroundColor: 'rgba(0,91,62,0.14)',
   },
   indicator: {
     position: 'absolute',
     left: 0,
-    top: 8,
+    top: 7,
     height: ITEM_HEIGHT,
     borderRadius: ITEM_HEIGHT / 2,
+    borderCurve: 'continuous',
     zIndex: 1,
-    shadowColor: '#5A7469',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 14,
-    elevation: 5,
+    shadowColor: '#315849',
+    shadowOffset: { width: 0, height: 7 },
+    shadowOpacity: 0.18,
+    shadowRadius: 13,
+    elevation: 6,
   },
   indicatorFill: {
     flex: 1,
     borderRadius: ITEM_HEIGHT / 2,
+    borderCurve: 'continuous',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.86)',
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    borderColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+  },
+  lensGlint: {
+    position: 'absolute',
+    top: 5,
+    bottom: 5,
+    left: '50%',
+    width: 15,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.34)',
+    opacity: 0.75,
   },
   indicatorSpecular: {
     position: 'absolute',
-    top: 1,
-    left: 14,
-    right: 14,
+    top: 2,
+    left: 16,
+    right: 16,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: 'rgba(255,255,255,0.96)',
+  },
+  indicatorLowerEdge: {
+    position: 'absolute',
+    left: 18,
+    right: 18,
+    bottom: 1,
+    height: 1,
+    backgroundColor: 'rgba(0,108,73,0.16)',
   },
   items: {
     zIndex: 2,
@@ -542,25 +709,24 @@ const styles = StyleSheet.create({
   item: {
     height: ITEM_HEIGHT,
     borderRadius: ITEM_HEIGHT / 2,
+    borderCurve: 'continuous',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 1,
+    gap: 2,
   },
   itemPressed: {
-    opacity: 0.7,
-    transform: [{ scale: 0.97 }],
+    opacity: 0.76,
+    transform: [{ scale: 0.94 }],
   },
   label: {
     fontFamily: fonts.semibold,
     fontSize: 10,
-    lineHeight: 13,
-    letterSpacing: 0.02,
-    color: '#47584F',
-    textShadowColor: 'rgba(15,18,24,0.24)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 7,
+    lineHeight: 12,
+    letterSpacing: 0.08,
+    color: '#53635B',
   },
   labelActive: {
     color: colors.primary,
+    transform: [{ translateY: -1 }],
   },
 });
