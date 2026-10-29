@@ -96,18 +96,19 @@ No keystore, Apple private key, API key, or OTP code belongs in this repository.
 `.github/workflows/react-native-artifacts.yml` produces two directly downloadable
 GitHub release assets without EAS credentials:
 
-- `Nourish-1.3.4.apk` — release-mode Android APK signed with the generated
+- `Nourish-1.3.5.apk` — release-mode Android APK signed with the generated
   development debug key; installable for testing.
-- `Nourish-1.3.4-UNSIGNED.ipa` — an unsigned iOS payload archive for
+- `Nourish-1.3.5-UNSIGNED.ipa` — an unsigned iOS payload archive for
   inspection and signing work; **not installable on a standard iPhone**.
 
 The workflow writes `SHA256SUMS.txt` and creates the requested GitHub release
 only after both builds succeed.
 
-The current React Native preview is
-[`v1.3.4`](https://github.com/kylosonic/nourish/releases/tag/v1.3.4), marked as
-a prerelease because the APK uses a development signing key and the iOS IPA is
-unsigned. The earlier
+The current React Native preview is published from the
+[`v1.3.5`](https://github.com/kylosonic/nourish/releases/tag/v1.3.5) workflow,
+marked as a prerelease because the APK uses a development signing key and the
+iOS IPA is unsigned. The earlier
+[`v1.3.4`](https://github.com/kylosonic/nourish/releases/tag/v1.3.4),
 [`v1.3.2`](https://github.com/kylosonic/nourish/releases/tag/v1.3.2),
 [`v1.3.1`](https://github.com/kylosonic/nourish/releases/tag/v1.3.1),
 [`v1.2.0`](https://github.com/kylosonic/nourish/releases/tag/v1.2.0) and

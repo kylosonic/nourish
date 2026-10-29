@@ -44,7 +44,6 @@ import { reconcileHydrationReminders } from '../services/notifications';
 
 type Action =
   | { type: 'hydrate'; data: AppData; session: AccountSession | null }
-  | { type: 'completePermissionSetup' }
   | { type: 'patchOnboarding'; patch: Partial<OnboardingData> }
   | { type: 'startOnboarding' }
   | { type: 'completeOnboarding'; target: AppState['target'] }
@@ -65,8 +64,6 @@ function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case 'hydrate':
       return { ...state, ...action.data, session: action.session, hydrated: true };
-    case 'completePermissionSetup':
-      return { ...state, permissionSetupCompleted: true };
     case 'startOnboarding':
       return {
         ...state,
@@ -242,7 +239,6 @@ function reducer(state: AppState, action: Action): AppState {
 
 interface AppContextValue {
   state: AppState;
-  completePermissionSetup: () => void;
   startOnboarding: () => void;
   patchOnboarding: (patch: Partial<OnboardingData>) => void;
   completeOnboarding: () => void;
@@ -299,10 +295,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [state.hydrated, state.settings.remindersEnabled]);
 
   const startOnboarding = useCallback(() => dispatch({ type: 'startOnboarding' }), []);
-  const completePermissionSetup = useCallback(
-    () => dispatch({ type: 'completePermissionSetup' }),
-    [],
-  );
 
   const patchOnboarding = useCallback(
     (patch: Partial<OnboardingData>) => dispatch({ type: 'patchOnboarding', patch }),
@@ -466,7 +458,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AppContextValue>(
     () => ({
       state,
-      completePermissionSetup,
       startOnboarding,
       patchOnboarding,
       completeOnboarding,
@@ -485,7 +476,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }),
     [
       state,
-      completePermissionSetup,
       startOnboarding,
       patchOnboarding,
       completeOnboarding,

@@ -44,11 +44,9 @@ import { LowConfidenceScreen } from '../screens/scan/LowConfidenceScreen';
 import { FoodSearchScreen } from '../screens/search/FoodSearchScreen';
 import { EditMealScreen } from '../screens/scan/EditMealScreen';
 import { BarcodeScreen } from '../screens/scan/BarcodeScreen';
-import { PermissionSetupScreen } from '../screens/permissions/PermissionSetupScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
-const PermissionStack = createNativeStackNavigator<{ PermissionSetup: undefined }>();
 
 const onboardingRoute: Record<number, keyof RootStackParamList> = {
   1: 'Language',
@@ -208,18 +206,9 @@ export function RootNavigator({
 }: {
   navigationRef?: React.RefObject<NavigationContainerRef<RootStackParamList> | null>;
 }) {
-  const { state, completePermissionSetup } = useApp();
   return (
     <NavigationContainer ref={navigationRef}>
-      {state.permissionSetupCompleted ? (
-        <AppStack />
-      ) : (
-        <PermissionStack.Navigator screenOptions={{ headerShown: false }}>
-          <PermissionStack.Screen name="PermissionSetup">
-            {() => <PermissionSetupScreen onComplete={completePermissionSetup} />}
-          </PermissionStack.Screen>
-        </PermissionStack.Navigator>
-      )}
+      <AppStack />
     </NavigationContainer>
   );
 }

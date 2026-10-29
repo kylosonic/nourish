@@ -6,12 +6,12 @@ on:
       release_tag:
         description: GitHub release tag
         required: true
-        default: v1.3.4
+        default: v1.3.5
         type: string
       version:
         description: App version embedded in the build
         required: true
-        default: 1.3.4
+        default: 1.3.5
         type: string
       prerelease:
         description: Mark the GitHub release as a prerelease
@@ -237,8 +237,8 @@ jobs:
 
             ### What’s new
 
-            - One-time first-run setup requests camera, photo-library, and notification permissions with clear fallbacks.
-            - Native permission state is persisted so onboarding is not interrupted or repeated.
+            - Permission prompts are deferred until users choose camera/photo scanning or enable hydration reminders in settings.
+            - Onboarding completes without requesting camera, photo-library, or notification access.
             - Email/password and Google account entry points, plus the existing phone OTP lane.
             - Smoother native screen transitions and a calmer floating-navigation indicator with no spring overshoot.
             - A slower, softer scan pulse and eased scan-stage changes, with reduced-motion preferences respected.

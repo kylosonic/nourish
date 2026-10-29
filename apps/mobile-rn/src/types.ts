@@ -225,7 +225,6 @@ export interface MealDraftItem {
 }
 
 export interface AppData {
-  permissionSetupCompleted: boolean;
   onboarding: OnboardingData;
   target: DailyTarget | null;
   settings: Settings;

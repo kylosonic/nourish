@@ -37,22 +37,6 @@ async function ensureChannel(): Promise<void> {
   });
 }
 
-export async function requestNotificationPermission(): Promise<
-  'granted' | 'denied' | 'unsupported'
-> {
-  if (Platform.OS === 'web') return 'unsupported';
-  try {
-    await ensureChannel();
-  } catch {
-    // The permission prompt can still be shown if channel setup is unavailable.
-  }
-  let permission = await Notifications.getPermissionsAsync();
-  if (!permission.granted) {
-    permission = await Notifications.requestPermissionsAsync();
-  }
-  return permission.granted ? 'granted' : 'denied';
-}
-
 async function cancelScheduledReminders(): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   const reminders = scheduled.filter(
