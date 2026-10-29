@@ -26,6 +26,7 @@ import type { Food, MealItem, Nutrition, PortionUnit } from '../../types';
 import { newId } from '../../utils/date';
 import { imageForFood } from '../../data/images';
 import { clearPendingAnalysisInput } from '../../state/analysisSession';
+import { reportCorrections } from '../../data/api';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditMeal'>;
 
@@ -38,7 +39,7 @@ interface Draft {
 }
 
 export function EditMealScreen({ navigation, route }: Props) {
-  const { state, addResolvedMeal } = useApp();
+  const { state, addResolvedMeal, updateMeal } = useApp();
   const [drafts, setDrafts] = useState<Draft[]>(
     route.params.items.map((item) => ({
       base: item,
@@ -123,13 +124,77 @@ export function EditMealScreen({ navigation, route }: Props) {
       grams: draft.grams,
       nutrition: draft.nutrition,
     }));
-    addResolvedMeal(
-      route.params.slot || 'dinner',
-      items,
-      'photo',
-      route.params.analysisId,
-      route.params.imageUri,
-    );
+    if (route.params.mealId) {
+      updateMeal(route.params.mealId, items);
+    } else {
+      addResolvedMeal(
+        route.params.slot || 'dinner',
+        items,
+        route.params.analysisId ? 'photo' : 'manual',
+        route.params.analysisId,
+        route.params.imageUri,
+      );
+    }
+    if (route.params.analysisId) {
+      const original = route.params.items;
+      const corrections: Record<string, unknown>[] = [];
+      for (const item of original) {
+        const corrected = items.find((candidate) => candidate.id === item.id);
+        if (!corrected) {
+          corrections.push({
+            itemId: item.id,
+            action: 'remove',
+            predictedLabel: item.foodName,
+            originalEstimate: snapshot(item),
+            userCorrection: { removed: true },
+            foodContext: { source: 'edit-before-save' },
+          });
+          continue;
+        }
+        if (corrected.foodId !== item.foodId) {
+          corrections.push({
+            itemId: item.id,
+            action: 'swap',
+            predictedLabel: item.foodName,
+            chosenFoodId: corrected.foodId,
+            originalEstimate: snapshot(item),
+            userCorrection: snapshot(corrected),
+            foodContext: { source: 'edit-before-save' },
+          });
+        } else if (
+          corrected.grams !== item.grams ||
+          corrected.portionQuantity !== item.portionQuantity
+        ) {
+          corrections.push({
+            itemId: item.id,
+            action: 'portion',
+            predictedLabel: item.foodName,
+            chosenFoodId: corrected.foodId,
+            chosenAmount: corrected.portionQuantity,
+            chosenUnit: corrected.portionUnit,
+            originalEstimate: snapshot(item),
+            userCorrection: snapshot(corrected),
+            foodContext: { source: 'edit-before-save' },
+          });
+        }
+      }
+      for (const item of items.filter(
+        (candidate) => !original.some((source) => source.id === candidate.id),
+      )) {
+        corrections.push({
+          itemId: item.id,
+          action: 'add',
+          chosenFoodId: item.foodId,
+          chosenAmount: item.portionQuantity,
+          chosenUnit: item.portionUnit,
+          userCorrection: snapshot(item),
+          foodContext: { source: 'edit-before-save' },
+        });
+      }
+      if (corrections.length > 0) {
+        void reportCorrections(route.params.analysisId, corrections);
+      }
+    }
     clearPendingAnalysisInput();
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     navigation.reset({
@@ -304,6 +369,17 @@ export function EditMealScreen({ navigation, route }: Props) {
       </Modal>
     </NeoScreenWrapper>
   );
+}
+
+function snapshot(item: MealItem): Record<string, unknown> {
+  return {
+    foodId: item.foodId,
+    foodName: item.foodName,
+    portionUnit: item.portionUnit,
+    portionQuantity: item.portionQuantity,
+    grams: item.grams,
+    nutrition: item.nutrition,
+  };
 }
 
 function scaleNutrition(nutrition: Nutrition, ratio: number): Nutrition {

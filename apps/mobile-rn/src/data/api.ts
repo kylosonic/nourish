@@ -1,11 +1,15 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import type {
   AccountSession,
+  AccountConsent,
   AnalysisResult,
+  ConsentPatch,
   Food,
   Meal,
   Nutrition,
   PortionUnit,
+  SyncChanges,
   SyncOperation,
 } from '../types';
 
@@ -13,6 +17,8 @@ const developmentBase =
   Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
 
 export const API_BASE_URL =
+  (Constants.expoConfig?.extra?.apiUrl as string | null | undefined)
+    ?.replace(/\/+$/, '') ||
   process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, '') ||
   (__DEV__ ? developmentBase : 'https://api.nourish.app');
 
@@ -222,6 +228,43 @@ export async function reportCorrections(
   }
 }
 
+export interface BarcodeFood extends Food {
+  barcode: string;
+}
+
+export async function lookupBarcode(barcode: string): Promise<BarcodeFood> {
+  const food = await request<BarcodeFood>(
+    `/v1/products/barcode/${encodeURIComponent(barcode)}`,
+    {},
+    15_000,
+  );
+  if (!food.id || !food.canonicalName || !food.per100g) {
+    throw new ApiError('The barcode response was incomplete.', 'MALFORMED');
+  }
+  return food;
+}
+
+export interface ParsedNutritionLabel {
+  name: string | null;
+  servingSizeG: number;
+  perServing: Nutrition;
+  confidence: number;
+}
+
+export async function parseNutritionLabel(
+  imageBase64: string,
+  mimeType = 'image/jpeg',
+): Promise<ParsedNutritionLabel> {
+  return request<ParsedNutritionLabel>(
+    '/v1/products/label',
+    {
+      method: 'POST',
+      body: JSON.stringify({ imageBase64, mimeType }),
+    },
+    60_000,
+  );
+}
+
 export async function requestOtp(
   phone: string,
 ): Promise<{ phoneE164: string; expiresIn: number; resendAfter: number }> {
@@ -238,6 +281,26 @@ export async function verifyOtp(
   const result = await request<AuthResponseWire>('/v1/auth/otp/verify', {
     method: 'POST',
     body: JSON.stringify({ phone, code }),
+  });
+  return { session: mapAccountSession(result), created: result.created };
+}
+
+export async function requestEmailOtp(
+  email: string,
+): Promise<{ email: string; expiresIn: number; resendAfter: number }> {
+  return request('/v1/auth/email-otp/request', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function verifyEmailOtp(
+  email: string,
+  code: string,
+): Promise<{ session: AccountSession; created: boolean }> {
+  const result = await request<AuthResponseWire>('/v1/auth/email-otp/verify', {
+    method: 'POST',
+    body: JSON.stringify({ email, code }),
   });
   return { session: mapAccountSession(result), created: result.created };
 }
@@ -365,6 +428,53 @@ export async function pushChanges(
     },
     20_000,
   );
+}
+
+export async function fetchChanges(
+  session: AccountSession,
+  since: string | null,
+): Promise<SyncChanges> {
+  const query = since
+    ? `?limit=1000&since=${encodeURIComponent(since)}`
+    : '?limit=1000';
+  const result = await request<SyncChanges>(`/v1/sync/changes${query}`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  if (
+    !Array.isArray(result.meals) ||
+    !Array.isArray(result.water) ||
+    !Array.isArray(result.weight) ||
+    typeof result.serverTime !== 'string'
+  ) {
+    throw new ApiError('The account returned incomplete sync data.', 'MALFORMED');
+  }
+  return result;
+}
+
+export async function fetchConsent(
+  session: AccountSession,
+): Promise<AccountConsent> {
+  return request<AccountConsent>('/v1/account/consent', {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+}
+
+export async function updateConsent(
+  session: AccountSession,
+  patch: ConsentPatch,
+): Promise<AccountConsent> {
+  return request<AccountConsent>('/v1/account/consent', {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function deleteAccount(session: AccountSession): Promise<void> {
+  await request<void>('/v1/account', {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
 }
 
 export interface ReleaseMetadata {

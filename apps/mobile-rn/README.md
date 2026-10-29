@@ -27,7 +27,13 @@ target for current product work.
 | Bottom navigation | Floating liquid-glass surface with a timed sliding selection lens and central scan action |
 | Hydration reminders | Native local notifications at 10:00, 14:00, and 18:00 with permission handling and a confirmation notification |
 | Local health-data storage | Encrypted AES-256-GCM blob; key held in platform secure storage |
-| Push-only backup | Implemented against `/v1/auth` and `/v1/sync`, including token rotation on a 401 |
+| Account sync | Push and pull/restore with `clientId` identity, cursor persistence, last-write-wins conflict handling, tombstones, and fresh-install restoration |
+| Automatic sync | Foreground, reconnect, and `expo-background-fetch` paths share one engine |
+| Account management | Server-synced consent and in-app permanent account deletion |
+| Barcode and label OCR | Open Food Facts lookup plus Gemini label fallback |
+| Saved meal editing | Existing meal IDs update in place locally and through sync |
+| Subscriptions | RevenueCat abstraction with monthly/annual paywall, restore, and labelled UAT mock mode |
+| Adaptive hydration reminders | Configurable start/end/interval with goal-aware cancellation |
 | Release update check | Implemented against `latest.json` using semantic version comparison |
 | Data export | Implemented as a shareable JSON file |
 
@@ -41,14 +47,17 @@ These are product/provider blockers, not hidden stubs:
 - SMS delivery requires an API `SMS_PROVIDER`. The local API supports its
   development console provider, but no production SMS gateway credential is in
   this workspace.
-- Barcode lookup and label OCR require a verified product catalog/service.
-  Unknown barcodes never receive estimated packaged nutrition.
+- Passwordless email fallback requires a Resend API key or SMTP credentials.
+- Firebase phone verification requires a Firebase project and mobile Firebase
+  integration; the backend verifier is implemented.
+- Barcode lookup uses Open Food Facts, and label OCR requires `GEMINI_API_KEY`.
+  Unknown or incomplete products never receive estimated nutrition.
 - Hydration reminders are scheduled locally by the installed app. Remote pushes
   to all devices would additionally require Expo/FCM/APNs delivery credentials.
-- Server-side account erasure is not present in the current API. The app offers
-  local deletion and identifies the remaining server-side blocker in Privacy.
 - EAS signing/store publication requires an Expo account, Apple team, and
   Android signing credentials. Those cannot be manufactured locally.
+- RevenueCat offerings require store products and approval. Development builds
+  without SDK keys use a visible local mock entitlement.
 
 ## Run
 
@@ -90,6 +99,8 @@ The app uses EAS profiles in `eas.json`.
 5. Run the **React Native EAS Release** workflow.
 
 No keystore, Apple private key, API key, or OTP code belongs in this repository.
+See [`../../BUILD_AND_UAT_CHECKLIST.md`](../../BUILD_AND_UAT_CHECKLIST.md) for the
+complete signing and device-UAT gate.
 
 ### Unsigned CI artifacts
 

@@ -44,6 +44,8 @@ export async function truncateAll(prisma: PrismaClient): Promise<void> {
   await prisma.entitlement.deleteMany();
   await prisma.refreshToken.deleteMany();
   await prisma.otpChallenge.deleteMany();
+  await prisma.emailOtpChallenge.deleteMany();
+  await prisma.accountDeletionRequest.deleteMany();
   await prisma.user.deleteMany();
 
   // S2 analysis layer.

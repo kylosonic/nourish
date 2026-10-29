@@ -242,6 +242,8 @@ model AnalysisCorrection {
   chosenUnit     String?
   modelVersion   String
   promptVersion  String
+  /// Optional structured comparison captured by newer clients.
+  details        Json?
   createdAt      DateTime    @default(now())
 
   @@index([runId])
@@ -325,6 +327,26 @@ model OtpChallenge {
   @@index([phoneE164, createdAt])
 }
 
+/**
+ * Passwordless email OTP fallback. Separate from phone challenges because the
+ * identifier is an email address and an account may not exist yet. Only a
+ * salted hash of the short-lived code is stored.
+ */
+model EmailOtpChallenge {
+  id            String    @id @default(cuid())
+  email         String
+  codeHash      String
+  codeSalt      String
+  attempts      Int       @default(0)
+  maxAttempts   Int       @default(5)
+  expiresAt     DateTime
+  consumedAt    DateTime?
+  invalidatedAt DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([email, createdAt])
+}
+
 /// One device's refresh chain. Rotation replaces the row's token; presenting a
 /// token that was already rotated is treated as a leak and revokes the whole
 /// family, while other devices' families are untouched (AUTH-03).
@@ -353,11 +375,15 @@ model Consent {
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   kind      ConsentKind
   version   String
+  /// Current effective value. Timestamps retain the audit trail.
+  granted   Boolean     @default(false)
   grantedAt DateTime?
   revokedAt DateTime?
+  createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
   @@unique([userId, kind, version])
+  @@index([userId, kind])
 }
 
 /// Server-authoritative entitlement (SUB-01). The client never decides premium
@@ -442,4 +468,40 @@ model WeightLog {
 
   @@unique([userId, clientId])
   @@index([userId, updatedAt])
+}
+
+/// Verified packaged-food values resolved from Open Food Facts and cached for
+/// repeat scans. Missing values are never synthesized.
+model BarcodeProduct {
+  barcode        String   @id
+  name           String
+  brand          String?
+  servingSizeG   Float    @default(100)
+  kcalPer100g    Float
+  proteinPer100g Float
+  carbsPer100g   Float
+  fatPer100g     Float
+  source         String   @default("open-food-facts")
+  verifiedAt     DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum DeletionRequestStatus {
+  Pending
+  Completed
+  Rejected
+}
+
+/// Unauthenticated web requests require manual identity verification before the
+/// authenticated account deletion endpoint is used by support.
+model AccountDeletionRequest {
+  id        String                @id @default(cuid())
+  email     String?
+  phoneE164 String?
+  note      String?
+  status    DeletionRequestStatus @default(Pending)
+  createdAt DateTime              @default(now())
+  completedAt DateTime?
+
+  @@index([status, createdAt])
 }

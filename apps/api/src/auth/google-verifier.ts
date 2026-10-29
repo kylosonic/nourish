@@ -20,10 +20,15 @@ export class GoogleTokenVerifier {
   ) {}
 
   async verify(idToken: string): Promise<VerifiedGoogleIdentity> {
-    const audience = (this.config.get('GOOGLE_CLIENT_IDS', { infer: true }) ?? '')
-      .split(',')
+    const audience = [
+      this.config.get('GOOGLE_CLIENT_IDS', { infer: true }),
+      this.config.get('GOOGLE_CLIENT_ID_IOS', { infer: true }),
+      this.config.get('GOOGLE_CLIENT_ID_ANDROID', { infer: true }),
+      this.config.get('GOOGLE_CLIENT_ID_WEB', { infer: true }),
+    ]
+      .flatMap((value) => (value ?? '').split(','))
       .map((value) => value.trim())
-      .filter(Boolean);
+      .filter((value, index, values) => value.length > 0 && values.indexOf(value) === index);
     if (audience.length === 0) {
       throw new NourishHttpException(
         HttpStatus.SERVICE_UNAVAILABLE,

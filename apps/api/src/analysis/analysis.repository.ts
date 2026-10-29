@@ -1,4 +1,9 @@
-import { AnalysisRun, AnalysisItem, AnalysisCandidate } from '@prisma/client';
+import {
+  AnalysisRun,
+  AnalysisItem,
+  AnalysisCandidate,
+  Prisma,
+} from '@prisma/client';
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ResolvedItem } from './pipeline/resolve.stage';
@@ -27,6 +32,7 @@ export interface CorrectionInput {
   chosenFoodId?: string;
   chosenAmount?: number;
   chosenUnit?: string;
+  details?: Record<string, unknown>;
 }
 
 /**
@@ -134,6 +140,7 @@ export class AnalysisRepository {
         chosenFoodId: correction.chosenFoodId ?? null,
         chosenAmount: correction.chosenAmount ?? null,
         chosenUnit: correction.chosenUnit ?? null,
+        details: correction.details as Prisma.InputJsonValue | undefined,
         modelVersion,
         promptVersion,
       })),

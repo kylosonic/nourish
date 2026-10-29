@@ -25,8 +25,13 @@ export function configureApp(app: NestExpressApplication, config: ConfigService<
       // the response read) — never a wildcard echo, never a 500.
       callback(null, !origin || isOriginAllowed(origin, corsOrigins));
     },
-    methods: ['GET', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'If-None-Match', 'X-Request-Id'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Authorization',
+      'Content-Type',
+      'If-None-Match',
+      'X-Request-Id',
+    ],
     exposedHeaders: ['ETag', 'X-Request-Id'],
     maxAge: 86400,
   });
@@ -37,6 +42,10 @@ export function configureApp(app: NestExpressApplication, config: ConfigService<
   const maxImageBytes = config.get('AI_MAX_IMAGE_BYTES', { infer: true });
   app.use(
     '/v1/analyses',
+    json({ limit: Math.ceil((maxImageBytes * 4) / 3) + 64 * 1024 }),
+  );
+  app.use(
+    '/v1/products/label',
     json({ limit: Math.ceil((maxImageBytes * 4) / 3) + 64 * 1024 }),
   );
   app.use(json({ limit: '100kb' }));

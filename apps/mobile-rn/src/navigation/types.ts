@@ -50,13 +50,16 @@ export type RootStackParamList = {
   } | undefined;
   EditMeal: {
     slot?: MealSlot;
-    analysisId: string;
+    analysisId?: string;
     imageUri?: string;
     items: MealItem[];
+    mealId?: string;
   };
   Barcode: { slot?: MealSlot } | undefined;
   History: undefined;
   Privacy: undefined;
+  DeleteAccount: undefined;
+  Paywall: undefined;
   Settings: undefined;
   Recommendations: undefined;
 };

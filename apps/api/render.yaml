@@ -1,0 +1,126 @@
+# Nourish API — free-tier Render configuration
+# https://render.com/docs/free
+#
+# To deploy:
+#   1. Push your repo to GitHub.
+#   2. Create a new Web Service on Render, choose this repo.
+#   3. Select "Use Existing render.yaml".
+#   4. Create a Postgres database on Render (free tier: 90-day expiry, then $5/mo).
+#      OR connect an external free database (Neon, Supabase free tier).
+#   5. Set environment variables under "Environment" matching your .env:
+#      - JWT_SECRET (generate: node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))")
+#      - GEMINI_API_KEY (free from https://aistudio.google.com)
+#      - RESEND_API_KEY (free from https://resend.com)
+#      - GOOGLE_CLIENT_ID_ANDROID, GOOGLE_CLIENT_ID_IOS, GOOGLE_CLIENT_ID_WEB
+#      - FIREBASE_PROJECT_ID
+#      - OTP_EMAIL_FROM
+#   6. Deploy.
+#
+# IMPORTANT: Render free web services spin down after 15 min of inactivity
+# and take ~30 seconds to wake up. For always-on free hosting, see Koyeb
+# (https://www.koyeb.com) — 512 MB RAM, never sleeps.
+
+services:
+  - type: web
+    name: nourish-api
+    runtime: docker
+    region: frankfurt
+    plan: free
+    branch: main
+    rootDir: apps/api
+    envVars:
+      # Core
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      # Postgres — point to your Render Postgres service or external provider
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nourish-db
+          property: connectionString
+      # CORS — comma-separated origins
+      - key: CORS_ORIGINS
+        value: https://nourish-kylosonic.vercel.app,https://*.nourish.app,http://localhost:3000,http://localhost:8081,http://localhost:*
+      # AI provider (free tier)
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      # Auth TTLs
+      - key: ACCESS_TOKEN_TTL_SECONDS
+        value: "900"
+      - key: REFRESH_TOKEN_TTL_SECONDS
+        value: "2592000"
+      - key: OTP_TTL_SECONDS
+        value: "300"
+      # Rate limits
+      - key: RATE_LIMIT_TTL_MS
+        value: "60000"
+      - key: RATE_LIMIT_LIMIT
+        value: "60"
+      - key: OTP_REQUEST_RATE_LIMIT
+        value: "5"
+      - key: OTP_VERIFY_RATE_LIMIT
+        value: "10"
+      - key: AI_RATE_LIMIT_LIMIT
+        value: "10"
+      - key: AI_RATE_LIMIT_TTL_MS
+        value: "60000"
+      # AI settings
+      - key: AI_TIMEOUT_MS
+        value: "20000"
+      - key: AI_MAX_IMAGE_BYTES
+        value: "4194304"
+      - key: AI_DAILY_BUDGET
+        value: "2000"
+      - key: ANALYSIS_RETENTION_DAYS
+        value: "30"
+      # SMS / Email OTP (Resend free tier = 100 emails/day)
+      - key: SMS_PROVIDER
+        value: none
+      - key: EMAIL_OTP_PROVIDER
+        value: resend
+      - key: RESEND_API_URL
+        value: https://api.resend.com/emails
+      - key: SMS_TIMEOUT_MS
+        value: "10000"
+      # Settings (secret values set via Render dashboard)
+      - fromGroup: nourish-secrets
+
+    # Health checks keep the free instance healthy
+    healthCheckPath: /health
+    # Prevent accidental crash loops
+    numInstances: 1
+
+databases:
+  - name: nourish-db
+    # Render free PostgreSQL: 1 GB, 90-day retention, then $5/mo.
+    # For permanent free tier, replace with an external Neon database.
+    plan: free
+    region: frankfurt
+    ipAllowList: []
+
+envVarGroups:
+  - name: nourish-secrets
+    envVars:
+      # Set these via the Render dashboard → Environment → Secret Files/Variables
+      # DO NOT commit real values here.
+      - key: JWT_SECRET
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: OTP_EMAIL_FROM
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_ID_ANDROID
+        sync: false
+      - key: GOOGLE_CLIENT_ID_IOS
+        sync: false
+      - key: GOOGLE_CLIENT_ID_WEB
+        sync: false
+      - key: SENTRY_DSN
+        sync: false

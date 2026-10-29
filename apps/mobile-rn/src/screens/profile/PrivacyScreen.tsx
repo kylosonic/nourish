@@ -16,7 +16,7 @@ import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 type Props = NativeStackScreenProps<RootStackParamList, 'Privacy'>;
 
 export function PrivacyScreen({ navigation }: Props) {
-  const { state, patchSettings } = useApp();
+  const { state, updateConsent } = useApp();
   return (
     <NeoScreenWrapper tone="lavender" scroll contentStyle={styles.content}>
       <NeoTopBar
@@ -37,14 +37,16 @@ export function PrivacyScreen({ navigation }: Props) {
             title="AI improvement"
             detail="Optional and off by default."
             value={state.settings.aiImprovementConsent}
-            onChange={(value) => patchSettings({ aiImprovementConsent: value })}
+            onChange={(value) =>
+              void updateConsent({ aiImprovement: value })
+            }
           />
           <View style={styles.divider} />
           <ConsentRow
             title="Product analytics"
             detail="No meal names or body data."
             value={state.settings.analyticsConsent}
-            onChange={(value) => patchSettings({ analyticsConsent: value })}
+            onChange={(value) => void updateConsent({ analytics: value })}
           />
         </Card>
 
@@ -74,7 +76,16 @@ export function PrivacyScreen({ navigation }: Props) {
           />
           <View style={styles.divider} />
           <Text style={styles.infoTitle}>Account deletion</Text>
-          <Text style={styles.infoCopy}>Local deletion is available now. Server deletion is not configured.</Text>
+          <Text style={styles.infoCopy}>
+            Delete your account and all server-side health data permanently.
+            Local data is also wiped.
+          </Text>
+          <Button
+            label="DELETE ACCOUNT"
+            variant="secondary"
+            onPress={() => navigation.navigate('DeleteAccount')}
+            style={{ marginTop: spacing.md }}
+          />
         </Card>
 
         <Banner

@@ -1,12 +1,16 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
+import type { Settings } from '../types';
+import {
+  buildReminderSchedule,
+  type ReminderScheduleInput,
+} from '../domain/reminders';
 
 const CHANNEL_ID = 'hydration-reminders';
 const REMINDER_KIND = 'hydration-reminder';
 
-export const hydrationReminderHours = [10, 14, 18] as const;
-export const hydrationReminderLabel = '10:00, 14:00, and 18:00';
+export const hydrationReminderLabel = 'your chosen window';
 
 export type ReminderSetupResult =
   | 'enabled'
@@ -49,21 +53,43 @@ async function cancelScheduledReminders(): Promise<void> {
   );
 }
 
-async function scheduleDailyReminders(): Promise<void> {
+function scheduleSettings(settings: Settings): ReminderScheduleInput {
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+    2,
+    '0',
+  )}-${String(now.getDate()).padStart(2, '0')}`;
+  return {
+    startMinutes: settings.reminderStartMinutes,
+    endMinutes: settings.reminderEndMinutes,
+    intervalMinutes: settings.reminderIntervalMinutes,
+    today,
+    goalMetToday: false,
+    now,
+  };
+}
+
+async function scheduleReminders(
+  settings: Settings,
+  goalMetToday: boolean,
+): Promise<void> {
   await ensureChannel();
-  for (const hour of hydrationReminderHours) {
+  const schedule = buildReminderSchedule({
+    ...scheduleSettings(settings),
+    goalMetToday,
+  });
+  for (const date of schedule) {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Hydration check',
         body: 'A glass of water now can help you stay on track.',
         sound: 'default',
         color: '#FF7F5C',
-        data: { kind: REMINDER_KIND, hour },
+        data: { kind: REMINDER_KIND },
       },
       trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.DAILY,
-        hour,
-        minute: 0,
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date,
         channelId: Platform.OS === 'android' ? CHANNEL_ID : undefined,
       },
     });
@@ -72,6 +98,7 @@ async function scheduleDailyReminders(): Promise<void> {
 
 export async function setHydrationReminders(
   enabled: boolean,
+  settings: Settings,
 ): Promise<ReminderSetupResult> {
   if (Platform.OS === 'web') return 'unsupported';
 
@@ -88,11 +115,11 @@ export async function setHydrationReminders(
 
   await cancelScheduledReminders();
   try {
-    await scheduleDailyReminders();
+    await scheduleReminders(settings, false);
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Hydration reminders are on',
-        body: `We’ll remind you at ${hydrationReminderLabel}.`,
+        body: 'Your schedule is active. Reminders pause for the day once you reach your water goal.',
         sound: 'default',
         color: '#FF7F5C',
         data: { kind: 'hydration-reminder-confirmation' },
@@ -107,10 +134,11 @@ export async function setHydrationReminders(
 }
 
 export async function reconcileHydrationReminders(
-  enabled: boolean,
+  settings: Settings,
+  currentWaterMl: number,
 ): Promise<ReminderSetupResult> {
   if (Platform.OS === 'web') return 'unsupported';
-  if (!enabled) {
+  if (!settings.remindersEnabled) {
     await cancelScheduledReminders();
     return 'disabled';
   }
@@ -118,13 +146,7 @@ export async function reconcileHydrationReminders(
   const permission = await Notifications.getPermissionsAsync();
   if (!permission.granted) return 'denied';
 
-  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-  const existing = scheduled.filter(
-    (request) => request.content.data?.kind === REMINDER_KIND,
-  );
-  if (existing.length === hydrationReminderHours.length) return 'enabled';
-
   await cancelScheduledReminders();
-  await scheduleDailyReminders();
+  await scheduleReminders(settings, currentWaterMl >= settings.waterTargetMl);
   return 'enabled';
 }

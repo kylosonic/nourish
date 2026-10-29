@@ -5,13 +5,16 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   type ReactNode,
 } from 'react';
+import { AppState as NativeAppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import type {
   AccountSession,
   AppData,
   AppState,
+  ConsentPatch,
   Food,
   Meal,
   MealDraftItem,
@@ -19,7 +22,6 @@ import type {
   MealSlot,
   Nutrition,
   OnboardingData,
-  PortionUnit,
   Settings,
   SyncOperation,
 } from '../types';
@@ -27,8 +29,8 @@ import {
   fetchCatalog,
   logout as remoteLogout,
   ApiError,
-  pushChanges,
   refreshSession,
+  updateConsent as remoteUpdateConsent,
 } from '../data/api';
 import {
   clearAppData,
@@ -41,6 +43,12 @@ import {
 import { makeMealItem, targetFromOnboarding } from '../domain/nutrition';
 import { addDays, localDateKey, newId } from '../utils/date';
 import { reconcileHydrationReminders } from '../services/notifications';
+import {
+  deleteRemoteAccount,
+  queueConsentUpdate,
+  syncAccountData,
+  type SyncRunResult,
+} from '../services/sync';
 
 type Action =
   | { type: 'hydrate'; data: AppData; session: AccountSession | null }
@@ -48,6 +56,7 @@ type Action =
   | { type: 'startOnboarding' }
   | { type: 'completeOnboarding'; target: AppState['target'] }
   | { type: 'addMeal'; meal: Meal }
+  | { type: 'updateMeal'; id: string; items: MealItem[] }
   | { type: 'deleteMeal'; id: string }
   | { type: 'addWater'; amountMl: number; dateKey: string }
   | { type: 'removeWater'; amountMl: number; dateKey: string }
@@ -57,6 +66,9 @@ type Action =
   | { type: 'setSession'; session: AccountSession | null }
   | { type: 'setSync'; state: AppState['syncState']; message?: string | null }
   | { type: 'acknowledgeSync'; appliedClientIds: string[] }
+  | { type: 'applySync'; result: SyncRunResult }
+  | { type: 'queueConsent'; patch: ConsentPatch }
+  | { type: 'synchronizeConsent'; patch: ConsentPatch }
   | { type: 'replaceQueue'; queue: SyncOperation[] }
   | { type: 'reset' };
 
@@ -87,13 +99,18 @@ function reducer(state: AppState, action: Action): AppState {
       };
     case 'addMeal': {
       const sequence = state.queue.length + 1;
+      const mealWithVersion: Meal = {
+        ...action.meal,
+        updatedAt: action.meal.createdAt,
+        clientSeq: sequence,
+      };
       const operation: SyncOperation = {
         id: newId('queue'),
         kind: 'meal',
         op: 'upsert',
         clientId: action.meal.id,
         clientSeq: sequence,
-        updatedAt: action.meal.createdAt,
+        updatedAt: mealWithVersion.updatedAt!,
         loggedAt: action.meal.loggedAt,
         dateKey: action.meal.dateKey,
         slot: action.meal.slot,
@@ -101,8 +118,43 @@ function reducer(state: AppState, action: Action): AppState {
       };
       return {
         ...state,
-        meals: [action.meal, ...state.meals],
+        meals: [mealWithVersion, ...state.meals],
         queue: [...state.queue, operation],
+      };
+    }
+    case 'updateMeal': {
+      const meal = state.meals.find((candidate) => candidate.id === action.id);
+      if (!meal || action.items.length === 0) return state;
+      const sequence = state.queue.length + 1;
+      const updatedAt = new Date().toISOString();
+      const updatedMeal: Meal = {
+        ...meal,
+        items: action.items,
+        updatedAt,
+        clientSeq: sequence,
+      };
+      return {
+        ...state,
+        meals: state.meals.map((candidate) =>
+          candidate.id === action.id ? updatedMeal : candidate,
+        ),
+        queue: [
+          ...state.queue.filter(
+            (operation) => operation.clientId !== action.id,
+          ),
+          {
+            id: newId('queue'),
+            kind: 'meal',
+            op: 'upsert',
+            clientId: meal.id,
+            clientSeq: sequence,
+            updatedAt,
+            loggedAt: meal.loggedAt,
+            dateKey: meal.dateKey,
+            slot: meal.slot,
+            items: action.items,
+          },
+        ],
       };
     }
     case 'deleteMeal': {
@@ -128,11 +180,18 @@ function reducer(state: AppState, action: Action): AppState {
     case 'addWater': {
       const logId = newId('water');
       const loggedAt = new Date().toISOString();
+      const sequence = state.queue.length + 1;
       return {
         ...state,
         water: [
           ...state.water,
-          { id: logId, dateKey: action.dateKey, amountMl: action.amountMl, loggedAt },
+          {
+            id: logId,
+            dateKey: action.dateKey,
+            amountMl: action.amountMl,
+            loggedAt,
+            updatedAt: loggedAt,
+          },
         ],
         queue: [
           ...state.queue,
@@ -141,7 +200,7 @@ function reducer(state: AppState, action: Action): AppState {
             kind: 'water',
             op: 'upsert',
             clientId: logId,
-            clientSeq: state.queue.length + 1,
+            clientSeq: sequence,
             updatedAt: loggedAt,
             loggedAt,
             dateKey: action.dateKey,
@@ -182,9 +241,19 @@ function reducer(state: AppState, action: Action): AppState {
     case 'addWeight': {
       const id = newId('weight');
       const loggedAt = new Date().toISOString();
+      const sequence = state.queue.length + 1;
       return {
         ...state,
-        weights: [...state.weights, { id, dateKey: action.dateKey, weightKg: action.weightKg, loggedAt }],
+        weights: [
+          ...state.weights,
+          {
+            id,
+            dateKey: action.dateKey,
+            weightKg: action.weightKg,
+            loggedAt,
+            updatedAt: loggedAt,
+          },
+        ],
         queue: [
           ...state.queue,
           {
@@ -192,7 +261,7 @@ function reducer(state: AppState, action: Action): AppState {
             kind: 'weight',
             op: 'upsert',
             clientId: id,
-            clientSeq: state.queue.length + 1,
+            clientSeq: sequence,
             updatedAt: loggedAt,
             loggedAt,
             dateKey: action.dateKey,
@@ -225,6 +294,35 @@ function reducer(state: AppState, action: Action): AppState {
           (operation) => !action.appliedClientIds.includes(operation.clientId),
         ),
       };
+    case 'applySync':
+      return {
+        ...state,
+        ...action.result.data,
+        session: action.result.session,
+        syncState: action.result.rejected.length > 0 ? 'error' : 'idle',
+        syncMessage: action.result.message,
+        lastSyncedAt: new Date().toISOString(),
+      };
+    case 'queueConsent':
+      return { ...state, ...queueConsentUpdate(state, action.patch) };
+    case 'synchronizeConsent':
+      return {
+        ...state,
+        pendingConsents: Object.fromEntries(
+          Object.entries(state.pendingConsents).filter(
+            ([key]) => !(key in action.patch),
+          ),
+        ),
+        settings: {
+          ...state.settings,
+          ...(action.patch.aiImprovement == null
+            ? {}
+            : { aiImprovementConsent: action.patch.aiImprovement }),
+          ...(action.patch.analytics == null
+            ? {}
+            : { analyticsConsent: action.patch.analytics }),
+        },
+      };
     case 'replaceQueue':
       return { ...state, queue: action.queue };
     case 'reset':
@@ -256,14 +354,17 @@ interface AppContextValue {
     photoUri?: string,
   ) => Meal;
   deleteMeal: (id: string) => void;
+  updateMeal: (id: string, items: MealItem[]) => void;
   addWater: (amountMl?: number, dateKey?: string) => void;
   removeWater: (amountMl?: number, dateKey?: string) => void;
   addWeight: (weightKg: number, dateKey?: string) => void;
   patchSettings: (patch: Partial<Settings>) => void;
   setSession: (session: AccountSession | null) => void;
+  updateConsent: (patch: ConsentPatch) => Promise<void>;
   signOut: () => Promise<void>;
   syncNow: () => Promise<void>;
   syncCatalog: () => Promise<void>;
+  deleteCurrentAccount: () => Promise<void>;
   resetLocalData: () => Promise<void>;
 }
 
@@ -286,13 +387,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (state.hydrated) void saveSession(state.session);
   }, [state.hydrated, state.session]);
 
+  const waterToday = dayWater(state);
   useEffect(() => {
     if (!state.hydrated) return;
-    void reconcileHydrationReminders(state.settings.remindersEnabled).catch(() => {
+    void reconcileHydrationReminders(state.settings, waterToday).catch(() => {
       // Permission state and platform scheduling are reconciled again whenever
       // the user opens the notification setting.
     });
-  }, [state.hydrated, state.settings.remindersEnabled]);
+  }, [
+    state.hydrated,
+    state.settings,
+    waterToday,
+  ]);
 
   const startOnboarding = useCallback(() => dispatch({ type: 'startOnboarding' }), []);
 
@@ -348,6 +454,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (id: string) => dispatch({ type: 'deleteMeal', id }),
     [],
   );
+  const updateMeal = useCallback(
+    (id: string, items: MealItem[]) =>
+      dispatch({ type: 'updateMeal', id, items }),
+    [],
+  );
   const addWater = useCallback(
     (amountMl = 250, dateKey = localDateKey()) =>
       dispatch({ type: 'addWater', amountMl, dateKey }),
@@ -384,50 +495,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'setSession', session: null });
   }, [state.session]);
 
-  const syncNow = useCallback(async () => {
+  const runSync = useCallback(async (manual: boolean) => {
+    if (state.syncState === 'syncing') return;
     if (!state.session) {
-      dispatch({
-        type: 'setSync',
-        state: 'error',
-        message: 'Sign in to back up your logged meals.',
-      });
+      if (manual) {
+        dispatch({
+          type: 'setSync',
+          state: 'error',
+          message: 'Sign in to sync your account.',
+        });
+      }
       return;
     }
-    if (state.queue.length === 0) {
-      dispatch({ type: 'setSync', state: 'idle', message: 'Everything is backed up.' });
-      return;
-    }
-    dispatch({ type: 'setSync', state: 'syncing', message: 'Backing up your changes…' });
+    dispatch({
+      type: 'setSync',
+      state: 'syncing',
+      message: manual ? 'Syncing your account…' : 'Syncing changes…',
+    });
     try {
       const network = await NetInfo.fetch();
       if (!network.isConnected) {
-        throw new ApiError('You are offline. Your changes remain queued.', 'OFFLINE');
+        throw new ApiError(
+          'You are offline. Your changes remain queued.',
+          'OFFLINE',
+        );
       }
-      let session = state.session;
-      let result;
-      try {
-        result = await pushChanges(session, state.queue);
-      } catch (error) {
-        if (error instanceof ApiError && error.status === 401) {
-          session = await refreshSession(session);
-          dispatch({ type: 'setSession', session });
-          result = await pushChanges(session, state.queue);
-        } else {
-          throw error;
-        }
-      }
-      dispatch({
-        type: 'acknowledgeSync',
-        appliedClientIds: result.applied.map((entry) => entry.clientId),
-      });
-      dispatch({
-        type: 'setSync',
-        state: result.rejected.length > 0 ? 'error' : 'idle',
-        message:
-          result.rejected.length > 0
-            ? `${result.rejected.length} change${result.rejected.length === 1 ? '' : 's'} need review: ${result.rejected[0].reason}`
-            : 'All changes are backed up.',
-      });
+      const result = await syncAccountData(state.session, state);
+      dispatch({ type: 'applySync', result });
     } catch (error) {
       dispatch({
         type: 'setSync',
@@ -435,7 +529,91 @@ export function AppProvider({ children }: { children: ReactNode }) {
         message: error instanceof Error ? error.message : 'Backup failed. Please try again.',
       });
     }
-  }, [state.queue, state.session]);
+  }, [state]);
+
+  const syncNow = useCallback(() => runSync(true), [runSync]);
+
+  const updatePrivacyConsent = useCallback(async (patch: ConsentPatch) => {
+    dispatch({ type: 'queueConsent', patch });
+    if (!state.session) return;
+    try {
+      let session = state.session;
+      let result;
+      try {
+        result = await remoteUpdateConsent(session, patch);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          session = await refreshSession(session);
+          dispatch({ type: 'setSession', session });
+          result = await remoteUpdateConsent(session, patch);
+        } else {
+          throw error;
+        }
+      }
+      dispatch({
+        type: 'synchronizeConsent',
+        patch: {
+          aiImprovement: result.aiImprovement.granted,
+          analytics: result.analytics.granted,
+        },
+      });
+    } catch {
+      // The optimistic value remains in pendingConsents and is flushed by the
+      // next reconnect, foreground, background or manual sync.
+    }
+  }, [state.session]);
+
+  const autoRestoreSession = useRef<string | null>(null);
+  useEffect(() => {
+    if (
+      !state.hydrated ||
+      !state.session ||
+      state.meals.length > 0 ||
+      state.water.length > 0 ||
+      state.weights.length > 0 ||
+      state.queue.length > 0
+    ) {
+      return;
+    }
+    const key = `${state.session.email ?? state.session.phone ?? 'account'}:${state.session.createdAt}`;
+    if (autoRestoreSession.current === key) return;
+    autoRestoreSession.current = key;
+    void runSync(false);
+  }, [
+    runSync,
+    state.hydrated,
+    state.meals.length,
+    state.queue.length,
+    state.session,
+    state.water.length,
+    state.weights.length,
+  ]);
+
+  const previousConnection = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!state.session || !state.hydrated) return;
+    const unsubscribe = NetInfo.addEventListener((network) => {
+      const online =
+        Boolean(network.isConnected) && network.isInternetReachable !== false;
+      if (previousConnection.current === false && online) {
+        void runSync(false);
+      }
+      previousConnection.current = online;
+    });
+    return unsubscribe;
+  }, [runSync, state.hydrated, state.session]);
+
+  useEffect(() => {
+    if (!state.session || !state.hydrated) return;
+    let previous = NativeAppState.currentState;
+    const subscription = NativeAppState.addEventListener('change', (next) => {
+      if (previous?.match(/inactive|background/) && next === 'active') {
+        void runSync(false);
+      }
+      previous = next;
+    });
+    return () => subscription.remove();
+  }, [runSync, state.hydrated, state.session]);
 
   const syncCatalog = useCallback(async () => {
     try {
@@ -455,6 +633,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'reset' });
   }, []);
 
+  const deleteCurrentAccount = useCallback(async () => {
+    if (!state.session) {
+      throw new ApiError('Sign in to delete your account.', 'UNAUTHENTICATED', 401);
+    }
+    await deleteRemoteAccount(state.session);
+    await resetLocalData();
+  }, [resetLocalData, state.session]);
+
   const value = useMemo<AppContextValue>(
     () => ({
       state,
@@ -464,14 +650,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addDraftMeal,
       addResolvedMeal,
       deleteMeal,
+      updateMeal,
       addWater,
       removeWater,
       addWeight,
       patchSettings,
       setSession,
+      updateConsent: updatePrivacyConsent,
       signOut,
       syncNow,
       syncCatalog,
+      deleteCurrentAccount,
       resetLocalData,
     }),
     [
@@ -482,14 +671,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addDraftMeal,
       addResolvedMeal,
       deleteMeal,
+      updateMeal,
       addWater,
       removeWater,
       addWeight,
       patchSettings,
       setSession,
+      updatePrivacyConsent,
       signOut,
       syncNow,
       syncCatalog,
+      deleteCurrentAccount,
       resetLocalData,
     ],
   );
@@ -544,4 +736,3 @@ export function unitLabel(unit: string): string {
     .replace(/^./, (character) => character.toUpperCase());
 }
 
-export type { PortionUnit };

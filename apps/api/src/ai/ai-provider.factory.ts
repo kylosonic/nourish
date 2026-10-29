@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { AiProviderKind } from '../config/env';
 import { TextProvider, VisionProvider } from './ai-provider';
 import { FixtureProvider } from './fixture.provider';
+import { GeminiProvider } from './gemini.provider';
 import { NullProvider, OpenAiCompatibleProvider } from './openai-compatible.provider';
 
 export interface AiProviderSettings {
@@ -10,6 +11,8 @@ export interface AiProviderSettings {
   apiKey?: string;
   visionModel: string;
   textModel: string;
+  geminiApiKey?: string;
+  geminiModel?: string;
   timeoutMs: number;
   nodeEnv: string;
 }
@@ -60,6 +63,20 @@ export function createAiProviders(settings: AiProviderSettings): AiProviders {
       timeoutMs: settings.timeoutMs,
     });
     logger.log(`AI provider: openai-compatible (${settings.visionModel})`);
+    return { vision: provider, text: provider, modelVersion: provider.modelVersion };
+  }
+
+  if (settings.kind === 'gemini') {
+    if (!settings.geminiApiKey) {
+      throw new Error('AI_PROVIDER=gemini requires GEMINI_API_KEY');
+    }
+    const model = settings.geminiModel || 'gemini-2.5-flash';
+    const provider = new GeminiProvider({
+      apiKey: settings.geminiApiKey,
+      model,
+      timeoutMs: settings.timeoutMs,
+    });
+    logger.log(`AI provider: Gemini (${model})`);
     return { vision: provider, text: provider, modelVersion: provider.modelVersion };
   }
 

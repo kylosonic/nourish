@@ -5,6 +5,7 @@ import {
   IsBase64,
   IsIn,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
@@ -60,6 +61,18 @@ export class CorrectionDto {
   @IsString()
   @MaxLength(32)
   chosenUnit?: string;
+
+  @IsOptional()
+  @IsObject()
+  originalEstimate?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsObject()
+  userCorrection?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsObject()
+  foodContext?: Record<string, unknown>;
 }
 
 /** POST /v1/analyses/:id/corrections (SAFE-07, best-effort). */

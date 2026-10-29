@@ -17,11 +17,14 @@ import { AuthGuard, AuthenticatedRequest } from './auth.guard';
 import { AuthRepository } from './auth.repository';
 import { AccountView, AuthService, OtpRequestResult, SessionTokens } from './auth.service';
 import {
+  FirebaseAuthDto,
   GoogleAuthDto,
   LoginEmailDto,
   RefreshTokenDto,
   RegisterEmailDto,
+  RequestEmailOtpDto,
   RequestOtpDto,
+  VerifyEmailOtpDto,
   VerifyOtpDto,
 } from './dto/auth.dto';
 
@@ -103,6 +106,37 @@ export class AuthController {
     @Headers('user-agent') userAgent?: string,
   ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
     return this.auth.signInWithGoogle(body.idToken, userAgent);
+  }
+
+  /** Exchange a Firebase phone-auth token for a Nourish rotating session. */
+  @Post('firebase')
+  @Throttle({ default: OTP_VERIFY_RATE_LIMIT })
+  @HttpCode(HttpStatus.OK)
+  async firebase(
+    @Body() body: FirebaseAuthDto,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    return this.auth.signInWithFirebasePhone(body.idToken, userAgent);
+  }
+
+  /** Zero-cost passwordless fallback when SMS delivery is unavailable. */
+  @Post('email-otp/request')
+  @Throttle({ default: OTP_REQUEST_RATE_LIMIT })
+  @HttpCode(HttpStatus.ACCEPTED)
+  async requestEmailOtp(
+    @Body() body: RequestEmailOtpDto,
+  ): Promise<{ email: string; expiresIn: number; resendAfter: number }> {
+    return this.auth.requestEmailOtp(body.email);
+  }
+
+  @Post('email-otp/verify')
+  @Throttle({ default: OTP_VERIFY_RATE_LIMIT })
+  @HttpCode(HttpStatus.OK)
+  async verifyEmailOtp(
+    @Body() body: VerifyEmailOtpDto,
+    @Headers('user-agent') userAgent?: string,
+  ): Promise<{ tokens: SessionTokens; account: AccountView; created: boolean }> {
+    return this.auth.verifyEmailOtp(body.email, body.code, userAgent);
   }
 
   /** AUTH-03: rotate the refresh credential. The old one stops working. */

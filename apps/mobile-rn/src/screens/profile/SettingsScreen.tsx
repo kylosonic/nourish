@@ -26,7 +26,7 @@ import { showAlert } from '../../utils/dialog';
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export function SettingsScreen({ navigation }: Props) {
-  const { state, patchSettings } = useApp();
+  const { state, patchSettings, updateConsent } = useApp();
   const [checking, setChecking] = useState(false);
   const [updatingReminders, setUpdatingReminders] = useState(false);
 
@@ -73,7 +73,7 @@ export function SettingsScreen({ navigation }: Props) {
     }
     setUpdatingReminders(true);
     try {
-      const result = await setHydrationReminders(enabled);
+      const result = await setHydrationReminders(enabled, state.settings);
       if (result === 'denied') {
         showAlert(
           'Notifications are off',
@@ -187,6 +187,60 @@ export function SettingsScreen({ navigation }: Props) {
               thumbColor={colors.white}
             />
           </View>
+          {state.settings.remindersEnabled ? (
+            <View style={styles.reminderConfig}>
+              <ReminderTime
+                label="START"
+                minutes={state.settings.reminderStartMinutes}
+                onChange={(minutes) =>
+                  patchSettings({
+                    reminderStartMinutes: Math.min(
+                      state.settings.reminderEndMinutes,
+                      minutes,
+                    ),
+                  })
+                }
+              />
+              <ReminderTime
+                label="END"
+                minutes={state.settings.reminderEndMinutes}
+                onChange={(minutes) =>
+                  patchSettings({
+                    reminderEndMinutes: Math.max(
+                      state.settings.reminderStartMinutes,
+                      minutes,
+                    ),
+                  })
+                }
+              />
+              <Text style={styles.reminderLabel}>EVERY</Text>
+              <View style={styles.intervalRow}>
+                {[60, 120, 180, 240].map((minutes) => (
+                  <Pressable
+                    key={minutes}
+                    accessibilityRole="button"
+                    accessibilityState={{
+                      selected:
+                        state.settings.reminderIntervalMinutes === minutes,
+                    }}
+                    onPress={() =>
+                      patchSettings({ reminderIntervalMinutes: minutes })
+                    }
+                    style={[
+                      styles.intervalOption,
+                      state.settings.reminderIntervalMinutes === minutes &&
+                        styles.intervalSelected,
+                    ]}
+                  >
+                    <Text style={styles.intervalText}>{minutes / 60}h</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text style={styles.reminderHint}>
+                Reminders pause for the rest of the day once your water goal is met.
+              </Text>
+            </View>
+          ) : null}
         </Card>
 
         <Text style={styles.sectionLabel}>PRIVACY</Text>
@@ -196,7 +250,9 @@ export function SettingsScreen({ navigation }: Props) {
             title="Help improve food recognition"
             detail="Optional. Off by default."
             value={state.settings.aiImprovementConsent}
-            onChange={(value) => patchSettings({ aiImprovementConsent: value })}
+            onChange={(value) =>
+              void updateConsent({ aiImprovement: value })
+            }
           />
           <View style={styles.divider} />
           <ToggleRow
@@ -204,7 +260,7 @@ export function SettingsScreen({ navigation }: Props) {
             title="Product analytics"
             detail="Non-nutrition usage only."
             value={state.settings.analyticsConsent}
-            onChange={(value) => patchSettings({ analyticsConsent: value })}
+            onChange={(value) => void updateConsent({ analytics: value })}
           />
           <View style={styles.divider} />
           <MenuRow
@@ -213,6 +269,17 @@ export function SettingsScreen({ navigation }: Props) {
             detail="Control your data"
             onPress={() => navigation.navigate('Privacy')}
           />
+          {state.session ? (
+            <>
+              <View style={styles.divider} />
+              <MenuRow
+                icon="trash-can-outline"
+                title="Delete account"
+                detail="Permanently remove your account and health data"
+                onPress={() => navigation.navigate('DeleteAccount')}
+              />
+            </>
+          ) : null}
         </Card>
 
         <Text style={styles.sectionLabel}>APP</Text>
@@ -231,6 +298,13 @@ export function SettingsScreen({ navigation }: Props) {
             onPress={() =>
               void Linking.openURL('https://nourish-kylosonic.vercel.app/#download')
             }
+          />
+          <View style={styles.divider} />
+          <MenuRow
+            icon="crown-outline"
+            title="Nourish Plus"
+            detail="Unlock premium label reading"
+            onPress={() => navigation.navigate('Paywall')}
           />
         </Card>
         <Text style={styles.footer}>
@@ -276,6 +350,45 @@ function ToggleRow({
         trackColor={{ true: colors.activeLime, false: colors.white }}
         thumbColor={colors.white}
       />
+    </View>
+  );
+}
+
+function ReminderTime({
+  label,
+  minutes,
+  onChange,
+}: {
+  label: string;
+  minutes: number;
+  onChange: (minutes: number) => void;
+}) {
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  return (
+    <View style={styles.timeControl}>
+      <Text style={styles.reminderLabel}>{label}</Text>
+      <View style={styles.timeValue}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Earlier ${label.toLowerCase()} time`}
+          onPress={() => onChange(Math.max(0, minutes - 30))}
+          style={styles.timeStep}
+        >
+          <Icon name="minus" size={16} color={colors.ink} />
+        </Pressable>
+        <Text style={styles.timeText}>
+          {String(hour).padStart(2, '0')}:{String(minute).padStart(2, '0')}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Later ${label.toLowerCase()} time`}
+          onPress={() => onChange(Math.min(1439, minutes + 30))}
+          style={styles.timeStep}
+        >
+          <Icon name="plus" size={16} color={colors.ink} />
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -346,6 +459,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  reminderConfig: {
+    borderTopWidth: border.standard,
+    borderTopColor: colors.ink,
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
+  },
+  reminderLabel: { ...type.caption, fontFamily: fonts.bold },
+  timeControl: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  timeValue: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  timeStep: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.butterCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timeText: { minWidth: 58, textAlign: 'center', fontFamily: fonts.bold },
+  intervalRow: { flexDirection: 'row', gap: spacing.xs },
+  intervalOption: {
+    flex: 1,
+    minHeight: 40,
+    borderRadius: 12,
+    borderWidth: border.standard,
+    borderColor: colors.ink,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  intervalSelected: { backgroundColor: colors.activeLime },
+  intervalText: { ...type.bodySmall, fontFamily: fonts.bold },
+  reminderHint: { ...type.caption, lineHeight: 17 },
   rowTitle: { ...type.body, fontFamily: fonts.semibold },
   rowDetail: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2, lineHeight: 18 },
   step: {

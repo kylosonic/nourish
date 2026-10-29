@@ -1,4 +1,11 @@
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 /** POST /v1/auth/otp — ask for a sign-in code. */
 export class RequestOtpDto {
@@ -65,4 +72,65 @@ export class GoogleAuthDto {
   @MinLength(100)
   @MaxLength(8192)
   idToken!: string;
+}
+
+/** POST /v1/auth/firebase — exchange Firebase's phone-auth ID token. */
+export class FirebaseAuthDto {
+  @IsString()
+  @MinLength(100)
+  @MaxLength(8192)
+  idToken!: string;
+}
+
+/** POST /v1/auth/email-otp/request */
+export class RequestEmailOtpDto {
+  @IsEmail()
+  @MaxLength(254)
+  email!: string;
+}
+
+/** POST /v1/auth/email-otp/verify */
+export class VerifyEmailOtpDto {
+  @IsEmail()
+  @MaxLength(254)
+  email!: string;
+
+  @IsString()
+  @MinLength(6)
+  @MaxLength(6)
+  code!: string;
+}
+
+/** PATCH /v1/account/consent */
+export class UpdateConsentDto {
+  @IsOptional()
+  @IsBoolean()
+  healthDataProcessing?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  aiImprovement?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  analytics?: boolean;
+}
+
+/** POST /v1/account-deletion-requests */
+export class RequestWebDeletionDto {
+  @IsOptional()
+  @IsEmail()
+  @MaxLength(254)
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(9)
+  @MaxLength(24)
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  note?: string;
 }

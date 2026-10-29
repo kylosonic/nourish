@@ -39,6 +39,9 @@ export const initialData: AppData = {
     aiImprovementConsent: false,
     analyticsConsent: false,
     remindersEnabled: false,
+    reminderStartMinutes: 10 * 60,
+    reminderEndMinutes: 18 * 60,
+    reminderIntervalMinutes: 240,
   },
   meals: [],
   water: [],
@@ -46,6 +49,8 @@ export const initialData: AppData = {
   catalog: seedFoods,
   catalogVersion: provisionalCatalogVersion,
   queue: [],
+  syncCursor: null,
+  pendingConsents: {},
 };
 
 export const initialState: AppState = {
@@ -82,13 +87,21 @@ export async function loadAppData(): Promise<AppData> {
           ? parsed.catalog
           : seedFoods,
       queue: Array.isArray(parsed.queue) ? parsed.queue : [],
+      syncCursor:
+        typeof parsed.syncCursor === 'string' && parsed.syncCursor.length > 0
+          ? parsed.syncCursor
+          : null,
+      pendingConsents:
+        parsed.pendingConsents && typeof parsed.pendingConsents === 'object'
+          ? parsed.pendingConsents
+          : {},
     };
   } catch {
     return initialData;
   }
 }
 
-export async function saveAppData(state: AppState): Promise<void> {
+export async function saveAppData(state: AppData): Promise<void> {
   const persisted: AppData = {
     onboarding: state.onboarding,
     target: state.target,
@@ -99,6 +112,8 @@ export async function saveAppData(state: AppState): Promise<void> {
     catalog: state.catalog,
     catalogVersion: state.catalogVersion,
     queue: state.queue,
+    syncCursor: state.syncCursor,
+    pendingConsents: state.pendingConsents,
   };
   const plaintext = JSON.stringify(persisted);
   const value =

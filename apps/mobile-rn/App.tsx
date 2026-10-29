@@ -14,6 +14,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProvider } from './src/state/AppProvider';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { colors } from './src/theme';
+import { registerBackgroundSync } from './src/services/backgroundSync';
+import { EntitlementProvider } from './src/state/EntitlementProvider';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -34,6 +36,7 @@ export default function App() {
   useEffect(() => {
     if (fontsLoaded || fontError) {
       void SplashScreen.hideAsync();
+      void registerBackgroundSync();
     }
   }, [fontError, fontsLoaded]);
 
@@ -42,12 +45,14 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppProvider>
-        <View style={Platform.OS === 'web' ? styles.webBackdrop : styles.nativeRoot}>
-          <View style={Platform.OS === 'web' ? styles.webFrame : styles.nativeRoot}>
-            <StatusBar style="dark" />
-            <RootNavigator />
+        <EntitlementProvider>
+          <View style={Platform.OS === 'web' ? styles.webBackdrop : styles.nativeRoot}>
+            <View style={Platform.OS === 'web' ? styles.webFrame : styles.nativeRoot}>
+              <StatusBar style="dark" />
+              <RootNavigator />
+            </View>
           </View>
-        </View>
+        </EntitlementProvider>
       </AppProvider>
     </SafeAreaProvider>
   );

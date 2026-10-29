@@ -76,14 +76,12 @@ returns a canned recognition result. The release workflow reads
 `NOURISH_API_URL` and the three Google client IDs from GitHub repository
 variables.
 
-The current React Native preview is
-[`v1.3.4`](https://github.com/kylosonic/nourish/releases/tag/v1.3.4). It includes
-first-run camera/photo/notification permission setup, the neo-brutalist interface
-with an animated floating navigation pill,
-email/Google/phone entry points, exact-gram food portions, scheduled hydration
-notifications, shorter copy, and manual scanner recovery. The Android APK is
-installable for testing; the iOS IPA is unsigned and requires Apple signing
-before it can be installed.
+The latest published preview is `v1.3.5`. The current source is `1.4.0` and is
+the store-launch build candidate: it adds full restore/automatic sync, account
+deletion, consent sync, Gemini, passwordless email, barcode/label capture,
+saved-meal editing, correction capture, state-aware reminders, and RevenueCat
+entitlements. The `1.4.0` native binary has not yet been built or publicly
+released.
 
 **Website**
 
@@ -129,17 +127,17 @@ build — always pass an explicit glob, as above.
 | S1 — FCT 2025 import + catalog API | Built, verified (27 571 extracted values double-entry checked against the published table) |
 | S2 — meal analysis (text + photo) and edit-before-save | Built, verified. The real recognition path is implemented and unit-tested against a fake provider; **no AI provider key exists in this environment**, so it has never been exercised against a real model |
 | S3 — accounts, sessions, sync endpoints (server) | Built, verified over HTTP |
-| S3 — accounts and sessions (device) | Built: phone OTP, email/password, and Google identity flows with secure token storage, session restore, sign-out, and account linking; live Google credentials are not present |
-| S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Restore is NOT BUILT**: the app can already *read* the account's rows (GET /v1/sync/changes, live-verified) but does not write them back into the local database yet, so this is a backup rather than a sync, and the account screen says so |
+| S3 — accounts and sessions (device) | Built: phone OTP, Firebase phone-token exchange, email/password, passwordless email OTP, and Google identity flows with secure token storage |
+| S3 — **sync, restore and account lifecycle** | Built: push, pull/restore, cursor persistence, last-write-wins conflict handling, tombstones, foreground/reconnect/background sync, server-synced consent, and permanent in-app account deletion |
 | S4 — weekly insights, weight logging, adjustable water goal, "what can I eat" | Built, verified |
-| S4 — hydration reminders (WW-02), entitlements/paywall (SUB-01) | Hydration reminders are implemented as native local notifications at 10:00, 14:00, and 18:00. The paywall remains **NOT BUILT**: it has no design (P-SUB-1) or payment provider (P-PROV-1) |
+| S4 — hydration reminders, entitlements/paywall | Configurable state-aware reminders pause once the daily water goal is met. RevenueCat monthly/annual billing is abstracted behind an entitlement service with restore and a clearly labelled UAT mock mode. Store products and keys remain external |
+| Missing product features | Open Food Facts barcode lookup, cached backend products, Gemini label OCR fallback, saved-meal editing, correction capture, and the Plus paywall are implemented. Unreadable or incomplete packaged-food data is never estimated |
 | S5 — website, release metadata, in-app update check | Built and verified. React Native preview builds are published through the React Native artifacts workflow. |
 
-Honest limits, stated everywhere they matter: no deployed API URL, Google OAuth
-client IDs, or AI provider key is configured in this repository; no production
-SMS gateway credential is present; and no store release is signed. The current
-unsigned CI release produces an installable Android APK and a non-installable
-unsigned iOS IPA.
+Honest limits: deployment manifests and environment seams are present, but live
+Render, Google OAuth, Gemini, Resend/SMTP, Firebase, and RevenueCat credentials
+must be supplied. No store release is signed. Human physical-device UAT remains
+required; see [`BUILD_AND_UAT_CHECKLIST.md`](BUILD_AND_UAT_CHECKLIST.md).
 
 ## For contributors
 

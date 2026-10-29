@@ -98,6 +98,8 @@ export interface Meal {
   slot: MealSlot;
   loggedAt: string;
   createdAt: string;
+  updatedAt?: string;
+  clientSeq?: number;
   items: MealItem[];
   source: 'photo' | 'text' | 'search' | 'manual';
   analysisId?: string;
@@ -109,6 +111,7 @@ export interface WaterLog {
   dateKey: string;
   amountMl: number;
   loggedAt: string;
+  updatedAt?: string;
 }
 
 export interface WeightLog {
@@ -116,6 +119,7 @@ export interface WeightLog {
   dateKey: string;
   weightKg: number;
   loggedAt: string;
+  updatedAt?: string;
 }
 
 export interface AccountSession {
@@ -142,6 +146,70 @@ export interface SyncOperation {
   items?: MealItem[];
   amountMl?: number;
   weightKg?: number;
+}
+
+export interface RemoteMealItem {
+  clientId: string;
+  foodId: string;
+  foodName: string;
+  portionUnit: string;
+  portionQuantity: number;
+  grams: number;
+  kcal: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  fiberG?: number | null;
+  sodiumMg?: number | null;
+}
+
+export interface RemoteMeal {
+  clientId: string;
+  dateKey: string;
+  slot: string;
+  loggedAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  clientSeq: number;
+  items: RemoteMealItem[];
+}
+
+export interface RemoteWater {
+  clientId: string;
+  dateKey: string;
+  amountMl: number;
+  loggedAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface RemoteWeight {
+  clientId: string;
+  dateKey: string;
+  weightKg: number;
+  loggedAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface SyncChanges {
+  meals: RemoteMeal[];
+  water: RemoteWater[];
+  weight: RemoteWeight[];
+  serverTime: string;
+}
+
+export interface ConsentPatch {
+  healthDataProcessing?: boolean;
+  aiImprovement?: boolean;
+  analytics?: boolean;
+}
+
+export interface AccountConsent {
+  version: string;
+  healthDataProcessing: { granted: boolean; updatedAt: string | null };
+  aiImprovement: { granted: boolean; updatedAt: string | null };
+  analytics: { granted: boolean; updatedAt: string | null };
 }
 
 export type AnalysisNutrition = Nutrition;
@@ -190,6 +258,9 @@ export interface Settings {
   aiImprovementConsent: boolean;
   analyticsConsent: boolean;
   remindersEnabled: boolean;
+  reminderStartMinutes: number;
+  reminderEndMinutes: number;
+  reminderIntervalMinutes: number;
 }
 
 export interface InsightHighlight {
@@ -234,6 +305,8 @@ export interface AppData {
   catalog: Food[];
   catalogVersion: string | null;
   queue: SyncOperation[];
+  syncCursor: string | null;
+  pendingConsents: ConsentPatch;
 }
 
 export interface AppState extends AppData {

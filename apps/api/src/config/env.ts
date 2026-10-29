@@ -1,6 +1,7 @@
 import { plainToInstance, Transform } from 'class-transformer';
 import {
   IsIn,
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -11,12 +12,26 @@ import {
 } from 'class-validator';
 
 /** Which AI provider implementation the process may use (ADR-0007 D-S2-1). */
-export const AI_PROVIDER_KINDS = ['none', 'openai-compatible', 'fixture'] as const;
+export const AI_PROVIDER_KINDS = [
+  'none',
+  'gemini',
+  'openai-compatible',
+  'fixture',
+] as const;
 export type AiProviderKind = (typeof AI_PROVIDER_KINDS)[number];
 
 /** Which SMS gateway the process may use (ADR-0008). */
 export const SMS_PROVIDER_KINDS = ['none', 'console', 'http'] as const;
 export type SmsProviderKind = (typeof SMS_PROVIDER_KINDS)[number];
+
+/** Free passwordless email delivery fallback. */
+export const EMAIL_OTP_PROVIDER_KINDS = [
+  'none',
+  'console',
+  'resend',
+  'smtp',
+] as const;
+export type EmailOtpProviderKind = (typeof EMAIL_OTP_PROVIDER_KINDS)[number];
 
 /**
  * Environment schema (validated at boot). The app refuses to start when a
@@ -60,7 +75,10 @@ export class EnvVars {
 
   // ── S2: analysis (ADR-0007) ───────────────────────────────────────────────
 
-  /** `none` (default) | `openai-compatible` | `fixture` (refused in production). */
+  /**
+   * `none` (default) | `gemini` | `openai-compatible` | `fixture`
+   * (`fixture` is refused in production).
+   */
   @IsOptional()
   @IsIn(AI_PROVIDER_KINDS)
   AI_PROVIDER: AiProviderKind = 'none';
@@ -80,6 +98,15 @@ export class EnvVars {
   @IsOptional()
   @IsString()
   AI_TEXT_MODEL: string = 'gpt-4o-mini';
+
+  /** Google AI Studio free-tier key. Never logged or returned to clients. */
+  @IsOptional()
+  @IsString()
+  GEMINI_API_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  GEMINI_MODEL: string = 'gemini-2.5-flash';
 
   @IsOptional()
   @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
@@ -203,14 +230,73 @@ export class EnvVars {
   @Max(60000)
   SMS_TIMEOUT_MS: number = 10000;
 
+  /** `none` | `console` | `resend` | `smtp`; console is refused in production. */
+  @IsOptional()
+  @IsIn(EMAIL_OTP_PROVIDER_KINDS)
+  EMAIL_OTP_PROVIDER: EmailOtpProviderKind = 'none';
+
+  @IsOptional()
+  @IsString()
+  RESEND_API_KEY?: string;
+
+  @IsOptional()
+  @IsString()
+  RESEND_API_URL: string = 'https://api.resend.com/emails';
+
+  @IsOptional()
+  @IsString()
+  OTP_EMAIL_FROM?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_HOST?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => (value == null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1)
+  @Max(65535)
+  SMTP_PORT?: number;
+
+  @IsOptional()
+  @IsString()
+  SMTP_USER?: string;
+
+  @IsOptional()
+  @IsString()
+  SMTP_PASS?: string;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    value == null || value === '' ? undefined : String(value).toLowerCase() === 'true',
+  )
+  @IsBoolean()
+  SMTP_SECURE?: boolean;
+
   /**
-   * Comma-separated Google OAuth client IDs accepted as ID-token audiences.
-   * These are public client identifiers; the backend still verifies every
-   * Google token signature and audience before creating a session.
+   * Public Google OAuth client IDs accepted as ID-token audiences. Platform
+   * fields are preferred; GOOGLE_CLIENT_IDS remains supported for compatibility.
    */
   @IsOptional()
   @IsString()
   GOOGLE_CLIENT_IDS?: string;
+
+  @IsOptional()
+  @IsString()
+  GOOGLE_CLIENT_ID_IOS?: string;
+
+  @IsOptional()
+  @IsString()
+  GOOGLE_CLIENT_ID_ANDROID?: string;
+
+  @IsOptional()
+  @IsString()
+  GOOGLE_CLIENT_ID_WEB?: string;
+
+  /** Firebase project ID used to verify phone-auth ID tokens for free. */
+  @IsOptional()
+  @IsString()
+  FIREBASE_PROJECT_ID?: string;
 }
 
 /** Validate a raw config record; throws with a precise message on failure. */

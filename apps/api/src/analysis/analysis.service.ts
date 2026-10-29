@@ -104,6 +104,9 @@ export class AnalysisService {
       chosenFoodId?: string;
       chosenAmount?: number;
       chosenUnit?: string;
+      originalEstimate?: Record<string, unknown>;
+      userCorrection?: Record<string, unknown>;
+      foodContext?: Record<string, unknown>;
     }[],
   ): Promise<void> {
     try {
@@ -116,7 +119,20 @@ export class AnalysisService {
         runId,
         run.modelVersion,
         run.promptVersion,
-        corrections,
+        corrections.map(
+          ({ originalEstimate, userCorrection, foodContext, ...flat }) => ({
+            ...flat,
+            ...(originalEstimate || userCorrection || foodContext
+              ? {
+                  details: {
+                    originalEstimate,
+                    userCorrection,
+                    foodContext,
+                  },
+                }
+              : {}),
+          }),
+        ),
       );
       this.logger.log(`corrections recorded`, { runId, count });
     } catch (error) {

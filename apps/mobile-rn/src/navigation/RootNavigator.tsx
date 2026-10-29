@@ -24,6 +24,8 @@ import { RecommendationsScreen } from '../screens/insights/RecommendationsScreen
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { SettingsScreen } from '../screens/profile/SettingsScreen';
 import { PrivacyScreen } from '../screens/profile/PrivacyScreen';
+import { DeleteAccountScreen } from '../screens/profile/DeleteAccountScreen';
+import { PaywallScreen } from '../screens/profile/PaywallScreen';
 import { SignInScreen } from '../screens/auth/SignInScreen';
 import { HistoryScreen } from '../screens/history/HistoryScreen';
 import {
@@ -164,6 +166,12 @@ function AppStack() {
       <Stack.Screen name="Recommendations" component={RecommendationsScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Privacy" component={PrivacyScreen} />
+      <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
+      <Stack.Screen
+        name="Paywall"
+        component={PaywallScreen}
+        options={{ presentation: 'modal' }}
+      />
       <Stack.Screen
         name="ScanMenu"
         component={ScanMenuScreen}

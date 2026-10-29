@@ -31,6 +31,13 @@ Redis 7 provisioned for queue parity (no queue code yet).
 | `GET /v1/me` | S3: the signed-in user's own record (plan, consent, session count) |
 | `POST /v1/sync` | S3 (OFF-02): apply the device's queued operations in order, idempotent by client id, device-clock last-write-wins, per-operation outcomes |
 | `GET /v1/sync/changes?since=&limit=` | S3 (OFF-02): everything the device has not seen, tombstones included |
+| `GET/PATCH /v1/account/consent` | Authenticated consent state with effective values and audit timestamps |
+| `DELETE /v1/account` | Permanently deletes the account, sessions, consent, health mirror and account-linked analysis metadata |
+| `POST /v1/account-deletion-requests` | Public, throttled deletion intake with ownership verification required |
+| `GET /v1/products/barcode/:barcode` | Verified Open Food Facts product lookup with PostgreSQL cache |
+| `POST /v1/products/label` | Gemini Flash nutrition-label parsing; imagery is not retained |
+| `POST /v1/auth/firebase` | Firebase phone-auth ID-token exchange |
+| `POST /v1/auth/email-otp/request` / `verify` | Passwordless Resend/SMTP fallback |
 
 Errors: `{"error":{"code","message","requestId"}}`. Codes include
 `FOOD_NOT_FOUND | VALIDATION_ERROR | RATE_LIMITED | INTERNAL`,
@@ -39,12 +46,13 @@ Errors: `{"error":{"code","message","requestId"}}`. Codes include
 OTP_RESEND_TOO_SOON | SMS_UNAVAILABLE | UNAUTHENTICATED | TOKEN_EXPIRED |
 TOKEN_REUSED | ACCOUNT_DISABLED`. 5xx messages are sanitized.
 
-Provider seams, both refused in production when unset: the AI provider
-(`AI_PROVIDER=none | openai-compatible | fixture`, and `fixture` is refused when
-`NODE_ENV=production`) and the SMS provider (`SMS_PROVIDER=none | console | http`,
-with `console` refused in production). **No key and no gateway credential exist in
-this environment**, so the real recognition path and real SMS delivery are
-implemented but have never been exercised against a live provider.
+Provider seams: `AI_PROVIDER=none | gemini | openai-compatible | fixture`,
+SMS (`none | console | http`) and passwordless email
+(`none | console | resend | smtp`). Development-only providers and the fixture
+AI are refused in production. `GEMINI_MODEL` defaults to `gemini-2.5-flash`.
+Google ID-token audiences are read from the platform-specific
+`GOOGLE_CLIENT_ID_IOS/ANDROID/WEB` variables. Firebase phone tokens are verified
+with `FIREBASE_PROJECT_ID`.
 
 ## Run locally
 
@@ -58,6 +66,16 @@ npm run start:dev
 ```
 
 `GET http://localhost:3000/v1/healthz` → `{"status":"ok",...,"db":"up"}`.
+
+For `EMAIL_OTP_PROVIDER=console`, the local sign-in email is written to the API
+log. Resend and SMTP are production-capable free-tier paths.
+
+## Free HTTPS deployment
+
+The repository-root `render.yaml` defines a Docker web service and PostgreSQL
+instance. Set the `sync: false` secrets in Render, then deploy from
+`feat/nourish-mvp`. After Render issues the HTTPS hostname, set that URL as the
+mobile `NOURISH_API_URL` build variable.
 
 Signing in locally: `POST /v1/auth/otp` with `SMS_PROVIDER=console` writes the
 code to this process's log — read it there, then `POST /v1/auth/otp/verify`.

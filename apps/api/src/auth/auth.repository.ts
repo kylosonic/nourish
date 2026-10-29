@@ -1,5 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { ConsentKind, Entitlement, OtpChallenge, Plan, RefreshToken, User } from '@prisma/client';
+import {
+  ConsentKind,
+  EmailOtpChallenge,
+  Entitlement,
+  OtpChallenge,
+  Plan,
+  RefreshToken,
+  User,
+} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 export interface CreateChallengeInput {
@@ -16,6 +24,14 @@ export interface CreateRefreshTokenInput {
   tokenHash: string;
   expiresAt: Date;
   userAgent?: string;
+}
+
+export interface CreateEmailChallengeInput {
+  email: string;
+  codeHash: string;
+  codeSalt: string;
+  maxAttempts: number;
+  expiresAt: Date;
 }
 
 /**
@@ -90,6 +106,51 @@ export class AuthRepository {
     return this.prisma.otpChallenge.count({ where: { expiresAt: { lt: before } } });
   }
 
+  // ── Email OTP fallback ───────────────────────────────────────────────────
+
+  async findActiveEmailChallenge(email: string): Promise<EmailOtpChallenge | null> {
+    return this.prisma.emailOtpChallenge.findFirst({
+      where: { email, consumedAt: null, invalidatedAt: null },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findLatestEmailChallenge(email: string): Promise<EmailOtpChallenge | null> {
+    return this.prisma.emailOtpChallenge.findFirst({
+      where: { email },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createEmailChallenge(
+    input: CreateEmailChallengeInput,
+  ): Promise<EmailOtpChallenge> {
+    return this.prisma.emailOtpChallenge.create({ data: input });
+  }
+
+  async invalidateOutstandingEmail(email: string, at: Date): Promise<number> {
+    const result = await this.prisma.emailOtpChallenge.updateMany({
+      where: { email, consumedAt: null, invalidatedAt: null },
+      data: { invalidatedAt: at },
+    });
+    return result.count;
+  }
+
+  async registerFailedEmailAttempt(challengeId: string): Promise<number> {
+    const updated = await this.prisma.emailOtpChallenge.update({
+      where: { id: challengeId },
+      data: { attempts: { increment: 1 } },
+    });
+    return updated.attempts;
+  }
+
+  async consumeEmailChallenge(challengeId: string, at: Date): Promise<void> {
+    await this.prisma.emailOtpChallenge.update({
+      where: { id: challengeId },
+      data: { consumedAt: at },
+    });
+  }
+
   // ── Users, consent, entitlement ───────────────────────────────────────────
 
   /**
@@ -141,6 +202,24 @@ export class AuthRepository {
     });
     await this.ensureEntitlement(user.id);
     return user;
+  }
+
+  /** Email OTP can create a passwordless account and later link other methods. */
+  async upsertUserForEmail(email: string): Promise<{ user: User; created: boolean }> {
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      const user = await this.prisma.user.update({
+        where: { id: existing.id },
+        data: { lastSeenAt: new Date() },
+      });
+      await this.ensureEntitlement(user.id);
+      return { user, created: false };
+    }
+    const user = await this.prisma.user.create({
+      data: { email, lastSeenAt: new Date() },
+    });
+    await this.ensureEntitlement(user.id);
+    return { user, created: true };
   }
 
   /**
@@ -215,7 +294,105 @@ export class AuthRepository {
     });
     // Absence of a grant is the default: AI improvement is off unless the user
     // explicitly turned it on (SAFE-06).
-    return { granted: row?.grantedAt != null && row.revokedAt == null, version: row?.version ?? null };
+    return { granted: row?.granted ?? false, version: row?.version ?? null };
+  }
+
+  async consentsFor(userId: string): Promise<Map<ConsentKind, {
+    granted: boolean;
+    updatedAt: Date;
+  }>> {
+    const rows = await this.prisma.consent.findMany({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' },
+    });
+    const result = new Map<ConsentKind, { granted: boolean; updatedAt: Date }>();
+    for (const row of rows) {
+      if (!result.has(row.kind)) {
+        result.set(row.kind, { granted: row.granted, updatedAt: row.updatedAt });
+      }
+    }
+    return result;
+  }
+
+  async updateConsents(
+    userId: string,
+    updates: { kind: ConsentKind; granted: boolean }[],
+    version: string,
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      const now = new Date();
+      for (const update of updates) {
+        const existing = await tx.consent.findUnique({
+          where: {
+            userId_kind_version: {
+              userId,
+              kind: update.kind,
+              version,
+            },
+          },
+        });
+        if (!existing) {
+          await tx.consent.create({
+            data: {
+              userId,
+              kind: update.kind,
+              version,
+              granted: update.granted,
+              grantedAt: update.granted ? now : null,
+              revokedAt: update.granted ? null : now,
+            },
+          });
+          continue;
+        }
+        await tx.consent.update({
+          where: { id: existing.id },
+          data: {
+            granted: update.granted,
+            grantedAt:
+              update.granted && existing.grantedAt == null
+                ? now
+                : existing.grantedAt,
+            revokedAt: update.granted ? null : now,
+          },
+        });
+      }
+    });
+  }
+
+  /**
+   * Hard-delete the account and everything owned by it. Most child rows cascade
+   * from User; anonymous analysis runs and pre-account OTP rows are keyed
+   * separately, so they are removed explicitly in the same transaction.
+   */
+  async deleteAccount(userId: string): Promise<boolean> {
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id: userId } });
+      if (!user) return false;
+      await tx.analysisRun.deleteMany({ where: { userId } });
+      if (user.phoneE164) {
+        await tx.otpChallenge.deleteMany({
+          where: { phoneE164: user.phoneE164 },
+        });
+      }
+      if (user.email) {
+        await tx.emailOtpChallenge.deleteMany({
+          where: { email: user.email },
+        });
+      }
+      await tx.user.delete({ where: { id: userId } });
+      return true;
+    });
+  }
+
+  async createDeletionRequest(input: {
+    email?: string;
+    phoneE164?: string;
+    note?: string;
+  }): Promise<{ id: string; createdAt: Date }> {
+    return this.prisma.accountDeletionRequest.create({
+      data: input,
+      select: { id: true, createdAt: true },
+    });
   }
 
   // ── Sessions ──────────────────────────────────────────────────────────────
@@ -226,6 +403,10 @@ export class AuthRepository {
 
   async findRefreshTokenByHash(tokenHash: string): Promise<RefreshToken | null> {
     return this.prisma.refreshToken.findUnique({ where: { tokenHash } });
+  }
+
+  async findSessionById(id: string): Promise<RefreshToken | null> {
+    return this.prisma.refreshToken.findUnique({ where: { id } });
   }
 
   /** Rotation: the presented token is retired in favour of its successor. */

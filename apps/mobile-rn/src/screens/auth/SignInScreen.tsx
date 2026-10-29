@@ -14,8 +14,10 @@ import type { RootStackParamList } from '../../navigation/types';
 import {
   loginEmail,
   registerEmail,
+  requestEmailOtp,
   requestOtp,
   signInWithGoogle,
+  verifyEmailOtp,
   verifyOtp,
 } from '../../data/api';
 import { useApp } from '../../state/AppProvider';
@@ -26,7 +28,7 @@ import type { AccountSession } from '../../types';
 import { showAlert } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
-type Mode = 'choose' | 'email' | 'phone' | 'code';
+type Mode = 'choose' | 'email' | 'email-code' | 'phone' | 'code';
 type EmailMode = 'signup' | 'login';
 
 const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID?.trim();
@@ -63,6 +65,7 @@ export function SignInScreen({ navigation }: Props) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [emailCodeSent, setEmailCodeSent] = useState(false);
   const codeRef = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   const finishAuth = useCallback(
@@ -141,6 +144,33 @@ export function SignInScreen({ navigation }: Props) {
     }
   };
 
+  const sendEmailCode = async () => {
+    setError(null);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Enter a valid email address.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await requestEmailOtp(email.trim());
+      setEmail(result.email);
+      setEmailCodeSent(true);
+      setCode('');
+      setNotice(
+        `Code sent. Valid for ${Math.ceil((result.expiresIn || 300) / 60)} minutes.`,
+      );
+      setTimeout(() => codeRef.current?.focus(), 250);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Could not send an email code.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const submitMessageCode = async () => {
     setError(null);
     if (!/^\d{6}$/.test(code)) {
@@ -158,11 +188,36 @@ export function SignInScreen({ navigation }: Props) {
     }
   };
 
+  const submitEmailCode = async () => {
+    setError(null);
+    if (!/^\d{6}$/.test(code)) {
+      setError('Enter the 6-digit code.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const result = await verifyEmailOtp(email.trim(), code);
+      finishAuth(result.session);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : 'Could not sign in.',
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const goBack = () => {
     setError(null);
     setNotice(null);
     if (mode === 'choose') navigation.goBack();
     else if (mode === 'code') setMode('phone');
+    else if (mode === 'email-code') {
+      if (emailCodeSent) setEmailCodeSent(false);
+      else setMode('choose');
+    }
     else setMode('choose');
   };
 
@@ -225,6 +280,15 @@ export function SignInScreen({ navigation }: Props) {
                   variant="secondary"
                   icon="phone-outline"
                   onPress={() => setMode('phone')}
+                />
+                <Button
+                  label="EMAIL ME A CODE"
+                  variant="outline"
+                  icon="email-fast-outline"
+                  onPress={() => {
+                    setMode('email-code');
+                    setEmailCodeSent(false);
+                  }}
                 />
               </View>
             </>
@@ -348,6 +412,69 @@ export function SignInScreen({ navigation }: Props) {
                   loading={busy}
                   onPress={() => void (mode === 'phone' ? sendCode() : submitMessageCode())}
                 />
+              </View>
+            </>
+          ) : null}
+
+          {mode === 'email-code' ? (
+            <>
+              <Text style={styles.title}>
+                {emailCodeSent ? 'Check your email' : 'Email sign-in code'}
+              </Text>
+              <Text style={styles.copy}>
+                {emailCodeSent
+                  ? `We sent a code to ${email}.`
+                  : 'A free passwordless fallback when SMS is unavailable.'}
+              </Text>
+              <View style={styles.form}>
+                {!emailCodeSent ? (
+                  <Field
+                    label="Email"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    textContentType="emailAddress"
+                    placeholder="you@example.com"
+                    returnKeyType="done"
+                    onSubmitEditing={() => void sendEmailCode()}
+                  />
+                ) : (
+                  <TextInput
+                    ref={codeRef}
+                    accessibilityLabel="Six-digit email sign-in code"
+                    value={code}
+                    onChangeText={(value) => {
+                      setCode(value.replace(/\D/g, '').slice(0, 6));
+                      setError(null);
+                    }}
+                    keyboardType="number-pad"
+                    autoComplete="one-time-code"
+                    textContentType="oneTimeCode"
+                    maxLength={6}
+                    style={styles.codeInput}
+                    selectionColor={colors.primary}
+                    placeholder="000000"
+                    placeholderTextColor={colors.secondaryInk}
+                  />
+                )}
+                <Button
+                  label={emailCodeSent ? 'SIGN IN' : 'SEND EMAIL CODE'}
+                  loading={busy}
+                  onPress={() =>
+                    void (emailCodeSent ? submitEmailCode() : sendEmailCode())
+                  }
+                />
+                {emailCodeSent ? (
+                  <Pressable
+                    onPress={() => void sendEmailCode()}
+                    disabled={busy}
+                    style={styles.resend}
+                  >
+                    <Text style={styles.resendText}>Resend code</Text>
+                  </Pressable>
+                ) : null}
               </View>
             </>
           ) : null}

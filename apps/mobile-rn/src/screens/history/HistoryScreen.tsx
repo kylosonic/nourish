@@ -91,6 +91,15 @@ export function HistoryScreen({ navigation }: Props) {
       [
         { text: 'Close', style: 'cancel' },
         {
+          text: 'Edit meal',
+          onPress: () =>
+            navigation.navigate('EditMeal', {
+              mealId: meal.id,
+              slot: meal.slot,
+              items: meal.items,
+            }),
+        },
+        {
           text: 'Delete meal',
           style: 'destructive',
           onPress: () =>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Support &amp; Account Deletion — Nourish</title>
+<meta name="description" content="Contact Nourish support or request deletion of a Nourish account and its health data.">
+<link rel="canonical" href="https://nourish-kylosonic.vercel.app/support">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" href="assets/tokens.css?v=20261029.5">
+<link rel="stylesheet" href="assets/styles.css?v=20261029.5">
+<style>
+  .support-form{display:grid;gap:1rem;margin:2rem 0;padding:1.5rem;border:2px solid var(--ink);border-radius:1.25rem;background:#fff}
+  .support-form label{display:grid;gap:.4rem;font-weight:700}
+  .support-form input,.support-form textarea{width:100%;padding:.9rem 1rem;border:2px solid var(--ink);border-radius:.8rem;background:#fff;font:inherit;color:inherit;box-sizing:border-box}
+  .support-form textarea{min-height:8rem;resize:vertical}
+  .support-status{min-height:1.5rem;font-weight:700}
+  .support-status[data-state="error"]{color:#9f1d1d}
+  .support-status[data-state="success"]{color:#126b3b}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Nourish</span></a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="index.html#download">Download</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </div>
+</header>
+
+<main class="legal">
+  <h1>Support &amp; Account Deletion</h1>
+  <p class="meta">Last updated 29 October 2026</p>
+  <h2>Get help</h2>
+  <p>
+    Email <a href="mailto:support@nourish.app">support@nourish.app</a> for
+    account access, billing, food-data, privacy, or accessibility support. We
+    aim to respond within two business days.
+  </p>
+  <h2>Delete your account</h2>
+  <p>
+    The fastest route is inside the app: <strong>Profile → Settings → Delete account</strong>.
+    Type <strong>DELETE</strong> to confirm. This permanently removes your
+    account, sessions, consent records, meals, water, and weight history.
+  </p>
+  <p>
+    If you cannot access the app, submit the request below. Enter the email or
+    Ethiopian mobile number associated with the account. Support may ask you to
+    verify ownership before deleting anything.
+  </p>
+  <form id="deletion-request-form" class="support-form" data-api-endpoint="/v1/account-deletion-requests">
+    <label>
+      Email used for Nourish
+      <input id="deletion-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com">
+    </label>
+    <label>
+      Or phone number used for Nourish
+      <input id="deletion-phone" name="phone" type="tel" autocomplete="tel" maxlength="24" placeholder="+251 911 234 567">
+    </label>
+    <label>
+      Anything support should know (optional)
+      <textarea id="deletion-note" name="note" maxlength="1000"></textarea>
+    </label>
+    <button class="button button--dark" type="submit">REQUEST ACCOUNT DELETION</button>
+    <p id="deletion-status" class="support-status" role="status" aria-live="polite"></p>
+  </form>
+  <h2>What happens next</h2>
+  <p>
+    Verified deletion requests are processed within 30 days and the requester is
+    notified when complete. Anonymous correction records and infrastructure logs
+    follow the retention periods in our <a href="privacy.html">Privacy Policy</a>.
+  </p>
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-base">
+    <p class="muted small">© <span>2026</span> Nourish · <a href="index.html">Home</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="data-deletion.html">Data Deletion</a></p>
+  </div>
+</footer>
+<script src="assets/support.js"></script>
+</body>
+</html>
