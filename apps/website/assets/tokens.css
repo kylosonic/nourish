@@ -1,6 +1,6 @@
 /* Hallmark · macrostructure: Feature Stack · tone: neo-brutalist
  * genre: playful · theme: Brutal · nav: N7 · footer: Ft8
- * palette: warm paper / emerald accent / ink rules
+ * palette mirrors the Nourish mobile design tokens
  */
 
 @font-face {
@@ -37,23 +37,30 @@
 
 :root {
   /* Colour */
-  --color-paper: oklch(96.5% 0.022 92);
-  --color-paper-bright: oklch(98.6% 0.012 92);
-  --color-paper-deep: oklch(91.5% 0.035 91);
-  --color-paper-accent: oklch(94.5% 0.06 90);
-  --color-ink: oklch(18% 0.025 155);
-  --color-ink-soft: oklch(32% 0.026 155);
-  --color-muted: oklch(43% 0.018 150);
-  --color-rule: oklch(18% 0.025 155);
-  --color-rule-soft: oklch(72% 0.022 95);
-  --color-accent: oklch(71% 0.19 153);
-  --color-accent-ink: oklch(18% 0.025 155);
-  --color-accent-strong: oklch(43% 0.13 157);
-  --color-accent-soft: oklch(91% 0.07 151);
-  --color-sun: oklch(84% 0.15 83);
-  --color-focus: oklch(57% 0.19 156);
-  --color-danger: oklch(54% 0.18 31);
-  --color-on-dark: oklch(96% 0.025 92);
+  --color-paper: #ffd599;
+  --color-paper-bright: #ffffff;
+  --color-paper-deep: #ffd485;
+  --color-paper-accent: #fff066;
+  --color-ink: #111111;
+  --color-ink-soft: #5c5346;
+  --color-muted: #5c5346;
+  --color-rule: #111111;
+  --color-rule-soft: #b8a98e;
+  --color-accent: #c1ff72;
+  --color-accent-ink: #111111;
+  --color-accent-strong: #9d8df1;
+  --color-accent-soft: #b8f2b6;
+  --color-sun: #fff066;
+  --color-coral: #ff8b6a;
+  --color-pink: #fcb3f3;
+  --color-lavender: #9b8afb;
+  --color-violet: #9d8df1;
+  --color-sky: #7cc6fe;
+  --color-charcoal: #1e1e1e;
+  --color-muted-gray: #4a4a4a;
+  --color-focus: #ff8b6a;
+  --color-danger: #b42318;
+  --color-on-dark: #ffffff;
 
   /* Type */
   --font-display: "Bricolage Grotesque", "Arial Black", sans-serif;
