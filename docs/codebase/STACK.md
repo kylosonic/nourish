@@ -9,7 +9,6 @@
 | API | NestJS 11.2, Prisma Client 6.12, PostgreSQL | `apps/api/package.json`, `apps/api/prisma/schema.prisma` |
 | API runtime | Node.js 24 in Docker; CommonJS output targeting ES2023 | `apps/api/Dockerfile`, `apps/api/tsconfig.json` |
 | Package manager | npm with committed lockfiles | `apps/mobile-rn/package-lock.json`, `apps/api/package-lock.json` |
-| Reference client | Flutter/Dart retained as a migration reference | `README.md`, `apps/mobile/pubspec.yaml` |
 
 ## Production Frameworks and Dependencies
 

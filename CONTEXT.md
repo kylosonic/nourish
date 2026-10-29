@@ -48,8 +48,8 @@ role of final calculator; nutrition and targets are deterministic engines.
 
 Per master prompt §5:
 
-- **Mobile:** Flutter, Dart, Riverpod, GoRouter, local persistent database,
-  secure storage.
+- **Mobile:** React Native, Expo, TypeScript, React Navigation, offline-first
+  local persistence, secure storage.
 - **Backend:** NestJS, TypeScript, PostgreSQL, Prisma, Redis, BullMQ (or
   equivalent job queue).
 - **Storage:** Cloudflare R2.
@@ -63,7 +63,7 @@ Per master prompt §5:
 Per ADR-0001:
 
 ```
-/apps/mobile          Flutter app
+/apps/mobile-rn       Active React Native app
 /apps/api             NestJS backend
 /apps/admin           Admin tooling (deferred beyond MVP except corrections review queue)
 /apps/website         Marketing site + download UX

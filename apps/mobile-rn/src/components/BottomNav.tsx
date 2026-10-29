@@ -33,7 +33,11 @@ export function BottomNav({
   state,
   navigation,
   onScan,
-}: Pick<BottomTabBarProps, 'state' | 'navigation'> & { onScan: () => void }) {
+  reducedMotion,
+}: Pick<BottomTabBarProps, 'state' | 'navigation'> & {
+  onScan: () => void;
+  reducedMotion: boolean;
+}) {
   const insets = useSafeAreaInsets();
   const activeName = state.routes[state.index]?.name;
   const activeIndex = Math.max(
@@ -74,6 +78,7 @@ export function BottomNav({
           items={items}
           activeIndex={activeIndex}
           onSelect={selectTab}
+          reducedMotion={reducedMotion}
         />
       </View>
     </View>

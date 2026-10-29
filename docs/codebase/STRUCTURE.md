@@ -5,14 +5,11 @@
 | Path | Purpose | Evidence |
 |------|---------|----------|
 | `apps/mobile-rn/` | Active React Native MVP | `README.md`, `apps/mobile-rn/App.tsx` |
-| `apps/mobile/` | Flutter implementation retained as a migration/reference client | `README.md`, `apps/mobile/pubspec.yaml` |
 | `apps/api/` | NestJS API, Prisma schema, migrations, fixtures, and tests | `apps/api/package.json`, `apps/api/prisma/schema.prisma` |
 | `apps/website/` | Static marketing and release-download site | `apps/website/index.html`, `apps/website/assets/app.js` |
-| `packages/domain/` | Pure Dart nutrition/target engines | `packages/domain/pubspec.yaml` |
-| `packages/design-system/` | Dart design tokens and widgets for the Flutter reference client | `packages/design-system/pubspec.yaml` |
 | `Design/` | Visual source screens and design specification | `Design/nourish/DESIGN.md`, `Design/*/screen.png` |
 | `docs/` | Product behaviours, ADRs, plans, release process, and state | `docs/behaviors/`, `docs/adr/`, `docs/release-process.md` |
-| `.github/workflows/` | CI, API, website, Flutter, and React Native release workflows | `.github/workflows/` |
+| `.github/workflows/` | React Native, API, and website CI and release workflows | `.github/workflows/` |
 
 ## Entry Points
 

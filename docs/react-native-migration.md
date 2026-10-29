@@ -4,11 +4,10 @@ Date: 2026-10-21
 
 ## Scope
 
-The active first-release mobile experience was rebuilt in the new
-`apps/mobile-rn` Expo/React Native client. The existing Flutter implementation
-was retained as a reference and was not deleted. The NestJS API, product
-behavior contracts, Ethiopian FCT data authority, and release metadata remain
-the shared backend/product authority.
+The active first-release mobile experience was rebuilt in the
+`apps/mobile-rn` Expo/React Native client. The NestJS API, product behavior
+contracts, Ethiopian FCT data authority, and release metadata remain the
+backend/product authority.
 
 ## Preserved product invariants
 
@@ -50,7 +49,7 @@ the shared backend/product authority.
 
 The edit-before-save, text log, settings, account, and privacy screens have no
 approved Stitch source. They use the same Nourish tokens and the existing
-behavior contracts, as the prior Flutter implementation did.
+behavior contracts.
 
 ## Verification evidence
 

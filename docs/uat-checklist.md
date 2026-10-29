@@ -1,4 +1,4 @@
-# UAT checklist — Nourish MVP (`feat/nourish-mvp`)
+# UAT checklist — React Native Nourish MVP (`feat/nourish-mvp`)
 
 For the human reviewer. **Nothing in this file has been executed by an agent:**
 the checks below are what remains to be done by hand, and the project's rule is
@@ -21,9 +21,9 @@ npm run import:fct:fixture
 node dist/src/main.js            # or: npm run start:dev
 
 # App
-cd apps/mobile
-flutter pub get
-flutter run
+cd apps/mobile-rn
+npm ci
+npm start
 ```
 
 With `SMS_PROVIDER=console` the sign-in code is written to the API's own log —
@@ -120,7 +120,7 @@ docker compose down
 | --- | --- | --- |
 | 6.1 | Inspect every value shown for a logged meal | It matches the FCT 2025 entry × grams; nothing is estimated |
 | 6.2 | Airplane mode, whole app | Onboarding, logging, targets, insights, weight, water and recommendations all still work |
-| 6.3 | Check the app's network calls | Only the catalog, analysis, auth/sync and release-metadata lanes talk to the network (`lib/data/sources/`) |
+| 6.3 | Check the app's network calls | Only the catalog, analysis, auth/sync and release-metadata lanes talk to the network (`apps/mobile-rn/src/data/`) |
 | 6.4 | Trigger every unbuilt lane (voice, barcode, camera screen, calendar, notifications, paywall) | Honest-void copy that names what is missing; no fake screen, no placeholder numbers |
 | 6.5 | Confirm consent behaviour | The consent flag is whatever the server holds; the app never flips it locally |
 

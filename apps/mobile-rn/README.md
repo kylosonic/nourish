@@ -4,9 +4,8 @@ The active Nourish mobile client, rebuilt with Expo SDK 58, React Native 0.88,
 TypeScript, React Navigation, and a local-first data model.
 
 The visual source is `../../Design/nourish/DESIGN.md` and the 16 approved
-Stitch screens in `../../Design/`. The Flutter client in `../mobile` remains in
-the repository as a verified legacy reference while backend and product
-contracts continue to be shared.
+Stitch screens in `../../Design/`. This is the active mobile client and the
+target for current product work.
 
 ## What is implemented
 
@@ -97,16 +96,16 @@ No keystore, Apple private key, API key, or OTP code belongs in this repository.
 `.github/workflows/react-native-artifacts.yml` produces two directly downloadable
 GitHub release assets without EAS credentials:
 
-- `Nourish-1.3.3.apk` — release-mode Android APK signed with the generated
+- `Nourish-1.3.4.apk` — release-mode Android APK signed with the generated
   development debug key; installable for testing.
-- `Nourish-1.3.3-UNSIGNED.ipa` — an unsigned iOS payload archive for
+- `Nourish-1.3.4-UNSIGNED.ipa` — an unsigned iOS payload archive for
   inspection and signing work; **not installable on a standard iPhone**.
 
 The workflow writes `SHA256SUMS.txt` and creates the requested GitHub release
 only after both builds succeed.
 
 The current React Native preview is
-[`v1.3.3`](https://github.com/kylosonic/nourish/releases/tag/v1.3.3), marked as
+[`v1.3.4`](https://github.com/kylosonic/nourish/releases/tag/v1.3.4), marked as
 a prerelease because the APK uses a development signing key and the iOS IPA is
 unsigned. The earlier
 [`v1.3.2`](https://github.com/kylosonic/nourish/releases/tag/v1.3.2),

@@ -437,10 +437,12 @@ export function NeoFloatingTabBar({
   items,
   activeIndex,
   onSelect,
+  reducedMotion,
 }: {
   items: NeoTabItem[];
   activeIndex: number;
   onSelect: (index: number) => void;
+  reducedMotion: boolean;
 }) {
   const { width: windowWidth } = useWindowDimensions();
   const compact = windowWidth < 360;
@@ -452,14 +454,25 @@ export function NeoFloatingTabBar({
 
   useEffect(() => {
     if (!activeLayout || activeLayout.width <= 0) return;
-    Animated.spring(indicatorX, {
+    indicatorX.stopAnimation();
+    if (reducedMotion) {
+      indicatorX.setValue(activeLayout.x);
+      return;
+    }
+
+    const movement = Animated.spring(indicatorX, {
       toValue: activeLayout.x,
-      stiffness: 260,
-      damping: 26,
-      mass: 0.8,
+      stiffness: 190,
+      damping: 29,
+      mass: 1,
+      overshootClamping: true,
+      restDisplacementThreshold: 0.5,
+      restSpeedThreshold: 0.5,
       useNativeDriver: ENABLE_MOTION,
-    }).start();
-  }, [activeLayout, indicatorX]);
+    });
+    movement.start();
+    return () => movement.stop();
+  }, [activeLayout, indicatorX, reducedMotion]);
 
   return (
     <View style={styles.tabBar}>

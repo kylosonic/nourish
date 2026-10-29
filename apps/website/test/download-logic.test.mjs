@@ -106,9 +106,11 @@ test('unreachable metadata degrades to GitHub Releases, never a stale link', () 
   for (const metadata of [null, undefined, { published: false }]) {
     const plan = downloadPlan('android', metadata);
     assert.equal(plan.kind, 'unavailable');
-    assert.equal(plan.primaryHref, PUBLISHED.github_releases_url);
+    assert.equal(plan.primaryHref, null);
+    assert.equal(plan.secondaryLabel, 'VIEW RELEASES');
+    assert.equal(plan.secondaryHref, PUBLISHED.github_releases_url);
     assert.equal(plan.assets.length, 0);
-    assert.match(plan.note, /temporarily unavailable/);
+    assert.equal(plan.note, 'Latest build available on GitHub Releases.');
   }
 });
 

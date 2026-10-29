@@ -19,10 +19,10 @@
   <meta name="twitter:description" content="Scan Ethiopian meals. Confirm the plate. Adjust the grams.">
   <meta name="twitter:image" content="https://nourish-kylosonic.vercel.app/assets/screens/home.png">
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23131f19'/%3E%3Cpath d='M9 8h14v14H9z' fill='%238cf28d'/%3E%3Cpath d='M12 22c5-1 8-4 9-10-5 0-9 3-9 10Z' fill='%23131f19'/%3E%3C/svg%3E">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/BricolageGrotesque-ExtraBold.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/tokens.css?v=20261029.1">
-  <link rel="stylesheet" href="assets/styles.css?v=20261029.1">
+  <link rel="stylesheet" href="assets/tokens.css?v=20261029.3">
+  <link rel="stylesheet" href="assets/styles.css?v=20261029.4">
 
   <script type="application/ld+json">
   {
@@ -72,42 +72,35 @@
           <a class="button button--primary" href="#download">DOWNLOAD FOR ANDROID</a>
           <a class="text-link" href="#tour">SEE THE FLOW <span aria-hidden="true">↓</span></a>
         </div>
-        <ul class="hero__facts">
-          <li><strong>722</strong><span>published food rows</span></li>
-          <li><strong>EN + አማርኛ</strong><span>food search</span></li>
-          <li><strong>OFFLINE</strong><span>logging</span></li>
-        </ul>
       </div>
 
       <div class="hero__visual">
         <figure class="hero__food">
           <img src="assets/images/welcome_screen-01.jpg" width="512" height="279"
                alt="Injera surrounded by bowls of Ethiopian spices, lentils, and herbs."
-               fetchpriority="high">
+               loading="eager" fetchpriority="high">
           <figcaption>THE PLATE, UNDERSTOOD.</figcaption>
         </figure>
         <figure class="hero__app">
           <img src="assets/screens/home.png" width="780" height="1688"
                alt="The redesigned Nourish home screen with pastel nutrition cards, playful food artwork, and floating navigation."
-               fetchpriority="high">
+               loading="eager" fetchpriority="high">
         </figure>
-        <figure class="hero__permission">
-          <img src="assets/screens/permissions.png" width="780" height="1688"
-               alt="Nourish permission setup explaining camera, photos, and notification access before onboarding.">
-          <figcaption>ASKED FIRST. EXPLAINED CLEARLY.</figcaption>
-        </figure>
-        <div class="hero__stamp" aria-hidden="true">
-          <span>SCAN</span>
-          <span>CONFIRM</span>
-          <span>EAT</span>
-        </div>
       </div>
 
-      <div class="hero__ticker">
-        <span>ONE PHOTO</span><span aria-hidden="true">✦</span>
-        <span>REAL PORTIONS</span><span aria-hidden="true">✦</span>
-        <span>NO GUESSWORK HIDDEN</span><span aria-hidden="true">✦</span>
-        <span>ONE PHOTO</span><span aria-hidden="true">✦</span>
+      <div class="hero__ticker" aria-hidden="true">
+        <div class="hero__ticker-track">
+          <div class="hero__ticker-set">
+            <span>ONE PHOTO</span><span>✦</span>
+            <span>REAL PORTIONS</span><span>✦</span>
+            <span>NO GUESSWORK HIDDEN</span><span>✦</span>
+          </div>
+          <div class="hero__ticker-set">
+            <span>ONE PHOTO</span><span>✦</span>
+            <span>REAL PORTIONS</span><span>✦</span>
+            <span>NO GUESSWORK HIDDEN</span><span>✦</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -125,13 +118,16 @@
           </div>
           <div class="tour-stage__images">
             <img class="is-active" data-shot="scan" src="assets/screens/scan-menu.png" width="780" height="1688"
+                 loading="lazy" decoding="async"
                  alt="Nourish add-meal screen with camera, photo, search, and barcode options.">
             <img data-shot="review" src="assets/screens/scan-result.png" width="780" height="1688"
+                 loading="lazy" decoding="async"
                  alt="Nourish scan-review screen showing confidence, nutrition totals, and editable ingredients.">
-            <img data-shot="track" src="assets/screens/insights.png" width="780" height="1688"
-                 alt="The redesigned Nourish insights screen with a weekly calorie chart and nutrition metrics.">
+            <img data-shot="track" src="assets/screens/insights-clean.png" width="780" height="1688"
+                 loading="lazy" decoding="async"
+                 alt="Nourish insights screen with a weekly summary and a prompt to log meals before trends appear.">
           </div>
-          <p class="tour-stage__note">Sample meal. Your results depend on what you confirm.</p>
+          <p class="tour-stage__note">A full screen preview. Your results depend on what you confirm.</p>
         </div>
 
         <ol class="tour-steps">
@@ -139,7 +135,7 @@
             <span class="tour-step__index" aria-hidden="true">01</span>
             <div>
               <h3>SCAN THE PLATE</h3>
-              <p>Camera or search. Nourish proposes the dishes it recognises.</p>
+              <p>Camera or search. Nourish proposes the dishes it recognizes.</p>
               <div class="tour-step__meta"><span>AI SUGGESTS</span><span>YOU DECIDE</span></div>
             </div>
           </li>
@@ -168,10 +164,10 @@
         <div class="grams__copy">
           <h2 id="grams-title">PORTIONS<br>THAT FLEX.</h2>
           <p>Start with a suggestion. Then set the exact weight in grams.</p>
-          <div class="grams__examples">
-            <span>doro wot</span>
-            <span>ዶሮ ወጥ</span>
-            <span>shiro</span>
+          <div class="grams__examples" role="group" aria-label="Choose a sample dish">
+            <button class="is-active" type="button" data-dish="doro" aria-pressed="true">doro wot</button>
+            <button type="button" data-dish="doro-amharic" aria-pressed="false">ዶሮ ወጥ</button>
+            <button type="button" data-dish="shiro" aria-pressed="false">shiro</button>
           </div>
         </div>
 
@@ -181,7 +177,7 @@
             <p><output id="portion-weight" for="portion-range">420 g</output></p>
           </div>
           <div class="portion-card__nutrition">
-            <div><strong data-nutrition="calories">820</strong><span>kcal</span></div>
+            <div><strong data-nutrition="calories">791</strong><span>kcal</span></div>
             <div><strong data-nutrition="protein">42</strong><span>protein · g</span></div>
             <div><strong data-nutrition="carbs">86</strong><span>carbs · g</span></div>
             <div><strong data-nutrition="fat">31</strong><span>fat · g</span></div>
@@ -213,32 +209,6 @@
       </div>
     </section>
 
-    <section class="privacy section-shell" id="privacy" aria-labelledby="privacy-title">
-      <div class="privacy__heading">
-        <h2 id="privacy-title">YOUR PLATE<br>IS YOUR BUSINESS.</h2>
-        <p class="privacy__mark" aria-hidden="true">PRIVATE<br>BY<br>DEFAULT.</p>
-        <figure class="privacy__capture">
-          <img src="assets/screens/progress.png" width="780" height="1688"
-               alt="Nourish progress screen using the new outlined pastel design.">
-          <figcaption>YOUR DATA, IN VIEW.</figcaption>
-        </figure>
-      </div>
-      <div class="privacy__promises">
-        <article>
-          <h3>PHOTOS ARE NOT KEPT</h3>
-          <p>Meal photos are sent for analysis and are not stored by the service.</p>
-        </article>
-        <article>
-          <h3>NO DATA SALES</h3>
-          <p>Your nutrition data is not sold, and AI-training sharing stays off unless you opt in.</p>
-        </article>
-        <article>
-          <h3>DELETE ON DEVICE</h3>
-          <p>Clear your local information from the app whenever you want.</p>
-        </article>
-      </div>
-    </section>
-
     <section class="download section-shell" id="download" aria-labelledby="download-title">
       <div class="download__intro">
         <p class="download__kicker">NOURISH FOR ANDROID</p>
@@ -254,7 +224,7 @@
         <p class="download-note" id="download-note" aria-live="polite">Checking the latest release…</p>
         <div class="download-actions">
           <a class="button button--dark" id="download-primary" href="#download" hidden>DOWNLOAD APK</a>
-          <a class="text-link" id="download-secondary" href="#" hidden>VIEW RELEASES <span aria-hidden="true">↗</span></a>
+          <a class="text-link" id="download-secondary" href="https://github.com/kylosonic/nourish/releases">VIEW RELEASES <span aria-hidden="true">↗</span></a>
         </div>
       </div>
 
@@ -292,7 +262,7 @@
         </details>
         <details>
           <summary>Does it work offline?</summary>
-          <p>Yes. Search, food logging, hydration, and history work from the on-device catalogue.</p>
+          <p>Yes. Search, food logging, hydration, and history work from the on-device catalog.</p>
         </details>
         <details>
           <summary>Can I install it on iPhone?</summary>
@@ -303,12 +273,6 @@
   </main>
 
   <footer class="site-footer">
-    <div class="footer-marquee" aria-hidden="true">
-      <div class="footer-marquee__track">
-        <span>NOURISH</span><span>✦</span><span>ETHIOPIAN FOOD</span><span>✦</span><span>REAL DATA</span><span>✦</span>
-        <span>NOURISH</span><span>✦</span><span>ETHIOPIAN FOOD</span><span>✦</span><span>REAL DATA</span><span>✦</span>
-      </div>
-    </div>
     <div class="section-shell footer-main">
       <div class="footer-brand">
         <a href="#top">NOURISH</a>
@@ -348,12 +312,16 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-7"></path></svg>
       <span>DATA</span>
     </a>
+    <a class="store-dock__item" href="#faq" data-dock-link="faq">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18h.01M9.2 9a2.9 2.9 0 1 1 4.9 2.1c-1.2 1-2.1 1.6-2.1 3.4"></path><circle cx="12" cy="12" r="9"></circle></svg>
+      <span>FAQ</span>
+    </a>
     <a class="store-dock__buy" href="#download" data-dock-link="download">
       <span>GET APP</span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4M5 20h14"></path></svg>
     </a>
   </nav>
 
-  <script type="module" src="assets/app.js?v=20261028.4"></script>
+  <script type="module" src="assets/app.js?v=20261029.4"></script>
 </body>
 </html>

@@ -123,7 +123,7 @@ DESIGN.md is the source of truth for:
 - animation
 - accessibility
 
-Do not replace the Stitch design with a generic Flutter template.
+Do not replace the Stitch design with a generic React Native template.
 
 ---
 
@@ -131,11 +131,11 @@ Do not replace the Stitch design with a generic Flutter template.
 
 Mobile:
 
-Flutter
-Dart
-Riverpod
-GoRouter
-local persistent database
+React Native
+Expo
+TypeScript
+React Navigation
+offline-first local persistence
 secure storage
 
 Backend:
@@ -175,7 +175,7 @@ Use a clean monorepo.
 
 Recommended:
 
-/apps/mobile
+/apps/mobile-rn
 /apps/api
 /apps/admin
 /apps/website
@@ -194,7 +194,7 @@ Recommended:
 
 # 7. MOBILE APPLICATION
 
-Build the Nourish mobile app in Flutter.
+Build the Nourish mobile app in React Native with Expo.
 
 Screens must follow the supplied Stitch designs.
 
@@ -969,13 +969,8 @@ The website should use Cloudflare R2 for stable downloads and GitHub Releases as
 
 # 40. ANDROID BUILD
 
-Build:
-
-flutter build apk --release
-
-Prefer also:
-
-flutter build appbundle --release
+Build Android APK and iOS preview artifacts through
+`.github/workflows/react-native-artifacts.yml`.
 
 If possible generate:
 
@@ -1059,7 +1054,7 @@ Do not create fake installation links for an unsigned IPA.
 
 Create workflows:
 
-.github/workflows/build-release.yml
+.github/workflows/react-native-artifacts.yml
 
 Trigger:
 
@@ -1076,7 +1071,7 @@ release branch merge
 The workflow must:
 
 1. Checkout repository.
-2. Install Flutter.
+2. Set up Node.js and npm.
 3. Restore dependencies.
 4. Run formatting checks.
 5. Run static analysis.
@@ -1342,7 +1337,7 @@ Database tests
 AI schema tests
 Payment tests
 End-to-end tests
-Flutter widget tests
+React Native component tests
 
 Critical E2E:
 
@@ -1447,7 +1442,7 @@ Require:
 strict TypeScript
 linting
 formatting
-Flutter analysis
+React Native lint and typecheck
 typed API client
 schema validation
 clear error handling
@@ -1540,8 +1535,9 @@ Keep signing logic isolated from Android logic.
 
 Create:
 
-.github/workflows/build-release.yml
-.github/workflows/android-ci.yml
+.github/workflows/react-native-artifacts.yml
+.github/workflows/react-native-ci.yml
+.github/workflows/react-native-release.yml
 .github/workflows/website.yml
 .github/workflows/api-ci.yml
 
@@ -1551,10 +1547,9 @@ Use reusable steps where sensible.
 
 # 68. RELEASE PROCESS
 
-Developer runs:
-
-git tag v1.0.0
-git push origin v1.0.0
+Developer dispatches `.github/workflows/react-native-artifacts.yml` with a new
+release tag and the matching app version after the changes are pushed to the
+default branch.
 
 GitHub Actions:
 

@@ -15,17 +15,14 @@ provider is missing the app says so instead of substituting a plausible answer.
 | Path | What it is |
 | --- | --- |
 | `apps/mobile-rn` | **Active React Native MVP** (Expo 58, TypeScript, React Navigation). Rebuild of the approved mobile experience with offline-first persisted state. |
-| `apps/mobile` | Verified Flutter implementation retained as a migration/reference client. |
 | `apps/api` | NestJS 11 + Prisma 6 + PostgreSQL 16 API: FCT catalog, meal analysis pipeline, accounts and sync endpoints. |
 | `apps/website` | Static marketing site (no cookies, no analytics, bundled fonts). |
-| `packages/domain` | Pure Dart nutrition engine: targets, portions, snapshots. No Flutter, no I/O. |
-| `packages/design-system` | Tokens, theme and widget primitives (Inter + Noto Sans Ethiopic bundled). |
 | `scripts` | Release tooling: `releases/latest.json` generator and its contract tests. |
 | `docs` | Behaviour contracts, ADRs, slice blueprints, release process, and `docs/swarm/STATE.md` — the authoritative ledger of what is built, verified and still open. |
 
 ## Run it
 
-Prerequisites: Flutter 3.44.x, Node 24, Docker Desktop.
+Prerequisites: Node 24, npm 11, Docker Desktop.
 
 **API**
 
@@ -79,16 +76,8 @@ returns a canned recognition result. The release workflow reads
 `NOURISH_API_URL` and the three Google client IDs from GitHub repository
 variables.
 
-The legacy Flutter app remains runnable:
-
-```powershell
-cd apps/mobile
-flutter pub get
-flutter run
-```
-
 The current React Native preview is
-[`v1.3.3`](https://github.com/kylosonic/nourish/releases/tag/v1.3.3). It includes
+[`v1.3.4`](https://github.com/kylosonic/nourish/releases/tag/v1.3.4). It includes
 first-run camera/photo/notification permission setup, the neo-brutalist interface
 with an animated floating navigation pill,
 email/Google/phone entry points, exact-gram food portions, scheduled hydration
@@ -105,24 +94,18 @@ python -m http.server 8080      # any static server; there is no build step
 
 ## Verify
 
-Every command below is the exact one used for the recorded evidence in
-`docs/swarm/STATE.md`.
+Every command below checks the active React Native app or API.
 
 ```powershell
-# Mobile (apps/mobile)
-flutter analyze
-flutter test                             # 246 tests
-
-# Active React Native MVP (apps/mobile-rn)
+cd apps/mobile-rn
+npm ci
 npm run lint
 npm run typecheck
 npm test                                 # deterministic domain suite
 npx expo export --platform web
 
-# Domain and design system (packages/*)
-flutter test                             # 27 and 13 tests
-
 # API (apps/api)
+cd ../api
 npm run lint
 npm run build
 npx prisma validate
@@ -133,13 +116,6 @@ npm run test:e2e                         # 83 e2e tests (needs Docker Postgres)
 node --test "scripts/*.test.mjs"                       # 9 tests
 node --test "apps/website/test/*.test.mjs"             # 12 tests
 node scripts/generate-latest-json.mjs --check
-```
-Two live checks need the API running (they are manual on purpose: the test suite must stay offline). They are what caught the wire mismatches the fakes had hidden:
-
-```powershell
-dart run tool/auth_live_check.dart request +251911000123   # then read the code from the API log
-dart run tool/auth_live_check.dart session +251911000123 123456
-dart run tool/sync_live_check.dart  +251911000123 123456   # push, then read the rows back
 ```
 
 Note: `node --test <directory>` fails with `MODULE_NOT_FOUND` on this Node/Windows
@@ -157,7 +133,7 @@ build — always pass an explicit glob, as above.
 | S3 — **offline queue + backup push** | Built and verified live: every local change (meal, meal delete, water, weight) is queued in the same transaction, pushed on request with per-operation outcomes, and refused changes stay queued with the server's reason. **Restore is NOT BUILT**: the app can already *read* the account's rows (GET /v1/sync/changes, live-verified) but does not write them back into the local database yet, so this is a backup rather than a sync, and the account screen says so |
 | S4 — weekly insights, weight logging, adjustable water goal, "what can I eat" | Built, verified |
 | S4 — hydration reminders (WW-02), entitlements/paywall (SUB-01) | Hydration reminders are implemented as native local notifications at 10:00, 14:00, and 18:00. The paywall remains **NOT BUILT**: it has no design (P-SUB-1) or payment provider (P-PROV-1) |
-| S5 — website, release metadata, in-app update check | Built, verified. The release pipeline itself has never run: it needs a remote and the secrets in `docs/release-process.md` |
+| S5 — website, release metadata, in-app update check | Built and verified. React Native preview builds are published through the React Native artifacts workflow. |
 
 Honest limits, stated everywhere they matter: no deployed API URL, Google OAuth
 client IDs, or AI provider key is configured in this repository; no production

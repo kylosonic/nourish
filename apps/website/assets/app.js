@@ -62,10 +62,14 @@ function render(metadata) {
     primary.hidden = false;
     primary.removeAttribute('aria-disabled');
     primary.setAttribute('rel', 'noopener');
-  } else {
+  } else if (plan.kind === 'ios-pending') {
     primary.removeAttribute('href');
     primary.setAttribute('aria-disabled', 'true');
     primary.hidden = false;
+  } else {
+    primary.removeAttribute('href');
+    primary.removeAttribute('aria-disabled');
+    primary.hidden = true;
   }
 
   if (plan.secondaryHref && plan.secondaryLabel) {
@@ -127,7 +131,7 @@ function renderAssets(assets) {
 }
 
 function updateDock(sectionId) {
-  const validIds = new Set(['top', 'tour', 'grams', 'data', 'download']);
+  const validIds = new Set(['top', 'tour', 'grams', 'data', 'faq', 'download']);
   if (!validIds.has(sectionId)) return;
 
   document.querySelectorAll('[data-dock-link]').forEach((link) => {
@@ -205,9 +209,9 @@ function syncTourStage(step) {
     image.toggleAttribute('aria-hidden', !isActive);
     const activeAlt =
       shot === 'scan'
-        ? 'Overhead photo of a shared Ethiopian meal, ready to scan.'
+        ? 'Nourish add-meal screen with camera, photo, search, and barcode choices.'
         : shot === 'track'
-          ? 'Nourish insights screen showing weekly calories and macro totals.'
+          ? 'Nourish insights screen with a weekly summary and a prompt to log meals before trends appear.'
           : 'Nourish scan result showing the meal, confidence, macros, and detected ingredients.';
     image.alt = isActive ? activeAlt : '';
   });
@@ -217,19 +221,42 @@ function syncTourStage(step) {
 
 function observeTour() {
   const steps = [...document.querySelectorAll('.tour-step')];
-  if (steps.length === 0 || !('IntersectionObserver' in window)) return;
+  if (steps.length === 0) return;
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (visible) syncTourStage(visible.target);
-    },
-    { rootMargin: '-30% 0px -48% 0px', threshold: [0, 0.3, 0.6] },
-  );
+  let frame = 0;
+  let currentStep = null;
+  const updateActiveStep = () => {
+    frame = 0;
+    const activationLine = window.innerHeight * 0.46;
+    const activeStep = steps.reduce((closest, step) => {
+      const rect = step.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height / 2 - activationLine);
+      return !closest || distance < closest.distance
+        ? { step, distance }
+        : closest;
+    }, null);
 
-  steps.forEach((step) => observer.observe(step));
+    if (!activeStep || activeStep.step === currentStep) return;
+
+    if (currentStep) {
+      const rect = currentStep.getBoundingClientRect();
+      const currentDistance = Math.abs(
+        rect.top + rect.height / 2 - activationLine,
+      );
+      if (currentDistance <= activeStep.distance + 32) return;
+    }
+
+    currentStep = activeStep.step;
+    syncTourStage(currentStep);
+  };
+  const scheduleUpdate = () => {
+    if (frame) return;
+    frame = window.requestAnimationFrame(updateActiveStep);
+  };
+
+  window.addEventListener('scroll', scheduleUpdate, { passive: true });
+  window.addEventListener('resize', scheduleUpdate, { passive: true });
+  updateActiveStep();
 }
 
 function connectPortionPreview() {
@@ -237,16 +264,17 @@ function connectPortionPreview() {
   const weight = document.getElementById('portion-weight');
   if (!(slider instanceof HTMLInputElement) || !weight) return;
 
-  const baselineGrams = 420;
-  const baseline = {
-    calories: 820,
-    protein: 42,
-    carbs: 86,
-    fat: 31,
+  const presetsPer100g = {
+    doro: { protein: 10, carbs: 20.4761904762, fat: 7.380952381 },
+    'doro-amharic': { protein: 10, carbs: 20.4761904762, fat: 7.380952381 },
+    shiro: { protein: 7.6, carbs: 14.3, fat: 5.4 },
   };
+  const dishButtons = [...document.querySelectorAll('[data-dish]')];
+  let selectedDish = dishButtons.find((button) => button.getAttribute('aria-pressed') === 'true')?.dataset.dish
+    || 'doro';
 
   const fields = new Map(
-    Object.keys(baseline).map((key) => [
+    ['calories', 'protein', 'carbs', 'fat'].map((key) => [
       key,
       document.querySelector(`[data-nutrition="${key}"]`),
     ]),
@@ -254,19 +282,37 @@ function connectPortionPreview() {
 
   const update = () => {
     const grams = Number.parseInt(slider.value, 10);
-    const ratio = grams / baselineGrams;
+    const preset = presetsPer100g[selectedDish] ?? presetsPer100g.doro;
+    const macros = {
+      protein: Math.round((preset.protein * grams) / 100),
+      carbs: Math.round((preset.carbs * grams) / 100),
+      fat: Math.round((preset.fat * grams) / 100),
+    };
+    const calories = macros.protein * 4 + macros.carbs * 4 + macros.fat * 9;
     weight.value = `${grams} g`;
     weight.textContent = `${grams} g`;
 
     for (const [key, field] of fields) {
-      if (field) field.textContent = String(Math.round(baseline[key] * ratio));
+      if (field) field.textContent = String(key === 'calories' ? calories : macros[key]);
     }
 
     slider.setAttribute(
       'aria-valuetext',
-      `${grams} grams; ${Math.round(baseline.calories * ratio)} calories in the sample plate`,
+      `${grams} grams; ${calories} calories in the sample plate`,
     );
   };
+
+  dishButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      selectedDish = button.dataset.dish;
+      dishButtons.forEach((item) => {
+        const isActive = item === button;
+        item.classList.toggle('is-active', isActive);
+        item.setAttribute('aria-pressed', String(isActive));
+      });
+      update();
+    });
+  });
 
   slider.addEventListener('input', update);
   update();

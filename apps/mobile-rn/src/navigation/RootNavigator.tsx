@@ -1,5 +1,11 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Easing,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import {
   NavigationContainer,
   type NavigationContainerRef,
@@ -10,6 +16,7 @@ import type { RootStackParamList, MainTabParamList } from './types';
 import { useApp } from '../state/AppProvider';
 import { colors, fonts, spacing } from '../theme';
 import { BottomNav } from '../components/BottomNav';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { HomeScreen } from '../screens/home/HomeScreen';
 import { ProgressScreen } from '../screens/progress/ProgressScreen';
 import { InsightsScreen } from '../screens/insights/InsightsScreen';
@@ -53,12 +60,26 @@ const onboardingRoute: Record<number, keyof RootStackParamList> = {
   7: 'DailyTarget',
 };
 
-function MainTabs({ navigation }: { navigation: { navigate: (name: keyof RootStackParamList) => void } }) {
+function MainTabs({
+  navigation,
+  reducedMotion,
+}: {
+  navigation: { navigate: (name: keyof RootStackParamList) => void };
+  reducedMotion: boolean;
+}) {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: 'transparent' },
+        animation: reducedMotion ? 'none' : 'fade',
+        transitionSpec: {
+          animation: 'timing',
+          config: {
+            duration: 320,
+            easing: Easing.inOut(Easing.cubic),
+          },
+        },
         tabBarStyle: {
           position: 'absolute',
           backgroundColor: 'transparent',
@@ -72,6 +93,7 @@ function MainTabs({ navigation }: { navigation: { navigate: (name: keyof RootSta
           state={props.state}
           navigation={props.navigation}
           onScan={() => navigation.navigate('ScanMenu')}
+          reducedMotion={reducedMotion}
         />
       )}
     >
@@ -85,6 +107,7 @@ function MainTabs({ navigation }: { navigation: { navigate: (name: keyof RootSta
 
 function AppStack() {
   const { state } = useApp();
+  const reducedMotion = useReducedMotion();
   if (!state.hydrated) {
     return (
       <View style={styles.loading}>
@@ -114,10 +137,18 @@ function AppStack() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.surface },
-        animation: 'slide_from_right',
+        animation: reducedMotion ? 'none' : 'slide_from_right',
+        animationDuration: 360,
       }}
     >
-      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ animation: 'fade' }} />
+      <Stack.Screen
+        name="Welcome"
+        component={WelcomeScreen}
+        options={{
+          animation: reducedMotion ? 'none' : 'fade',
+          animationDuration: 360,
+        }}
+      />
       <Stack.Screen name="Language" component={LanguageScreen} />
       <Stack.Screen name="Goal" component={GoalScreen} />
       <Stack.Screen name="Body" component={BodyScreen} />
@@ -127,7 +158,9 @@ function AppStack() {
       <Stack.Screen name="DailyTarget" component={DailyTargetScreen} />
       <Stack.Screen name="SignIn" component={SignInScreen} />
       <Stack.Screen name="MainTabs">
-        {({ navigation }) => <MainTabs navigation={navigation} />}
+        {({ navigation }) => (
+          <MainTabs navigation={navigation} reducedMotion={reducedMotion} />
+        )}
       </Stack.Screen>
       <Stack.Screen name="History" component={HistoryScreen} />
       <Stack.Screen name="Recommendations" component={RecommendationsScreen} />
@@ -138,19 +171,28 @@ function AppStack() {
         component={ScanMenuScreen}
         options={{
           presentation: 'transparentModal',
-          animation: 'slide_from_bottom',
+          animation: reducedMotion ? 'none' : 'slide_from_bottom',
+          animationDuration: 360,
           contentStyle: { backgroundColor: 'transparent' },
         }}
       />
       <Stack.Screen
         name="Camera"
         component={CameraScreen}
-        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+        options={{
+          presentation: 'fullScreenModal',
+          animation: reducedMotion ? 'none' : 'fade',
+          animationDuration: 360,
+        }}
       />
       <Stack.Screen
         name="Analysis"
         component={AnalysisScreen}
-        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+        options={{
+          presentation: 'fullScreenModal',
+          animation: reducedMotion ? 'none' : 'fade',
+          animationDuration: 360,
+        }}
       />
       <Stack.Screen name="Result" component={ResultScreen} />
       <Stack.Screen name="LowConfidence" component={LowConfidenceScreen} />

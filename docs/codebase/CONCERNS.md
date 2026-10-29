@@ -10,14 +10,12 @@
 | Medium | iOS artifact is unsigned | `.github/workflows/react-native-artifacts.yml` | IPA cannot be installed on a normal iPhone | Sign with Apple distribution credentials |
 | Medium | Android artifact uses development signing | `.github/workflows/react-native-artifacts.yml` | APK is installable for testing but not Play Store-ready | Provision production keystore and secure signing workflow |
 | Medium | Real external auth and AI calls are not live-tested | `docs/swarm/STATE.md`, API env examples | Contract drift could appear only in production | Run staging smoke tests with real credentials |
-| Medium | Flutter and React Native coexist as clients | `README.md`, `CONTEXT.md`, `apps/mobile`, `apps/mobile-rn` | Contributors can update the wrong client | Declare lifecycle ownership for the Flutter client |
 
 ## Technical Debt
 
 | Item | Why it exists | Where | Risk if ignored | Suggested fix |
 |------|---------------|-------|-----------------|---------------|
-| Duplicate client implementations | Migration from Flutter to React Native | `apps/mobile`, `apps/mobile-rn` | Tests/docs and product behavior diverge | Archive or freeze one client after parity |
-| No server-side restore into mobile | Existing account work is backup-focused | `apps/mobile/lib/features/sync/`, React Native state | New device cannot restore complete local history | Add restore merge flow and conflict tests |
+| No server-side restore into mobile | Existing account work is backup-focused | `apps/mobile-rn/src/state/` | New device cannot restore complete local history | Add restore merge flow and conflict tests |
 | No production API deployment manifest | Local Docker workflow only | `apps/api/docker-compose.yml`, `Dockerfile` | No reproducible cloud launch | Add provider-specific deployment configuration |
 | No coverage thresholds | Test commands exist without coverage gates | `apps/api/jest.config.js`, mobile package scripts | Regressions can pass CI unnoticed | Set baseline coverage and enforce in CI |
 
@@ -44,7 +42,7 @@
 | Area | Why fragile | Churn signal | Safe change strategy |
 |------|-------------|--------------|----------------------|
 | `docs/swarm/STATE.md` | Frequent manual evidence ledger | 36 commits in scan window | Update only with verified evidence |
-| Flutter localization/screens | Reference client remains active in scripts | High churn in `apps/mobile/lib/l10n/strings.dart` and navigation | Freeze scope or test both clients |
+| React Native screens/navigation | `RootNavigator.tsx` owns onboarding and screen transitions | Changes span the navigator and app screens | Keep changes within the active app and verify on both platforms |
 | API workflow configuration | Prior release workflow fixes were numerous | Multiple `.github/workflows/api-ci.yml` commits | Validate YAML and run branch workflow |
 | Release packaging | Signing/platform changes | Recent release commits | Build artifacts in Actions and verify file signatures/checksums |
 
@@ -53,7 +51,6 @@
 1. [ASK USER] What production API base URL should be embedded in the release, and where should the NestJS API be deployed?
 2. [ASK USER] Which Google Cloud project/client IDs should be used for Android, iOS, and web?
 3. [ASK USER] Should `v1.2.0` be published as a preview because the IPA is unsigned and the APK uses development signing?
-4. [ASK USER] Is the Flutter client being retired after React Native parity, or should both clients continue receiving features?
 5. [ASK USER] Is product sign-off available for the provisional screens and behavior assumptions recorded in `docs/plans/provisional-product-assumptions.md`?
 
 ## Evidence

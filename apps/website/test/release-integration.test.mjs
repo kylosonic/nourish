@@ -84,7 +84,8 @@ test('the committed latest.json is valid and drives each platform honestly', () 
     const plan = downloadPlan(platform, committed);
     if (plan.kind === 'unavailable') {
       assert.equal(plan.assets.length, 0);
-      assert.ok(plan.primaryHref.includes('/releases'));
+      assert.equal(plan.primaryHref, null);
+      assert.ok(plan.secondaryHref.includes('/releases'));
       continue;
     }
     assert.ok(plan.assets.length > 0, `${platform}: a download plan needs assets`);

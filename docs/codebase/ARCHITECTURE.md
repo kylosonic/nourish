@@ -57,7 +57,7 @@ email/password, Google ID token, or phone OTP
 
 - The mobile release defaults to `https://api.nourish.app`, but no deployed API URL is currently configured in the repository, so cloud recognition and email/Google account calls cannot work in that artifact.
 - API analysis budget and rate state are process-local; horizontal scaling changes the effective production ceiling.
-- The repository contains both Flutter and React Native clients, so documentation and tests can diverge about the active client.
+- The active client is `apps/mobile-rn`; release and UX changes should target that app.
 - Google and AI credentials are intentionally absent; production flows remain unverified against real external services.
 
 ## Evidence

@@ -20,6 +20,7 @@ import { images } from '../../data/images';
 import { useApp } from '../../state/AppProvider';
 import { newId } from '../../utils/date';
 import type { AnalysisItem, MealItem, PortionUnit } from '../../types';
+import { useReducedMotion } from '../../hooks/useReducedMotion';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Analysis'>;
 
@@ -36,27 +37,33 @@ export function AnalysisScreen({ navigation, route }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [pulse] = useState(() => new Animated.Value(0));
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) {
+      pulse.setValue(0);
+      return;
+    }
+
     const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, {
           toValue: 1,
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
+          duration: 1600,
+          easing: Easing.inOut(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(pulse, {
           toValue: 0,
-          duration: 1200,
-          easing: Easing.inOut(Easing.ease),
+          duration: 1600,
+          easing: Easing.inOut(Easing.cubic),
           useNativeDriver: true,
         }),
       ]),
     );
     animation.start();
     return () => animation.stop();
-  }, [pulse]);
+  }, [pulse, reducedMotion]);
 
   useEffect(() => {
     let active = true;
@@ -115,8 +122,8 @@ export function AnalysisScreen({ navigation, route }: Props) {
     };
   }, [attempt, navigation, pending, route.params.slot, state.catalog]);
 
-  const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1.06] });
-  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.3, 0.08] });
+  const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1.04] });
+  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.2, 0.08] });
 
   if (error) {
     return (
@@ -189,31 +196,83 @@ export function AnalysisScreen({ navigation, route }: Props) {
       </View>
       <View style={styles.statusList}>
         {stages.map((label, index) => {
-          const done = index < stage;
-          const active = index === stage;
           return (
-            <View key={label} style={styles.statusRow}>
-              <View
-                style={[
-                  styles.statusDot,
-                  (done || active) && styles.statusDotActive,
-                ]}
-              >
-                {done ? (
-                  <Icon name="check" size={16} color={colors.white} />
-                ) : active ? (
-                  <View style={styles.activeDot} />
-                ) : null}
-              </View>
-              <Text style={[styles.statusText, (done || active) && styles.statusTextActive]}>
-                {label}
-              </Text>
-            </View>
+            <AnalysisStageRow
+              key={label}
+              label={label}
+              done={index < stage}
+              active={index === stage}
+              reducedMotion={reducedMotion}
+            />
           );
         })}
       </View>
       <Text style={styles.powered}>POWERED BY NOURISH INTELLIGENCE</Text>
     </View>
+  );
+}
+
+function AnalysisStageRow({
+  label,
+  done,
+  active,
+  reducedMotion,
+}: {
+  label: string;
+  done: boolean;
+  active: boolean;
+  reducedMotion: boolean;
+}) {
+  const [emphasis] = useState(
+    () => new Animated.Value(done || active ? 1 : 0),
+  );
+
+  useEffect(() => {
+    const target = done || active ? 1 : 0;
+    if (reducedMotion) {
+      emphasis.setValue(target);
+      return;
+    }
+
+    const transition = Animated.timing(emphasis, {
+      toValue: target,
+      duration: 280,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    transition.start();
+    return () => transition.stop();
+  }, [active, done, emphasis, reducedMotion]);
+
+  const opacity = emphasis.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.72, 1],
+  });
+  const scale = emphasis.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.96, 1],
+  });
+
+  return (
+    <Animated.View
+      style={[styles.statusRow, { opacity, transform: [{ scale }] }]}
+    >
+      <View
+        style={[
+          styles.statusDot,
+          (done || active) && styles.statusDotActive,
+        ]}
+      >
+        {done ? (
+          <Icon name="check" size={16} color={colors.white} />
+        ) : active ? (
+          <View style={styles.activeDot} />
+        ) : null}
+      </View>
+      <Text style={[styles.statusText, (done || active) && styles.statusTextActive]}>
+        {label}
+      </Text>
+    </Animated.View>
   );
 }
 

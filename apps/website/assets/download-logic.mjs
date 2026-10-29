@@ -13,6 +13,24 @@
 
 export const GITHUB_RELEASES_FALLBACK = 'https://github.com/kylosonic/nourish/releases';
 
+function assetUrl(asset) {
+  const url = asset?.browser_download_url ?? asset?.url;
+  return typeof url === 'string' && /^https:\/\//.test(url) ? url : null;
+}
+
+function unavailablePlan(platform, releasesUrl) {
+  return {
+    kind: 'unavailable',
+    platform,
+    primaryLabel: 'DOWNLOAD APK',
+    primaryHref: null,
+    secondaryLabel: 'VIEW RELEASES',
+    secondaryHref: releasesUrl,
+    note: 'Latest build available on GitHub Releases.',
+    assets: [],
+  };
+}
+
 /** Detect the visitor's platform from a user agent string. */
 export function detectPlatform(userAgent) {
   const ua = String(userAgent ?? '').toLowerCase();
@@ -36,43 +54,25 @@ export function downloadPlan(platform, metadata, options = {}) {
     options.githubReleasesUrl ||
     GITHUB_RELEASES_FALLBACK;
 
-  // Metadata unreachable or nothing published yet: degrade honestly.
+  // Metadata unreachable or nothing published yet: keep the releases link usable.
   if (!metadata || metadata.published !== true) {
-    return {
-      kind: 'unavailable',
-      platform,
-      primaryLabel: 'VIEW RELEASES',
-      primaryHref: releasesUrl,
-      secondaryLabel: null,
-      secondaryHref: null,
-      note:
-        'Release details are temporarily unavailable. View the latest files and ' +
-        'checksums on GitHub Releases.',
-      assets: [],
-    };
+    return unavailablePlan(platform, releasesUrl);
+  }
+
+  const apk = metadata.android?.apk ?? metadata.android?.universal_apk ?? null;
+  const apkUrl = assetUrl(apk);
+  if (metadata.android?.available !== true || !apkUrl) {
+    return unavailablePlan(platform, releasesUrl);
   }
 
   const assets = listAssets(metadata);
 
   if (platform === 'android') {
-    const apk = metadata.android?.apk ?? metadata.android?.universal_apk ?? null;
-    if (!metadata.android?.available || !apk) {
-      return {
-        kind: 'unavailable',
-        platform,
-        primaryLabel: 'VIEW RELEASES',
-        primaryHref: releasesUrl,
-        secondaryLabel: null,
-        secondaryHref: null,
-        note: 'This release does not include an Android build yet.',
-        assets,
-      };
-    }
     return {
       kind: 'android-direct',
       platform,
       primaryLabel: 'DOWNLOAD APK',
-      primaryHref: apk.url,
+      primaryHref: apkUrl,
       secondaryLabel: 'MORE DOWNLOADS',
       secondaryHref: releasesUrl,
       note: `Android ${metadata.version} — direct download. Verify the SHA-256 below before installing.`,
@@ -113,8 +113,7 @@ export function downloadPlan(platform, metadata, options = {}) {
     kind: 'desktop',
     platform: 'desktop',
     primaryLabel: 'GET NOURISH ON ANDROID',
-    primaryHref:
-      metadata.android?.apk?.url ?? metadata.android?.universal_apk?.url ?? releasesUrl,
+    primaryHref: apkUrl,
     secondaryLabel: 'VIEW RELEASES',
     secondaryHref: releasesUrl,
     note: `Android ${metadata.version} — direct download. ${
@@ -131,12 +130,13 @@ export function listAssets(metadata) {
   if (!metadata || metadata.published !== true) return [];
   const rows = [];
   const push = (label, asset) => {
-    if (!asset) return;
+    const url = assetUrl(asset);
+    if (!url) return;
     rows.push({
       label,
-      url: asset.url,
+      url,
       size: formatBytes(asset.size_bytes),
-      sha256: asset.sha256,
+      sha256: asset.sha256 ?? asset.digest?.replace(/^sha256:/i, '') ?? '—',
       version: metadata.version,
       releaseDate: metadata.release_date,
     });
