@@ -23,6 +23,7 @@ env:
   JWT_SECRET: ci-test-secret-that-is-at-least-32-characters-long
   SMS_PROVIDER: console
   AI_PROVIDER: fixture
+  FIREBASE_PROJECT_ID: ci-firebase-project
 
 jobs:
   lint:

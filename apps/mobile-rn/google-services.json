@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "455354193925",
+    "project_id": "nourish-mobile-prod",
+    "storage_bucket": "nourish-mobile-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:455354193925:android:6cd3cffbb0bd23e7ada46c",
+        "android_client_info": {
+          "package_name": "app.nourish.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBB2vtWKODwtT2_FQ2abjEdzYthEp2indo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

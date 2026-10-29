@@ -26,7 +26,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: free
-    branch: main
+    branch: feat/nourish-mvp
     rootDir: apps/api
     envVars:
       # Core
@@ -89,7 +89,7 @@ services:
       - fromGroup: nourish-secrets
 
     # Health checks keep the free instance healthy
-    healthCheckPath: /health
+    healthCheckPath: /v1/healthz
     # Prevent accidental crash loops
     numInstances: 1
 

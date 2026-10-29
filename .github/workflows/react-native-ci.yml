@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+env:
+  NOURISH_API_URL: ${{ vars.NOURISH_API_URL || 'https://api.nourish.app' }}
+  EXPO_PUBLIC_API_URL: ${{ vars.NOURISH_API_URL || 'https://api.nourish.app' }}
+
 jobs:
   verify:
     name: Lint, typecheck, test, and bundle

@@ -29,7 +29,6 @@ export class ProductsService {
 
   constructor(
     @Inject(ProductsRepository) private readonly repo: ProductsRepository,
-    private readonly fetchImpl: typeof fetch = fetch,
   ) {}
 
   async barcode(barcode: string): Promise<BarcodeProductView> {
@@ -39,7 +38,7 @@ export class ProductsService {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 12_000);
     try {
-      const response = await this.fetchImpl(
+      const response = await fetch(
         `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(
           barcode,
         )}.json?fields=product_name,generic_name,brands,serving_quantity,serving_size,nutriments`,
