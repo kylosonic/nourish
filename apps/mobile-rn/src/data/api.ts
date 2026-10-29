@@ -18,7 +18,7 @@ export const API_BASE_URL =
 
 export const RELEASE_METADATA_URL =
   process.env.EXPO_PUBLIC_RELEASE_URL ||
-  'https://downloads.nourish.app/metadata/latest.json';
+  'https://nourish-kylosonic.vercel.app/latest.json';
 
 export class ApiError extends Error {
   code: string;

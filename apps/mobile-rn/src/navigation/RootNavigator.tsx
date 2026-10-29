@@ -37,9 +37,11 @@ import { LowConfidenceScreen } from '../screens/scan/LowConfidenceScreen';
 import { FoodSearchScreen } from '../screens/search/FoodSearchScreen';
 import { EditMealScreen } from '../screens/scan/EditMealScreen';
 import { BarcodeScreen } from '../screens/scan/BarcodeScreen';
+import { PermissionSetupScreen } from '../screens/permissions/PermissionSetupScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const PermissionStack = createNativeStackNavigator<{ PermissionSetup: undefined }>();
 
 const onboardingRoute: Record<number, keyof RootStackParamList> = {
   1: 'Language',
@@ -100,14 +102,13 @@ function AppStack() {
     state.onboarding.started && !state.onboarding.completed
       ? onboardingRoute[state.onboarding.step] || 'Language'
       : undefined;
-
   return (
     <Stack.Navigator
       initialRouteName={
         state.onboarding.completed
           ? 'MainTabs'
           : state.onboarding.started
-            ? initialOnboarding
+            ? initialOnboarding || 'Language'
             : 'Welcome'
       }
       screenOptions={{
@@ -116,54 +117,46 @@ function AppStack() {
         animation: 'slide_from_right',
       }}
     >
-      {!state.onboarding.completed ? (
-        <>
-          <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ animation: 'fade' }} />
-          <Stack.Screen name="Language" component={LanguageScreen} />
-          <Stack.Screen name="Goal" component={GoalScreen} />
-          <Stack.Screen name="Body" component={BodyScreen} />
-          <Stack.Screen name="Activity" component={ActivityScreen} />
-          <Stack.Screen name="Pace" component={PaceScreen} />
-          <Stack.Screen name="FoodPreference" component={FoodPreferenceScreen} />
-          <Stack.Screen name="DailyTarget" component={DailyTargetScreen} />
-          <Stack.Screen name="SignIn" component={SignInScreen} />
-        </>
-      ) : (
-        <>
-          <Stack.Screen name="MainTabs">
-            {({ navigation }) => <MainTabs navigation={navigation} />}
-          </Stack.Screen>
-          <Stack.Screen name="History" component={HistoryScreen} />
-          <Stack.Screen name="Recommendations" component={RecommendationsScreen} />
-          <Stack.Screen name="Settings" component={SettingsScreen} />
-          <Stack.Screen name="Privacy" component={PrivacyScreen} />
-          <Stack.Screen name="SignIn" component={SignInScreen} />
-          <Stack.Screen
-            name="ScanMenu"
-            component={ScanMenuScreen}
-            options={{
-              presentation: 'transparentModal',
-              animation: 'slide_from_bottom',
-              contentStyle: { backgroundColor: 'transparent' },
-            }}
-          />
-          <Stack.Screen
-            name="Camera"
-            component={CameraScreen}
-            options={{ presentation: 'fullScreenModal', animation: 'fade' }}
-          />
-          <Stack.Screen
-            name="Analysis"
-            component={AnalysisScreen}
-            options={{ presentation: 'fullScreenModal', animation: 'fade' }}
-          />
-          <Stack.Screen name="Result" component={ResultScreen} />
-          <Stack.Screen name="LowConfidence" component={LowConfidenceScreen} />
-          <Stack.Screen name="FoodSearch" component={FoodSearchScreen} />
-          <Stack.Screen name="EditMeal" component={EditMealScreen} />
-          <Stack.Screen name="Barcode" component={BarcodeScreen} />
-        </>
-      )}
+      <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ animation: 'fade' }} />
+      <Stack.Screen name="Language" component={LanguageScreen} />
+      <Stack.Screen name="Goal" component={GoalScreen} />
+      <Stack.Screen name="Body" component={BodyScreen} />
+      <Stack.Screen name="Activity" component={ActivityScreen} />
+      <Stack.Screen name="Pace" component={PaceScreen} />
+      <Stack.Screen name="FoodPreference" component={FoodPreferenceScreen} />
+      <Stack.Screen name="DailyTarget" component={DailyTargetScreen} />
+      <Stack.Screen name="SignIn" component={SignInScreen} />
+      <Stack.Screen name="MainTabs">
+        {({ navigation }) => <MainTabs navigation={navigation} />}
+      </Stack.Screen>
+      <Stack.Screen name="History" component={HistoryScreen} />
+      <Stack.Screen name="Recommendations" component={RecommendationsScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Privacy" component={PrivacyScreen} />
+      <Stack.Screen
+        name="ScanMenu"
+        component={ScanMenuScreen}
+        options={{
+          presentation: 'transparentModal',
+          animation: 'slide_from_bottom',
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      />
+      <Stack.Screen
+        name="Camera"
+        component={CameraScreen}
+        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+      />
+      <Stack.Screen
+        name="Analysis"
+        component={AnalysisScreen}
+        options={{ presentation: 'fullScreenModal', animation: 'fade' }}
+      />
+      <Stack.Screen name="Result" component={ResultScreen} />
+      <Stack.Screen name="LowConfidence" component={LowConfidenceScreen} />
+      <Stack.Screen name="FoodSearch" component={FoodSearchScreen} />
+      <Stack.Screen name="EditMeal" component={EditMealScreen} />
+      <Stack.Screen name="Barcode" component={BarcodeScreen} />
     </Stack.Navigator>
   );
 }
@@ -173,9 +166,18 @@ export function RootNavigator({
 }: {
   navigationRef?: React.RefObject<NavigationContainerRef<RootStackParamList> | null>;
 }) {
+  const { state, completePermissionSetup } = useApp();
   return (
     <NavigationContainer ref={navigationRef}>
-      <AppStack />
+      {state.permissionSetupCompleted ? (
+        <AppStack />
+      ) : (
+        <PermissionStack.Navigator screenOptions={{ headerShown: false }}>
+          <PermissionStack.Screen name="PermissionSetup">
+            {() => <PermissionSetupScreen onComplete={completePermissionSetup} />}
+          </PermissionStack.Screen>
+        </PermissionStack.Navigator>
+      )}
     </NavigationContainer>
   );
 }

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Platform,
   Pressable,
@@ -17,6 +16,7 @@ import { border, colors, fonts, radii, spacing } from '../../theme';
 import { Icon } from '../../components/ui';
 import { images } from '../../data/images';
 import { setPendingAnalysisInput } from '../../state/analysisSession';
+import { showAlert } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Camera'>;
 
@@ -46,7 +46,7 @@ export function CameraScreen({ navigation, route }: Props) {
         analyzeCapture(result.assets[0].base64, result.assets[0].uri);
       }
     } catch {
-      Alert.alert('Couldn’t open photos', 'Check photo permissions and try again.');
+      showAlert('Couldn’t open photos', 'Check photo permissions and try again.');
     } finally {
       setBusy(false);
     }
@@ -66,7 +66,7 @@ export function CameraScreen({ navigation, route }: Props) {
     if (!permission?.granted) {
       const response = await requestPermission();
       if (!response.granted) {
-        Alert.alert(
+        showAlert(
           'Camera access needed',
           'Allow camera access to photograph your meal, or choose a photo from your library.',
           [
@@ -88,7 +88,7 @@ export function CameraScreen({ navigation, route }: Props) {
       if (!photo?.base64) throw new Error('The camera did not return an image.');
       analyzeCapture(photo.base64, photo.uri);
     } catch (error) {
-      Alert.alert(
+      showAlert(
         'Couldn’t take the photo',
         error instanceof Error ? error.message : 'Try again or choose a photo from your library.',
       );

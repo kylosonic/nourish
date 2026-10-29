@@ -35,6 +35,7 @@ export function BarcodeScreen({ navigation, route }: Props) {
       )}
       <View style={styles.header}>
         <Pressable
+          accessibilityRole="button"
           accessibilityLabel="Close barcode scanner"
           onPress={() => navigation.goBack()}
           style={styles.close}

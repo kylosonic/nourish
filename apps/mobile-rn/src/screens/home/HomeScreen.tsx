@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Image,
   Linking,
   Platform,
@@ -36,6 +35,7 @@ import { fetchReleaseMetadata } from '../../data/api';
 import { isNewerVersion } from '../../utils/version';
 import { releaseDownloadUrl } from '../../data/release';
 import { APP_VERSION } from '../../data/appInfo';
+import { showAlert } from '../../utils/dialog';
 
 type TabNavigation = BottomTabNavigationProp<MainTabParamList>;
 type RootNavigation = NativeStackNavigationProp<RootStackParamList>;
@@ -152,7 +152,7 @@ export function HomeScreen() {
         actionIcon="bell-outline"
         actionLabel="Notification settings"
         onAction={() => {
-          Alert.alert(
+          showAlert(
             'Hydration reminders',
             state.settings.remindersEnabled
               ? 'Reminders are on. Change them in Settings.'

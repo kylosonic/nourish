@@ -18,6 +18,7 @@ const DATA_ENCRYPTION_KEY = 'nourish.data-encryption-key.v1';
 const ENCRYPTED_PREFIX = 'enc:v1:';
 
 export const initialData: AppData = {
+  permissionSetupCompleted: false,
   onboarding: {
     started: false,
     completed: false,
@@ -68,6 +69,7 @@ export async function loadAppData(): Promise<AppData> {
     return {
       ...initialData,
       ...parsed,
+      permissionSetupCompleted: parsed.permissionSetupCompleted === true,
       onboarding: { ...initialData.onboarding, ...parsed.onboarding },
       settings: { ...initialData.settings, ...parsed.settings },
       meals: Array.isArray(parsed.meals) ? parsed.meals : [],
@@ -86,6 +88,7 @@ export async function loadAppData(): Promise<AppData> {
 
 export async function saveAppData(state: AppState): Promise<void> {
   const persisted: AppData = {
+    permissionSetupCompleted: state.permissionSetupCompleted,
     onboarding: state.onboarding,
     target: state.target,
     settings: state.settings,

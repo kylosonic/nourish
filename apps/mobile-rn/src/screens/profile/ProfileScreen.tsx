@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Platform,
   Pressable,
   StyleSheet,
@@ -19,6 +18,7 @@ import { Banner, Button, Card, Icon, type IconName } from '../../components/ui';
 import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import { localDateKey } from '../../utils/date';
 import { APP_VERSION } from '../../data/appInfo';
+import { showAlert } from '../../utils/dialog';
 
 type TabNavigation = BottomTabNavigationProp<MainTabParamList>;
 type RootNavigation = NativeStackNavigationProp<RootStackParamList>;
@@ -78,17 +78,17 @@ export function ProfileScreen() {
           dialogTitle: 'Export Nourish data',
         });
       } else {
-        Alert.alert('Export created', `Saved to ${file.uri}`);
+        showAlert('Export created', `Saved to ${file.uri}`);
       }
     } catch {
-      Alert.alert('Export failed', 'Nourish could not create the export file. Please try again.');
+      showAlert('Export failed', 'Nourish could not create the export file. Please try again.');
     } finally {
       setExporting(false);
     }
   };
 
   const confirmReset = () => {
-    Alert.alert(
+    showAlert(
       'Delete local data?',
       'This removes onboarding, meals, water, weights, and queued changes from this device. It cannot be undone.',
       [
@@ -231,7 +231,7 @@ export function ProfileScreen() {
             title="About Nourish"
             detail={`Version ${APP_VERSION} · Ethiopian FCT 2025`}
             onPress={() =>
-              Alert.alert(
+              showAlert(
                 'About Nourish',
                 `Nourish ${APP_VERSION}\nNutrition, understood.\n\nFood composition data: Ethiopian Food Composition Table 2025 (EPHI & FAO) where imported. Bootstrap foods are labeled as provisional.`,
               )
@@ -244,7 +244,7 @@ export function ProfileScreen() {
             label="SIGN OUT"
             variant="secondary"
             onPress={() => {
-              Alert.alert('Sign out?', 'Your local data remains on this device.', [
+            showAlert('Sign out?', 'Your local data remains on this device.', [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Sign out', onPress: () => void signOut() },
               ]);
@@ -252,7 +252,11 @@ export function ProfileScreen() {
             style={{ marginTop: spacing.xl }}
           />
         ) : null}
-        <Pressable onPress={confirmReset} style={styles.deleteAction}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={confirmReset}
+          style={styles.deleteAction}
+        >
           <Text style={styles.deleteText}>Delete local app data</Text>
         </Pressable>
         <Text style={styles.legal}>General wellness guidance, not medical care.</Text>

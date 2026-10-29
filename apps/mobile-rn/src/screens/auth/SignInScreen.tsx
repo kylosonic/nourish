@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -24,6 +23,7 @@ import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Banner, Button, Field } from '../../components/ui';
 import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
 import type { AccountSession } from '../../types';
+import { showAlert } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 type Mode = 'choose' | 'email' | 'phone' | 'code';
@@ -205,7 +205,7 @@ export function SignInScreen({ navigation }: Props) {
                     variant="outline"
                     icon="google"
                     onPress={() =>
-                      Alert.alert(
+                      showAlert(
                         'Google sign-in needs setup',
                         'Add the Google OAuth client IDs to the app and API environment, then rebuild.',
                       )

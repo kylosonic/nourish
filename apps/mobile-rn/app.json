@@ -2,7 +2,7 @@
   "expo": {
     "name": "Nourish",
     "slug": "nourish",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "orientation": "portrait",
     "scheme": "nourish",
     "icon": "./assets/nourish-icon.png",
@@ -10,7 +10,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.nourish.mobile",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "infoPlist": {
         "NSCameraUsageDescription": "Nourish uses the camera to identify the foods in a meal photo.",
         "NSPhotoLibraryUsageDescription": "Nourish lets you choose a meal photo for nutrition analysis.",
@@ -19,9 +19,9 @@
     },
     "android": {
       "package": "app.nourish.mobile",
-      "versionCode": 5,
+      "versionCode": 6,
       "adaptiveIcon": {
-        "backgroundColor": "#006C49",
+        "backgroundColor": "#FFD599",
         "foregroundImage": "./assets/nourish-adaptive.png",
         "monochromeImage": "./assets/nourish-adaptive.png"
       },
@@ -38,7 +38,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#FCF9F8",
+          "backgroundColor": "#FFD599",
           "image": "./assets/nourish-icon.png",
           "imageWidth": 132
         }
@@ -65,7 +65,7 @@
         "expo-notifications",
         {
           "icon": "./assets/android-icon-monochrome.png",
-          "color": "#006C49",
+          "color": "#FF7F5C",
           "defaultChannel": "hydration-reminders",
           "enableRemoteNotifications": false
         }

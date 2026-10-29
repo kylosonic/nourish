@@ -273,6 +273,7 @@ export function Field({
       <View style={[styles.field, error && styles.fieldError]}>
         <TextInput
           {...props}
+          accessibilityLabel={props.accessibilityLabel ?? label}
           placeholderTextColor={colors.secondaryInk}
           style={styles.fieldInput}
           selectionColor={colors.primary}
@@ -380,6 +381,9 @@ export function Chip({
   }[tone];
   return (
     <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={label}
+      accessibilityState={onPress ? { selected } : undefined}
       disabled={!onPress}
       onPress={onPress}
       style={[

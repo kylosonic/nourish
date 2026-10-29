@@ -3,8 +3,10 @@ import type { Meal, WeightLog } from '../types';
 import { buildWeeklyInsights } from './insights';
 import {
   computeTarget,
+  clampPortionQuantity,
   makeMealItem,
   nutritionFor,
+  portionStep,
   portionToGrams,
 } from './nutrition';
 import { recommendFoods } from './recommendations';
@@ -30,6 +32,15 @@ describe('deterministic nutrition engine', () => {
   it('rejects unsupported portions instead of guessing grams', () => {
     const injera = seedFoods.find((food) => food.id === 'injera')!;
     expect(() => portionToGrams(injera, 'bowl', 1)).toThrow(/No usable bowl portion/);
+  });
+
+  it('accepts exact gram and kilogram portions from scanner results', () => {
+    const shiro = seedFoods.find((food) => food.id === 'shiro_wot')!;
+    expect(portionToGrams(shiro, 'gram', 180)).toBe(180);
+    expect(portionToGrams(shiro, 'kilogram', 0.25)).toBe(250);
+    expect(clampPortionQuantity('gram', 2500)).toBe(2000);
+    expect(clampPortionQuantity('kilogram', 0.01)).toBe(0.1);
+    expect(portionStep('gram')).toBe(10);
   });
 });
 

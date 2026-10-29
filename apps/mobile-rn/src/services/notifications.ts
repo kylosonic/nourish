@@ -33,8 +33,24 @@ async function ensureChannel(): Promise<void> {
     importance: AndroidImportance.HIGH,
     sound: 'default',
     vibrationPattern: [0, 180, 120, 180],
-    lightColor: '#006C49',
+    lightColor: '#FF7F5C',
   });
+}
+
+export async function requestNotificationPermission(): Promise<
+  'granted' | 'denied' | 'unsupported'
+> {
+  if (Platform.OS === 'web') return 'unsupported';
+  try {
+    await ensureChannel();
+  } catch {
+    // The permission prompt can still be shown if channel setup is unavailable.
+  }
+  let permission = await Notifications.getPermissionsAsync();
+  if (!permission.granted) {
+    permission = await Notifications.requestPermissionsAsync();
+  }
+  return permission.granted ? 'granted' : 'denied';
 }
 
 async function cancelScheduledReminders(): Promise<void> {
@@ -57,7 +73,7 @@ async function scheduleDailyReminders(): Promise<void> {
         title: 'Hydration check',
         body: 'A glass of water now can help you stay on track.',
         sound: 'default',
-        color: '#006C49',
+        color: '#FF7F5C',
         data: { kind: REMINDER_KIND, hour },
       },
       trigger: {
@@ -94,7 +110,7 @@ export async function setHydrationReminders(
         title: 'Hydration reminders are on',
         body: `We’ll remind you at ${hydrationReminderLabel}.`,
         sound: 'default',
-        color: '#006C49',
+        color: '#FF7F5C',
         data: { kind: 'hydration-reminder-confirmation' },
       },
       trigger: null,

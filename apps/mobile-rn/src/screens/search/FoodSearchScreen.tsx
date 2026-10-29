@@ -145,7 +145,12 @@ export function FoodSearchScreen({ navigation, route }: Props) {
             autoFocus={candidateMode}
           />
           {query ? (
-            <Pressable accessibilityLabel="Clear search" onPress={() => setQuery('')}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Clear search"
+              onPress={() => setQuery('')}
+              style={styles.clearSearch}
+            >
               <Icon name="close-circle" size={20} color={colors.outline} />
             </Pressable>
           ) : null}
@@ -354,6 +359,12 @@ const styles = StyleSheet.create({
     ...type.bodySmall,
     fontSize: 15,
     outlineStyle: 'none' as never,
+  },
+  clearSearch: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   barcode: {
     width: 48,

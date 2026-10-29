@@ -6,12 +6,12 @@ on:
       release_tag:
         description: GitHub release tag
         required: true
-        default: v1.3.2
+        default: v1.3.3
         type: string
       version:
         description: App version embedded in the build
         required: true
-        default: 1.3.2
+        default: 1.3.3
         type: string
       prerelease:
         description: Mark the GitHub release as a prerelease
@@ -237,11 +237,13 @@ jobs:
 
             ### What’s new
 
+            - One-time first-run setup requests camera, photo-library, and notification permissions with clear fallbacks.
+            - Native permission state is persisted so onboarding is not interrupted or repeated.
             - Email/password and Google account entry points, plus the existing phone OTP lane.
             - Complete neo-brutalist redesign with the supplied pastel palette, ink outlines, playful illustrations, and reduced copy.
             - Floating dark navigation bar with a smoothly animated white selection pill and 44 px touch targets.
             - Camera/gallery scanner recovery that always offers manual food search.
-            - Gram-level portion editing for every food-search result.
+            - Gram-level portion editing for search and scan results, including direct gram and kilogram adjustments.
             - Scheduled hydration notifications with an immediate confirmation notification.
             - Removed Describe Meal and Voice from the active scanning UI.
             - Shorter copy across onboarding, scan, history, insights, progress, and settings.

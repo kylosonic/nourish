@@ -38,11 +38,29 @@ export function nutritionFor(per100g: Nutrition, grams: number): Nutrition {
 }
 
 export function portionToGrams(food: Food, unit: string, quantity: number): number {
+  if (quantity <= 0) {
+    throw new Error(`No usable ${unit} portion for ${food.canonicalName}`);
+  }
+  if (unit === 'gram') return quantity;
+  if (unit === 'kilogram') return quantity * 1000;
   const portion = food.portions.find((candidate) => candidate.unit === unit);
-  if (!portion || portion.quantity <= 0 || quantity <= 0) {
+  if (!portion || portion.quantity <= 0) {
     throw new Error(`No usable ${unit} portion for ${food.canonicalName}`);
   }
   return (portion.grams * quantity) / portion.quantity;
+}
+
+export function clampPortionQuantity(unit: string, quantity: number): number {
+  const max = unit === 'gram' || unit === 'milliliter' ? 2000 : unit === 'kilogram' ? 2 : 20;
+  const min = unit === 'kilogram' ? 0.1 : unit === 'gram' || unit === 'milliliter' ? 1 : 0.5;
+  return Math.max(min, Math.min(max, quantity));
+}
+
+export function portionStep(unit: string): number {
+  if (unit === 'kilogram') return 0.1;
+  if (unit === 'gram') return 10;
+  if (unit === 'milliliter') return 50;
+  return 0.5;
 }
 
 export function makeMealItem(draft: MealDraftItem) {

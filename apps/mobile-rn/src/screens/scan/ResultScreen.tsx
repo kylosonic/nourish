@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  Alert,
   Image,
   Pressable,
   StyleSheet,
@@ -18,6 +17,7 @@ import { images } from '../../data/images';
 import { useApp } from '../../state/AppProvider';
 import { clearPendingAnalysisInput } from '../../state/analysisSession';
 import { mealSlotForHour } from '../../domain/recommendations';
+import { showAlert } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Result'>;
 
@@ -39,7 +39,7 @@ export function ResultScreen({ navigation, route }: Props) {
   );
 
   const discard = () => {
-    Alert.alert('Discard this analysis?', 'Nothing will be added to your daily log.', [
+    showAlert('Discard this analysis?', 'Nothing will be added to your daily log.', [
       { text: 'Keep reviewing', style: 'cancel' },
       {
         text: 'Discard',
@@ -100,6 +100,8 @@ export function ResultScreen({ navigation, route }: Props) {
             </Text>
           </View>
           <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Adjust detected foods"
             onPress={() =>
               navigation.replace('EditMeal', {
                 slot,

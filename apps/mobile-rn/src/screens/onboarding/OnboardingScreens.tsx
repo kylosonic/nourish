@@ -596,6 +596,7 @@ export function DailyTargetScreen({ navigation }: Props<'DailyTarget'>) {
           disabled={!target}
           onPress={() => {
             completeOnboarding();
+            navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
           }}
         />
         <Text style={styles.targetFootnote}>Adjust anytime in Settings.</Text>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Alert,
   Linking,
   Platform,
   Pressable,
@@ -22,6 +21,7 @@ import {
   hydrationReminderLabel,
   setHydrationReminders,
 } from '../../services/notifications';
+import { showAlert } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
@@ -35,15 +35,15 @@ export function SettingsScreen({ navigation }: Props) {
     try {
       const metadata = await fetchReleaseMetadata();
       if (!metadata) {
-        Alert.alert('Update check unavailable', 'Release metadata could not be reached. Try again later.');
+        showAlert('Update check unavailable', 'Release metadata could not be reached. Try again later.');
       } else if (!isNewerVersion(metadata.version, APP_VERSION)) {
-        Alert.alert('Nourish is up to date', `You are using version ${APP_VERSION}.`);
+        showAlert('Nourish is up to date', `You are using version ${APP_VERSION}.`);
       } else {
         const url = releaseDownloadUrl(metadata);
         if (!url) {
-          Alert.alert('No update link available', 'A newer release exists, but no verified download is published.');
+          showAlert('No update link available', 'A newer release exists, but no verified download is published.');
         } else {
-          Alert.alert('New version available', `Version ${metadata.version} is ready.`, [
+          showAlert('New version available', `Version ${metadata.version} is ready.`, [
             { text: 'Later', style: 'cancel' },
             { text: 'Download update', onPress: () => void Linking.openURL(url) },
           ]);
@@ -65,7 +65,7 @@ export function SettingsScreen({ navigation }: Props) {
 
   const toggleReminders = async (enabled: boolean) => {
     if (Platform.OS === 'web') {
-      Alert.alert(
+      showAlert(
         'Device notifications required',
         'Hydration notifications are available in the Android and iOS app.',
       );
@@ -75,7 +75,7 @@ export function SettingsScreen({ navigation }: Props) {
     try {
       const result = await setHydrationReminders(enabled);
       if (result === 'denied') {
-        Alert.alert(
+        showAlert(
           'Notifications are off',
           'Allow notifications in your device settings to use hydration reminders.',
         );
@@ -83,7 +83,7 @@ export function SettingsScreen({ navigation }: Props) {
       }
       patchSettings({ remindersEnabled: enabled });
     } catch {
-      Alert.alert(
+      showAlert(
         'Couldn’t update reminders',
         'Please check your notification permission and try again.',
       );
@@ -139,6 +139,8 @@ export function SettingsScreen({ navigation }: Props) {
               </Text>
             </View>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Decrease water goal"
               onPress={() => adjustWater(-250)}
               disabled={state.settings.waterTargetMl <= 1500}
               style={[styles.step, state.settings.waterTargetMl <= 1500 && styles.disabled]}
@@ -146,6 +148,8 @@ export function SettingsScreen({ navigation }: Props) {
               <Icon name="minus" size={18} color={colors.primary} />
             </Pressable>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Increase water goal"
               onPress={() => adjustWater(250)}
               disabled={state.settings.waterTargetMl >= 4000}
               style={[styles.step, state.settings.waterTargetMl >= 4000 && styles.disabled]}
@@ -175,6 +179,7 @@ export function SettingsScreen({ navigation }: Props) {
               </Text>
             </View>
             <Switch
+              accessibilityLabel="Hydration reminders"
               value={state.settings.remindersEnabled}
               disabled={Platform.OS === 'web' || updatingReminders}
               onValueChange={(enabled) => void toggleReminders(enabled)}
@@ -265,6 +270,7 @@ function ToggleRow({
         <Text style={styles.rowDetail}>{detail}</Text>
       </View>
       <Switch
+        accessibilityLabel={title}
         value={value}
         onValueChange={onChange}
         trackColor={{ true: colors.activeLime, false: colors.white }}
@@ -343,8 +349,8 @@ const styles = StyleSheet.create({
   rowTitle: { ...type.body, fontFamily: fonts.semibold },
   rowDetail: { ...type.bodySmall, color: colors.onSurfaceVariant, marginTop: 2, lineHeight: 18 },
   step: {
-    width: 34,
-    height: 34,
+    width: 44,
+    height: 44,
     borderRadius: radii.pill,
     borderWidth: border.standard,
     borderColor: colors.ink,

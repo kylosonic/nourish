@@ -16,7 +16,12 @@ import { useApp } from '../../state/AppProvider';
 import { border, colors, fonts, radii, spacing, type } from '../../theme';
 import { Button, Card, Chip, Icon } from '../../components/ui';
 import { NeoScreenWrapper, NeoTopBar } from '../../components/neo';
-import { nutritionFor, portionToGrams } from '../../domain/nutrition';
+import {
+  clampPortionQuantity,
+  nutritionFor,
+  portionStep,
+  portionToGrams,
+} from '../../domain/nutrition';
 import type { Food, MealItem, Nutrition, PortionUnit } from '../../types';
 import { newId } from '../../utils/date';
 import { imageForFood } from '../../data/images';
@@ -62,7 +67,7 @@ export function EditMealScreen({ navigation, route }: Props) {
 
   const recalc = (draft: Draft, unit: PortionUnit, quantity: number): Draft => {
     const food = state.catalog.find((candidate) => candidate.id === draft.base.foodId);
-    const nextQuantity = Math.max(0.5, Math.min(20, quantity));
+    const nextQuantity = clampPortionQuantity(unit, quantity);
     if (!food) {
       const ratio = nextQuantity / Math.max(0.5, draft.quantity);
       return {
@@ -175,6 +180,7 @@ export function EditMealScreen({ navigation, route }: Props) {
                     </Text>
                   </View>
                   <Pressable
+                    accessibilityRole="button"
                     accessibilityLabel={`Remove ${draft.base.foodName}`}
                     onPress={() =>
                       setDrafts((current) => current.filter((_, itemIndex) => itemIndex !== index))
@@ -186,10 +192,18 @@ export function EditMealScreen({ navigation, route }: Props) {
                 </View>
                 <View style={styles.amountRow}>
                   <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Decrease ${draft.base.foodName} portion`}
                     onPress={() =>
                       setDrafts((current) =>
                         current.map((item, itemIndex) =>
-                          itemIndex === index ? recalc(item, item.unit, item.quantity - 0.5) : item,
+                          itemIndex === index
+                            ? recalc(
+                                item,
+                                item.unit,
+                                item.quantity - portionStep(item.unit),
+                              )
+                            : item,
                         ),
                       )
                     }
@@ -199,10 +213,18 @@ export function EditMealScreen({ navigation, route }: Props) {
                   </Pressable>
                   <Text style={styles.amount}>{draft.quantity}</Text>
                   <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={`Increase ${draft.base.foodName} portion`}
                     onPress={() =>
                       setDrafts((current) =>
                         current.map((item, itemIndex) =>
-                          itemIndex === index ? recalc(item, item.unit, item.quantity + 0.5) : item,
+                          itemIndex === index
+                            ? recalc(
+                                item,
+                                item.unit,
+                                item.quantity + portionStep(item.unit),
+                              )
+                            : item,
                         ),
                       )
                     }
@@ -261,7 +283,13 @@ export function EditMealScreen({ navigation, route }: Props) {
             </View>
             <ScrollView style={{ maxHeight: 380 }} contentContainerStyle={{ gap: spacing.xs }}>
               {filtered.map((food) => (
-                <Pressable key={food.id} onPress={() => addFood(food)} style={styles.foodOption}>
+                <Pressable
+                  key={food.id}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Add ${food.canonicalName}`}
+                  onPress={() => addFood(food)}
+                  style={styles.foodOption}
+                >
                   <Image source={imageForFood(food)} style={styles.foodOptionImage} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.itemName}>{food.canonicalName}</Text>

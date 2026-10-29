@@ -142,6 +142,7 @@ export function RecommendationsScreen({ navigation }: Props) {
                     </View>
                   </View>
                   <Pressable
+                    accessibilityRole="button"
                     accessibilityLabel={`Add ${suggestion.food.canonicalName}`}
                     onPress={() => addSuggestion(suggestion.food.id)}
                     style={styles.add}
@@ -203,8 +204,8 @@ const styles = StyleSheet.create({
   localTag: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
   slotTag: { ...type.caption, fontFamily: fonts.bold, color: colors.ink },
   add: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     borderRadius: radii.pill,
     borderWidth: border.standard,
     borderColor: colors.ink,

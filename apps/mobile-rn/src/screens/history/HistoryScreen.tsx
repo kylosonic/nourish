@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import {
-  Alert,
   Image,
   Modal,
   Pressable,
@@ -34,6 +33,7 @@ import {
 } from '../../utils/date';
 import { imageForFood } from '../../data/images';
 import type { Meal } from '../../types';
+import { showAlert } from '../../utils/dialog';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'History'>;
 type LogRange = 'All' | 'Year' | 'Month';
@@ -80,7 +80,7 @@ export function HistoryScreen({ navigation }: Props) {
   const openMeal = (mealId: string) => {
     const meal = state.meals.find((candidate) => candidate.id === mealId);
     if (!meal) return;
-    Alert.alert(
+    showAlert(
       meal.items.map((item) => item.foodName).join(' + '),
       meal.items
         .map(
@@ -94,7 +94,7 @@ export function HistoryScreen({ navigation }: Props) {
           text: 'Delete meal',
           style: 'destructive',
           onPress: () =>
-            Alert.alert(
+            showAlert(
               'Delete this meal?',
               'A tombstone is queued so the removal also syncs.',
               [
