@@ -62,4 +62,7 @@ export type RootStackParamList = {
   Paywall: undefined;
   Settings: undefined;
   Recommendations: undefined;
+  CoupleWellness: undefined;
+  CycleLog: undefined;
+  CoupleConnection: undefined;
 };

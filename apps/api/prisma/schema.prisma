@@ -304,6 +304,13 @@ model User {
   meals       Meal[]
   waterLogs   WaterLog[]
   weightLogs  WeightLog[]
+  cycleProfile             CycleProfile?
+  cycleEntries             CycleEntry[]
+  wellnessCheckIns         WellnessCheckIn[]
+  coupleInvitations        CoupleInvitation[]
+  couplesAsUserOne         CoupleConnection[]       @relation("CoupleUserOne")
+  couplesAsUserTwo         CoupleConnection[]       @relation("CoupleUserTwo")
+  coupleSharingPreferences CoupleSharingPreference[]
 
   @@index([status])
 }
@@ -468,6 +475,97 @@ model WeightLog {
 
   @@unique([userId, clientId])
   @@index([userId, updatedAt])
+}
+
+/// Private, user-owned cycle settings. This is never returned to a partner
+/// unless the owner enables cycle sharing on an active couple connection.
+model CycleProfile {
+  userId           String   @id
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cycleLengthDays  Int      @default(28)
+  periodLengthDays Int      @default(5)
+  updatedAt        DateTime
+}
+
+/// A period episode. Symptoms are private: the couple summary deliberately
+/// exposes only period start dates, never symptoms or other journal details.
+model CycleEntry {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId     String
+  startDateKey String
+  endDateKey   String?
+  symptoms     Json?
+  updatedAt    DateTime
+  deletedAt    DateTime?
+  clientSeq    Int       @default(0)
+
+  @@unique([userId, clientId])
+  @@index([userId, updatedAt])
+  @@index([userId, startDateKey])
+}
+
+/// A user's daily care check-in. It feeds personal and shared couple streaks
+/// without exposing meals, cycle notes, or other health records.
+model WellnessCheckIn {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId  String
+  dateKey   String
+  updatedAt DateTime
+  deletedAt DateTime?
+  clientSeq Int       @default(0)
+
+  @@unique([userId, clientId])
+  @@index([userId, updatedAt])
+  @@index([userId, dateKey])
+}
+
+/// A single-use, expiring pairing code. Only a SHA-256 hash is stored.
+model CoupleInvitation {
+  id         String    @id @default(cuid())
+  inviterId  String
+  inviter    User      @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  codeHash   String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([inviterId, createdAt])
+}
+
+/// Two-user connection. Sharing preferences are stored per person and per
+/// connection so either partner can revoke access unilaterally.
+model CoupleConnection {
+  id          String    @id @default(cuid())
+  userOneId   String
+  userOne     User      @relation("CoupleUserOne", fields: [userOneId], references: [id], onDelete: Cascade)
+  userTwoId   String
+  userTwo     User      @relation("CoupleUserTwo", fields: [userTwoId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  endedAt     DateTime?
+  preferences CoupleSharingPreference[]
+
+  @@index([userOneId, endedAt])
+  @@index([userTwoId, endedAt])
+}
+
+model CoupleSharingPreference {
+  id               String           @id @default(cuid())
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coupleId         String
+  couple           CoupleConnection @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  shareCycle       Boolean          @default(false)
+  shareCheckIns    Boolean          @default(false)
+  shareFoodStreak  Boolean          @default(false)
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([userId, coupleId])
+  @@index([coupleId])
 }
 
 /// Verified packaged-food values resolved from Open Food Facts and cached for

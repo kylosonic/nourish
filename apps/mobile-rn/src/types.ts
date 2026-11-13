@@ -122,6 +122,69 @@ export interface WeightLog {
   updatedAt?: string;
 }
 
+export type CycleSymptom =
+  | 'cramps'
+  | 'headache'
+  | 'fatigue'
+  | 'bloating'
+  | 'backache'
+  | 'mood';
+
+/**
+ * Private, on-device wellness state. Sharing is represented by explicit,
+ * per-category flags and is applied by the server only after the owner opts in.
+ */
+export interface CycleEntry {
+  id: string;
+  startDateKey: string;
+  endDateKey: string | null;
+  symptoms: CycleSymptom[];
+  updatedAt: string;
+  clientSeq: number;
+}
+
+export interface WellnessCheckIn {
+  id: string;
+  dateKey: string;
+  updatedAt: string;
+  clientSeq: number;
+}
+
+export interface CoupleSharing {
+  shareCycle: boolean;
+  shareCheckIns: boolean;
+  shareFoodStreak: boolean;
+}
+
+export interface PartnerWellnessView {
+  cycleStartDateKeys: string[];
+  cycleLengthDays: number | null;
+  periodLengthDays: number | null;
+  checkInDateKeys: string[];
+  foodLogDateKeys: string[];
+}
+
+export interface CoupleConnectionState {
+  id: string;
+  partnerName: string;
+  connectedAt: string;
+  mySharing: CoupleSharing;
+  partnerSharing: CoupleSharing;
+  partnerView: PartnerWellnessView;
+}
+
+export interface CoupleWellness {
+  trackingEnabled: boolean;
+  cycleLengthDays: number;
+  periodLengthDays: number;
+  cycleEntries: CycleEntry[];
+  checkIns: WellnessCheckIn[];
+  profileUpdatedAt: string | null;
+  connection: CoupleConnectionState | null;
+  invitation: { code: string; expiresAt: string } | null;
+  lastFetchedAt: string | null;
+}
+
 export interface AccountSession {
   accessToken: string;
   refreshToken: string;
@@ -135,7 +198,13 @@ export interface AccountSession {
 
 export interface SyncOperation {
   id: string;
-  kind: 'meal' | 'water' | 'weight';
+  kind:
+    | 'meal'
+    | 'water'
+    | 'weight'
+    | 'cycle'
+    | 'checkIn'
+    | 'cycleProfile';
   op: 'upsert' | 'delete';
   clientId: string;
   clientSeq: number;
@@ -146,6 +215,11 @@ export interface SyncOperation {
   items?: MealItem[];
   amountMl?: number;
   weightKg?: number;
+  startDateKey?: string;
+  endDateKey?: string;
+  symptoms?: CycleSymptom[];
+  cycleLengthDays?: number;
+  periodLengthDays?: number;
 }
 
 export interface RemoteMealItem {
@@ -192,10 +266,37 @@ export interface RemoteWeight {
   deletedAt: string | null;
 }
 
+export interface RemoteCycle {
+  clientId: string;
+  startDateKey: string;
+  endDateKey: string | null;
+  symptoms: CycleSymptom[];
+  updatedAt: string;
+  deletedAt: string | null;
+  clientSeq: number;
+}
+
+export interface RemoteCheckIn {
+  clientId: string;
+  dateKey: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  clientSeq: number;
+}
+
+export interface RemoteCycleProfile {
+  cycleLengthDays: number;
+  periodLengthDays: number;
+  updatedAt: string;
+}
+
 export interface SyncChanges {
   meals: RemoteMeal[];
   water: RemoteWater[];
   weight: RemoteWeight[];
+  cycles: RemoteCycle[];
+  checkIns: RemoteCheckIn[];
+  cycleProfile: RemoteCycleProfile | null;
   serverTime: string;
 }
 
@@ -302,6 +403,7 @@ export interface AppData {
   meals: Meal[];
   water: WaterLog[];
   weights: WeightLog[];
+  coupleWellness: CoupleWellness;
   catalog: Food[];
   catalogVersion: string | null;
   queue: SyncOperation[];

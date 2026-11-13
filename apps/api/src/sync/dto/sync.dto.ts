@@ -10,19 +10,35 @@ import {
   IsString,
   Max,
   MaxLength,
+  Matches,
   Min,
   MinLength,
   ValidateNested,
 } from 'class-validator';
 
 /** What the device queues while offline (OFF-02). */
-export const SYNC_KINDS = ['meal', 'water', 'weight'] as const;
+export const SYNC_KINDS = [
+  'meal',
+  'water',
+  'weight',
+  'cycle',
+  'checkIn',
+  'cycleProfile',
+] as const;
 export type SyncKind = (typeof SYNC_KINDS)[number];
 
 export const SYNC_OPS = ['upsert', 'delete'] as const;
 export type SyncOp = (typeof SYNC_OPS)[number];
 
 export const MEAL_SLOTS = ['breakfast', 'lunch', 'dinner', 'snack', 'other'] as const;
+export const CYCLE_SYMPTOMS = [
+  'cramps',
+  'headache',
+  'fatigue',
+  'bloating',
+  'backache',
+  'mood',
+] as const;
 export const PORTION_UNITS = [
   'gram',
   'kilogram',
@@ -172,6 +188,35 @@ export class SyncOperationDto {
   @Min(1)
   @Max(500)
   weightKg?: number;
+
+  // ── private cycle and wellness data ──────────────────────────────────────
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  startDateKey?: string;
+
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  endDateKey?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(CYCLE_SYMPTOMS.length)
+  @IsIn(CYCLE_SYMPTOMS, { each: true })
+  symptoms?: (typeof CYCLE_SYMPTOMS)[number][];
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(21)
+  @Max(45)
+  cycleLengthDays?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(2)
+  @Max(10)
+  periodLengthDays?: number;
 }
 
 /** POST /v1/sync — the device's queue, applied in order. */

@@ -200,6 +200,27 @@ export function HomeScreen() {
         <Icon name="arrow-right" size={22} color={colors.ink} />
       </Pressable>
 
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => rootNavigation?.navigate('CoupleWellness')}
+        style={({ pressed }) => [
+          styles.ideaCard,
+          styles.coupleCard,
+          pressed && styles.pressed,
+        ]}
+      >
+        <View style={styles.ideaIcon}>
+          <Icon name="heart-pulse" size={21} color={colors.ink} />
+        </View>
+        <View style={styles.ideaCopy}>
+          <Text style={styles.ideaTitle}>Cycle & couple</Text>
+          <Text style={styles.ideaCaption}>
+            Private estimates, sharing, and shared streaks.
+          </Text>
+        </View>
+        <Icon name="arrow-right" size={22} color={colors.ink} />
+      </Pressable>
+
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Today’s meals</Text>
         <Pressable
@@ -400,6 +421,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  coupleCard: { backgroundColor: colors.mintCard, marginTop: spacing.sm },
   ideaCopy: { flex: 1 },
   ideaTitle: { ...type.cardTitle },
   ideaCaption: { ...type.caption, marginTop: 2 },

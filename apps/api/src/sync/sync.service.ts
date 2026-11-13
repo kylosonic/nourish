@@ -29,6 +29,9 @@ export interface SyncPullResult {
   meals: unknown[];
   water: unknown[];
   weight: unknown[];
+  cycles: unknown[];
+  checkIns: unknown[];
+  cycleProfile: object | null;
   serverTime: string;
 }
 
@@ -115,6 +118,29 @@ export class SyncService {
         updatedAt: log.updatedAt.toISOString(),
         deletedAt: log.deletedAt?.toISOString() ?? null,
       })),
+      cycles: changes.cycles.map((entry) => ({
+        clientId: entry.clientId,
+        startDateKey: entry.startDateKey,
+        endDateKey: entry.endDateKey,
+        symptoms: Array.isArray(entry.symptoms) ? entry.symptoms : [],
+        updatedAt: entry.updatedAt.toISOString(),
+        deletedAt: entry.deletedAt?.toISOString() ?? null,
+        clientSeq: entry.clientSeq,
+      })),
+      checkIns: changes.checkIns.map((entry) => ({
+        clientId: entry.clientId,
+        dateKey: entry.dateKey,
+        updatedAt: entry.updatedAt.toISOString(),
+        deletedAt: entry.deletedAt?.toISOString() ?? null,
+        clientSeq: entry.clientSeq,
+      })),
+      cycleProfile: changes.cycleProfile
+        ? {
+            cycleLengthDays: changes.cycleProfile.cycleLengthDays,
+            periodLengthDays: changes.cycleProfile.periodLengthDays,
+            updatedAt: changes.cycleProfile.updatedAt.toISOString(),
+          }
+        : null,
       serverTime: new Date().toISOString(),
     };
   }
@@ -145,6 +171,55 @@ export class SyncService {
         throw new Error('a water log needs amountMl');
       }
       await this.repo.applyWater(userId, op);
+      return 'applied';
+    }
+
+    if (op.kind === 'cycle') {
+      const existing = await this.repo.findCycleEntry(userId, op.clientId);
+      const decision = decideMerge(
+        { updatedAt, clientSeq: op.clientSeq },
+        existing
+          ? { updatedAt: existing.updatedAt, clientSeq: existing.clientSeq }
+          : null,
+      );
+      if (decision !== 'apply') return decision === 'stale' ? 'ignored-stale' : 'unchanged';
+      if (op.op === 'upsert') {
+        if (!op.startDateKey) throw new Error('a cycle entry needs startDateKey');
+        if (op.endDateKey && op.endDateKey < op.startDateKey) {
+          throw new Error('a cycle end cannot be before its start');
+        }
+      }
+      await this.repo.applyCycleEntry(userId, op);
+      return 'applied';
+    }
+
+    if (op.kind === 'checkIn') {
+      const existing = await this.repo.findCheckIn(userId, op.clientId);
+      const decision = decideMerge(
+        { updatedAt, clientSeq: op.clientSeq },
+        existing
+          ? { updatedAt: existing.updatedAt, clientSeq: existing.clientSeq }
+          : null,
+      );
+      if (decision !== 'apply') return decision === 'stale' ? 'ignored-stale' : 'unchanged';
+      if (op.op === 'upsert' && !op.dateKey) {
+        throw new Error('a wellness check-in needs a dateKey');
+      }
+      await this.repo.applyCheckIn(userId, op);
+      return 'applied';
+    }
+
+    if (op.kind === 'cycleProfile') {
+      const existing = await this.repo.findCycleProfile(userId);
+      const decision = decideMerge(
+        { updatedAt },
+        existing ? { updatedAt: existing.updatedAt } : null,
+      );
+      if (decision !== 'apply') return decision === 'stale' ? 'ignored-stale' : 'unchanged';
+      if (op.cycleLengthDays == null || op.periodLengthDays == null) {
+        throw new Error('a cycle profile needs cycle and period lengths');
+      }
+      await this.repo.applyCycleProfile(userId, op);
       return 'applied';
     }
 

@@ -129,6 +129,24 @@ describe('account consent and deletion', () => {
         updatedAt: new Date(),
       },
     });
+    await prisma.cycleEntry.create({
+      data: {
+        userId,
+        clientId: 'cycle-delete-test',
+        startDateKey: '2026-10-20',
+        endDateKey: '2026-10-24',
+        symptoms: ['cramps'],
+        updatedAt: new Date(),
+      },
+    });
+    await prisma.wellnessCheckIn.create({
+      data: {
+        userId,
+        clientId: 'checkin-delete-test',
+        dateKey: '2026-10-29',
+        updatedAt: new Date(),
+      },
+    });
     await prisma.consent.create({
       data: {
         userId,
@@ -159,6 +177,8 @@ describe('account consent and deletion', () => {
     expect(await prisma.meal.count({ where: { userId } })).toBe(0);
     expect(await prisma.waterLog.count({ where: { userId } })).toBe(0);
     expect(await prisma.weightLog.count({ where: { userId } })).toBe(0);
+    expect(await prisma.cycleEntry.count({ where: { userId } })).toBe(0);
+    expect(await prisma.wellnessCheckIn.count({ where: { userId } })).toBe(0);
     expect(await prisma.consent.count({ where: { userId } })).toBe(0);
     expect(await prisma.refreshToken.count({ where: { userId } })).toBe(0);
     expect(await prisma.analysisRun.count({ where: { userId } })).toBe(0);

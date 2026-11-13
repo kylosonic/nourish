@@ -46,6 +46,9 @@ import { LowConfidenceScreen } from '../screens/scan/LowConfidenceScreen';
 import { FoodSearchScreen } from '../screens/search/FoodSearchScreen';
 import { EditMealScreen } from '../screens/scan/EditMealScreen';
 import { BarcodeScreen } from '../screens/scan/BarcodeScreen';
+import { CoupleWellnessScreen } from '../screens/couples/CoupleWellnessScreen';
+import { CycleLogScreen } from '../screens/couples/CycleLogScreen';
+import { CoupleConnectionScreen } from '../screens/couples/CoupleConnectionScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -205,6 +208,12 @@ function AppStack() {
       <Stack.Screen name="FoodSearch" component={FoodSearchScreen} />
       <Stack.Screen name="EditMeal" component={EditMealScreen} />
       <Stack.Screen name="Barcode" component={BarcodeScreen} />
+      <Stack.Screen name="CoupleWellness" component={CoupleWellnessScreen} />
+      <Stack.Screen name="CycleLog" component={CycleLogScreen} />
+      <Stack.Screen
+        name="CoupleConnection"
+        component={CoupleConnectionScreen}
+      />
     </Stack.Navigator>
   );
 }

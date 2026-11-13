@@ -56,6 +56,7 @@ export function ProfileScreen() {
         meals: state.meals,
         water: state.water,
         weights: state.weights,
+        coupleWellness: state.coupleWellness,
       };
       if (Platform.OS === 'web') {
         const blob = new Blob([JSON.stringify(payload, null, 2)], {
@@ -90,7 +91,7 @@ export function ProfileScreen() {
   const confirmReset = () => {
     showAlert(
       'Delete local data?',
-      'This removes onboarding, meals, water, weights, and queued changes from this device. It cannot be undone.',
+      'This removes onboarding, meals, water, weights, cycle history, couple pairing, and queued changes from this device. It cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -218,6 +219,12 @@ export function ProfileScreen() {
             title="Privacy & consent"
             detail="Control health data and AI improvement"
             onPress={() => navigation?.navigate('Privacy')}
+          />
+          <MenuRow
+            icon="heart-pulse"
+            title="Cycle & couple"
+            detail="Private period estimates, sharing, and streaks"
+            onPress={() => navigation?.navigate('CoupleWellness')}
           />
           <MenuRow
             icon="download-outline"

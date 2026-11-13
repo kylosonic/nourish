@@ -14,7 +14,11 @@ import type {
   AccountSession,
   AppData,
   AppState,
+  CoupleWellness,
+  CoupleConnectionState,
   ConsentPatch,
+  CycleEntry,
+  CycleSymptom,
   Food,
   Meal,
   MealDraftItem,
@@ -26,11 +30,17 @@ import type {
   SyncOperation,
 } from '../types';
 import {
+  createCoupleInvitation as remoteCreateCoupleInvitation,
+  disconnectCouple as remoteDisconnectCouple,
   fetchCatalog,
+  fetchCoupleState,
+  joinCouple as remoteJoinCouple,
   logout as remoteLogout,
   ApiError,
   refreshSession,
+  updateCoupleSharing as remoteUpdateCoupleSharing,
   updateConsent as remoteUpdateConsent,
+  type CoupleSharingPatch,
 } from '../data/api';
 import {
   clearAppData,
@@ -41,6 +51,8 @@ import {
   saveSession,
 } from './storage';
 import { makeMealItem, targetFromOnboarding } from '../domain/nutrition';
+import { clampCycleSettings } from '../domain/couples';
+import { CYCLE_PROFILE_CLIENT_ID } from '../domain/sync';
 import { addDays, localDateKey, newId } from '../utils/date';
 import { reconcileHydrationReminders } from '../services/notifications';
 import {
@@ -62,6 +74,18 @@ type Action =
   | { type: 'removeWater'; amountMl: number; dateKey: string }
   | { type: 'addWeight'; weightKg: number; dateKey: string }
   | { type: 'patchSettings'; patch: Partial<Settings> }
+  | { type: 'enableCycleTracking'; enabled: boolean }
+  | { type: 'saveCycleEntry'; entry: CycleEntry }
+  | { type: 'deleteCycleEntry'; id: string; updatedAt: string; clientSeq: number }
+  | {
+      type: 'setCycleSettings';
+      cycleLengthDays: number;
+      periodLengthDays: number;
+      updatedAt: string;
+    }
+  | { type: 'coupleCheckIn'; dateKey: string }
+  | { type: 'setCoupleConnection'; connection: CoupleConnectionState | null }
+  | { type: 'setCoupleInvitation'; invitation: CoupleWellness['invitation'] }
   | { type: 'setCatalog'; foods: Food[]; version: string }
   | { type: 'setSession'; session: AccountSession | null }
   | { type: 'setSync'; state: AppState['syncState']; message?: string | null }
@@ -272,6 +296,157 @@ function reducer(state: AppState, action: Action): AppState {
     }
     case 'patchSettings':
       return { ...state, settings: { ...state.settings, ...action.patch } };
+    case 'enableCycleTracking':
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          trackingEnabled: action.enabled,
+        },
+      };
+    case 'saveCycleEntry': {
+      const entry = {
+        ...action.entry,
+        symptoms: Array.from(new Set(action.entry.symptoms)),
+      };
+      const clientSeq = state.queue.length + 1;
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          trackingEnabled: true,
+          cycleEntries: [
+            ...state.coupleWellness.cycleEntries.filter(
+              (candidate) => candidate.id !== entry.id,
+            ),
+            { ...entry, clientSeq },
+          ].sort((a, b) => a.startDateKey.localeCompare(b.startDateKey)),
+        },
+        queue: [
+          ...state.queue.filter(
+            (operation) =>
+              !(operation.kind === 'cycle' && operation.clientId === entry.id),
+          ),
+          {
+            id: newId('queue'),
+            kind: 'cycle',
+            op: 'upsert',
+            clientId: entry.id,
+            clientSeq,
+            updatedAt: entry.updatedAt,
+            startDateKey: entry.startDateKey,
+            endDateKey: entry.endDateKey ?? undefined,
+            symptoms: entry.symptoms,
+          },
+        ],
+      };
+    }
+    case 'deleteCycleEntry':
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          cycleEntries: state.coupleWellness.cycleEntries.filter(
+            (entry) => entry.id !== action.id,
+          ),
+        },
+        queue: [
+          ...state.queue.filter(
+            (operation) =>
+              !(operation.kind === 'cycle' && operation.clientId === action.id),
+          ),
+          {
+            id: newId('queue'),
+            kind: 'cycle',
+            op: 'delete',
+            clientId: action.id,
+            clientSeq: action.clientSeq,
+            updatedAt: action.updatedAt,
+          },
+        ],
+      };
+    case 'setCycleSettings': {
+      const settings = clampCycleSettings(
+        action.cycleLengthDays,
+        action.periodLengthDays,
+      );
+      const clientSeq = state.queue.length + 1;
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          ...settings,
+          profileUpdatedAt: action.updatedAt,
+        },
+        queue: [
+          ...state.queue.filter(
+            (operation) =>
+              operation.kind !== 'cycleProfile' ||
+              operation.clientId !== CYCLE_PROFILE_CLIENT_ID,
+          ),
+          {
+            id: newId('queue'),
+            kind: 'cycleProfile',
+            op: 'upsert',
+            clientId: CYCLE_PROFILE_CLIENT_ID,
+            clientSeq,
+            updatedAt: action.updatedAt,
+            ...settings,
+          },
+        ],
+      };
+    }
+    case 'coupleCheckIn': {
+      if (action.dateKey > localDateKey()) return state;
+      const id = `checkin_${action.dateKey}`;
+      if (state.coupleWellness.checkIns.some((entry) => entry.id === id)) {
+        return state;
+      }
+      const updatedAt = new Date().toISOString();
+      const clientSeq = state.queue.length + 1;
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          checkIns: [
+            ...state.coupleWellness.checkIns,
+            { id, dateKey: action.dateKey, updatedAt, clientSeq },
+          ],
+        },
+        queue: [
+          ...state.queue,
+          {
+            id: newId('queue'),
+            kind: 'checkIn',
+            op: 'upsert',
+            clientId: id,
+            clientSeq,
+            updatedAt,
+            dateKey: action.dateKey,
+          },
+        ],
+      };
+    }
+    case 'setCoupleConnection':
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          connection: action.connection,
+          lastFetchedAt: new Date().toISOString(),
+          invitation: action.connection
+            ? null
+            : state.coupleWellness.invitation,
+        },
+      };
+    case 'setCoupleInvitation':
+      return {
+        ...state,
+        coupleWellness: {
+          ...state.coupleWellness,
+          invitation: action.invitation,
+        },
+      };
     case 'setCatalog':
       return {
         ...state,
@@ -359,6 +534,21 @@ interface AppContextValue {
   removeWater: (amountMl?: number, dateKey?: string) => void;
   addWeight: (weightKg: number, dateKey?: string) => void;
   patchSettings: (patch: Partial<Settings>) => void;
+  enableCycleTracking: (enabled?: boolean) => void;
+  saveCycleEntry: (entry: {
+    id?: string;
+    startDateKey: string;
+    endDateKey: string | null;
+    symptoms: CycleSymptom[];
+  }) => void;
+  deleteCycleEntry: (id: string) => void;
+  setCycleSettings: (cycleLengthDays: number, periodLengthDays: number) => void;
+  checkInToday: (dateKey?: string) => void;
+  refreshCouple: () => Promise<void>;
+  createCoupleInvite: () => Promise<{ code: string; expiresAt: string }>;
+  joinCouple: (code: string) => Promise<void>;
+  updatePartnerSharing: (patch: CoupleSharingPatch) => Promise<void>;
+  disconnectPartner: () => Promise<void>;
   setSession: (session: AccountSession | null) => void;
   updateConsent: (patch: ConsentPatch) => Promise<void>;
   signOut: () => Promise<void>;
@@ -478,6 +668,124 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (patch: Partial<Settings>) => dispatch({ type: 'patchSettings', patch }),
     [],
   );
+  const enableCycleTracking = useCallback<AppContextValue['enableCycleTracking']>(
+    (enabled = true) => dispatch({ type: 'enableCycleTracking', enabled }),
+    [],
+  );
+  const saveCycleEntry = useCallback<AppContextValue['saveCycleEntry']>(
+    (input) => {
+      const updatedAt = new Date().toISOString();
+      const existing = state.coupleWellness.cycleEntries.find(
+        (entry) => entry.startDateKey === input.startDateKey,
+      );
+      dispatch({
+        type: 'saveCycleEntry',
+        entry: {
+          id: input.id ?? existing?.id ?? `cycle_${input.startDateKey}`,
+          startDateKey: input.startDateKey,
+          endDateKey: input.endDateKey,
+          symptoms: input.symptoms,
+          updatedAt,
+          clientSeq: 0,
+        },
+      });
+    },
+    [state.coupleWellness.cycleEntries],
+  );
+  const deleteCycleEntry = useCallback<AppContextValue['deleteCycleEntry']>(
+    (id) => {
+      dispatch({
+        type: 'deleteCycleEntry',
+        id,
+        updatedAt: new Date().toISOString(),
+        clientSeq: state.queue.length + 1,
+      });
+    },
+    [state.queue.length],
+  );
+  const setCycleSettings = useCallback<AppContextValue['setCycleSettings']>(
+    (cycleLengthDays, periodLengthDays) => {
+      dispatch({
+        type: 'setCycleSettings',
+        cycleLengthDays,
+        periodLengthDays,
+        updatedAt: new Date().toISOString(),
+      });
+    },
+    [],
+  );
+  const checkInToday = useCallback(
+    (dateKey = localDateKey()) =>
+      dispatch({ type: 'coupleCheckIn', dateKey }),
+    [],
+  );
+
+  const withCoupleSession = useCallback(
+    async <T,>(action: (session: AccountSession) => Promise<T>): Promise<T> => {
+      if (!state.session) {
+        throw new ApiError(
+          'Sign in to connect with a partner.',
+          'UNAUTHENTICATED',
+          401,
+        );
+      }
+      try {
+        return await action(state.session);
+      } catch (error) {
+        if (!(error instanceof ApiError) || error.status !== 401) throw error;
+        const session = await refreshSession(state.session);
+        dispatch({ type: 'setSession', session });
+        return action(session);
+      }
+    },
+    [state.session],
+  );
+
+  const refreshCouple = useCallback(async () => {
+    const stateView = await withCoupleSession(fetchCoupleState);
+    dispatch({
+      type: 'setCoupleConnection',
+      connection: stateView.connection,
+    });
+  }, [withCoupleSession]);
+
+  const createCoupleInvite = useCallback(async () => {
+    const invitation = await withCoupleSession(remoteCreateCoupleInvitation);
+    dispatch({ type: 'setCoupleInvitation', invitation });
+    return invitation;
+  }, [withCoupleSession]);
+
+  const joinCouple = useCallback(
+    async (code: string) => {
+      const stateView = await withCoupleSession((session) =>
+        remoteJoinCouple(session, code),
+      );
+      dispatch({
+        type: 'setCoupleConnection',
+        connection: stateView.connection,
+      });
+    },
+    [withCoupleSession],
+  );
+
+  const updatePartnerSharing = useCallback(
+    async (patch: CoupleSharingPatch) => {
+      const stateView = await withCoupleSession((session) =>
+        remoteUpdateCoupleSharing(session, patch),
+      );
+      dispatch({
+        type: 'setCoupleConnection',
+        connection: stateView.connection,
+      });
+    },
+    [withCoupleSession],
+  );
+
+  const disconnectPartner = useCallback(async () => {
+    await withCoupleSession(remoteDisconnectCouple);
+    dispatch({ type: 'setCoupleConnection', connection: null });
+    dispatch({ type: 'setCoupleInvitation', invitation: null });
+  }, [withCoupleSession]);
   const setSession = useCallback(
     (session: AccountSession | null) => dispatch({ type: 'setSession', session }),
     [],
@@ -521,6 +829,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
         );
       }
       const result = await syncAccountData(state.session, state);
+      try {
+        const couple = await fetchCoupleState(result.session);
+        result.data = {
+          ...result.data,
+          coupleWellness: {
+            ...result.data.coupleWellness,
+            connection: couple.connection,
+          },
+        };
+      } catch {
+        // Core logging sync remains successful if the older API deployment
+        // does not yet expose the couples surface.
+      }
       dispatch({ type: 'applySync', result });
     } catch (error) {
       dispatch({
@@ -655,6 +976,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeWater,
       addWeight,
       patchSettings,
+      enableCycleTracking,
+      saveCycleEntry,
+      deleteCycleEntry,
+      setCycleSettings,
+      checkInToday,
+      refreshCouple,
+      createCoupleInvite,
+      joinCouple,
+      updatePartnerSharing,
+      disconnectPartner,
       setSession,
       updateConsent: updatePrivacyConsent,
       signOut,
@@ -676,6 +1007,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeWater,
       addWeight,
       patchSettings,
+      enableCycleTracking,
+      saveCycleEntry,
+      deleteCycleEntry,
+      setCycleSettings,
+      checkInToday,
+      refreshCouple,
+      createCoupleInvite,
+      joinCouple,
+      updatePartnerSharing,
+      disconnectPartner,
       setSession,
       updatePrivacyConsent,
       signOut,

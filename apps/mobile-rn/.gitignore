@@ -1,6 +1,7 @@
 # Build artifacts that should never be committed
 dist-launch-check/
 dist/
+.expo/
 *.aab
 *.apk
 *.ipa

@@ -124,13 +124,42 @@ docker compose down
 | 6.4 | Trigger every unbuilt lane (voice, barcode, camera screen, calendar, notifications, paywall) | Honest-void copy that names what is missing; no fake screen, no placeholder numbers |
 | 6.5 | Confirm consent behaviour | The consent flag is whatever the server holds; the app never flips it locally |
 
-## 7. Known gaps at this handoff (not defects)
+## 7. Couple cycle tracking and streaks *(API for pairing/sync)*
 
-- **Pull/restore is not built**: sync is a backup, not a sync (check 5.12).
-- **Water reminders (WW-02)** and **entitlements/paywall (SUB-01)** are not
-  built: P-WW-2 needs platform notification support that cannot be verified
-  here, and SUB-01 has neither a design (P-SUB-1) nor a payment provider
-  (P-PROV-1).
+| # | Step | Expected |
+| --- | --- | --- |
+| 7.1 | Open **Cycle & couple** while signed out | Consent-first explanation; private tracking works locally after confirmation |
+| 7.2 | Log a period start with no end date | Calendar shows a recorded start and a clearly labelled predicted period |
+| 7.3 | Add an end date and private symptoms | The recorded range wins on the calendar; symptoms are shown only to the owner |
+| 7.4 | Compare a regular and irregular set of start dates | Next-period estimate uses recorded intervals and may show a non-diagnostic irregularity notice |
+| 7.5 | Check in today | Personal care streak increases; a second tap does not double-count the day |
+| 7.6 | Create a partner invite | An 8-character single-use code appears with a 24-hour expiry |
+| 7.7 | Join from a second signed-in account | Both accounts show the same connection; all sharing categories remain off |
+| 7.8 | Enable cycle sharing on account A and refresh B | B sees period start dates and cycle settings only; no symptoms or period end dates |
+| 7.9 | Disable cycle sharing on A and refresh B | B's partner view clears immediately |
+| 7.10 | Both accounts enable check-in sharing and check in on the same day | The shared couple streak appears; disabling either side clears it |
+| 7.11 | Disconnect on either account | Pairing and sharing end; private history remains in each owner's account |
+| 7.12 | Offline period/check-in edits, then reconnect and sync | Cycle data pushes once, survives restart, and appears on another signed-in device |
+| 7.13 | Delete the owner account | Cycle entries, check-ins, invitations, sharing preferences and the connection are deleted by cascade |
+
+Run these database checks after 7.12:
+
+```sql
+SELECT "clientId", "startDateKey", "deletedAt" FROM "CycleEntry";
+SELECT "dateKey", "deletedAt" FROM "WellnessCheckIn";
+SELECT "userId", "shareCycle", "shareCheckIns", "shareFoodStreak"
+FROM "CoupleSharingPreference";
+```
+
+Sharing toggles are server-confirmed: if the API is unavailable, the app must
+leave the previous sharing state unchanged and show an error.
+
+## 8. Known gaps at this handoff (not defects)
+
+- **Cycle reminders (notifications)** are not part of this MVP; opening the
+  cycle screen is the source of truth.
+- **Per-day symptom journaling** is not part of this MVP. Symptoms are attached
+  to a recorded period entry and remain private.
 - **No AI provider key, no SMS gateway credential** exist here: recognition and
   real SMS delivery are implemented and unit-tested but have never run against a
   live provider.
@@ -140,7 +169,7 @@ docker compose down
   `docs/plans/provisional-product-assumptions.md`. If UAT overturns one, that row
   names the slice it reworks.
 
-## 8. Recording the result
+## 9. Recording the result
 
 1. Walk the tables above on a device; note the exact step number and what
    happened for anything that deviates.

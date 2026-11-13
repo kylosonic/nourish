@@ -9,7 +9,12 @@ import {
   hexToBytes,
   utf8ToBytes,
 } from '@noble/ciphers/utils.js';
-import type { AccountSession, AppData, AppState } from '../types';
+import type {
+  AccountSession,
+  AppData,
+  AppState,
+  CoupleWellness,
+} from '../types';
 import { seedFoods, provisionalCatalogVersion } from '../data/seed';
 
 const DATA_KEY = '@nourish/app-data/v1';
@@ -46,6 +51,17 @@ export const initialData: AppData = {
   meals: [],
   water: [],
   weights: [],
+  coupleWellness: {
+    trackingEnabled: false,
+    cycleLengthDays: 28,
+    periodLengthDays: 5,
+    cycleEntries: [],
+    checkIns: [],
+    profileUpdatedAt: null,
+    connection: null,
+    invitation: null,
+    lastFetchedAt: null,
+  },
   catalog: seedFoods,
   catalogVersion: provisionalCatalogVersion,
   queue: [],
@@ -82,6 +98,7 @@ export async function loadAppData(): Promise<AppData> {
       meals: Array.isArray(parsed.meals) ? parsed.meals : [],
       water: Array.isArray(parsed.water) ? parsed.water : [],
       weights: Array.isArray(parsed.weights) ? parsed.weights : [],
+      coupleWellness: normalizeCoupleWellness(parsed.coupleWellness),
       catalog:
         Array.isArray(parsed.catalog) && parsed.catalog.length > 0
           ? parsed.catalog
@@ -109,6 +126,7 @@ export async function saveAppData(state: AppData): Promise<void> {
     meals: state.meals,
     water: state.water,
     weights: state.weights,
+    coupleWellness: state.coupleWellness,
     catalog: state.catalog,
     catalogVersion: state.catalogVersion,
     queue: state.queue,
@@ -119,6 +137,97 @@ export async function saveAppData(state: AppData): Promise<void> {
   const value =
     Platform.OS === 'web' ? plaintext : await encryptData(plaintext);
   await AsyncStorage.setItem(DATA_KEY, value);
+}
+
+function normalizeCoupleWellness(
+  value:
+    | (Partial<CoupleWellness> & {
+        partnerName?: unknown;
+        periodStarts?: unknown;
+        symptoms?: unknown;
+        checkInDates?: unknown;
+        sharePeriodWithPartner?: unknown;
+        shareCheckInWithPartner?: unknown;
+      })
+    | undefined,
+): CoupleWellness {
+  const defaults = initialData.coupleWellness;
+  const legacySymptoms =
+    value?.symptoms &&
+    typeof value.symptoms === 'object' &&
+    !Array.isArray(value.symptoms)
+      ? (value.symptoms as Record<string, unknown>)
+      : {};
+  const legacyEntries = Array.isArray(value?.periodStarts)
+    ? value.periodStarts
+        .filter((dateKey): dateKey is string => typeof dateKey === 'string')
+        .map((startDateKey) => ({
+          id: `cycle_${startDateKey}`,
+          startDateKey,
+          endDateKey: null,
+          symptoms: Array.isArray(legacySymptoms[startDateKey])
+            ? legacySymptoms[startDateKey].filter(
+                (symptom): symptom is CoupleWellness['cycleEntries'][number]['symptoms'][number] =>
+                  typeof symptom === 'string',
+              )
+            : [],
+          updatedAt: new Date(0).toISOString(),
+          clientSeq: 0,
+        }))
+    : [];
+  const entries =
+    Array.isArray(value?.cycleEntries) && value.cycleEntries.length > 0
+      ? value.cycleEntries.filter((entry) => {
+          return (
+            entry &&
+            typeof entry.id === 'string' &&
+            typeof entry.startDateKey === 'string'
+          );
+        })
+      : legacyEntries;
+  const checkIns =
+    Array.isArray(value?.checkIns) && value.checkIns.length > 0
+      ? value.checkIns.filter((entry) => {
+          return (
+            entry &&
+            typeof entry.id === 'string' &&
+            typeof entry.dateKey === 'string'
+          );
+        })
+      : Array.isArray(value?.checkInDates)
+        ? value.checkInDates
+            .filter((dateKey): dateKey is string => typeof dateKey === 'string')
+            .map((dateKey) => ({
+              id: `checkin_${dateKey}`,
+              dateKey,
+              updatedAt: new Date(0).toISOString(),
+              clientSeq: 0,
+            }))
+        : [];
+  return {
+    trackingEnabled:
+      typeof value?.trackingEnabled === 'boolean'
+        ? value.trackingEnabled
+        : entries.length > 0,
+    cycleLengthDays:
+      typeof value?.cycleLengthDays === 'number'
+        ? value.cycleLengthDays
+        : defaults.cycleLengthDays,
+    periodLengthDays:
+      typeof value?.periodLengthDays === 'number'
+        ? value.periodLengthDays
+        : defaults.periodLengthDays,
+    cycleEntries: entries,
+    checkIns,
+    profileUpdatedAt:
+      typeof value?.profileUpdatedAt === 'string'
+        ? value.profileUpdatedAt
+        : null,
+    connection: value?.connection ?? null,
+    invitation: value?.invitation ?? null,
+    lastFetchedAt:
+      typeof value?.lastFetchedAt === 'string' ? value.lastFetchedAt : null,
+  };
 }
 
 export async function clearAppData(): Promise<void> {

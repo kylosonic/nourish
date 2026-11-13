@@ -55,6 +55,7 @@ export async function pullAndRestoreAccountData(
       meals: merged.meals,
       water: merged.water,
       weights: merged.weights,
+      coupleWellness: merged.coupleWellness,
       queue: merged.queue,
       syncCursor: merged.syncCursor,
     },

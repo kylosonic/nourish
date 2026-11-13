@@ -9,6 +9,14 @@ target for current product work.
 
 ## What is implemented
 
+- Private cycle episodes with deterministic next-period and fertile-window
+  estimates, a six-week calendar, private symptom tags, and irregular-cycle
+  caveats that never diagnose.
+- Expiring single-use couple pairing and separate, revocable sharing controls
+  for cycle timing, care check-ins, and food-logging dates.
+- Personal food/check-in streaks and a shared couple streak calculated from
+  dates both partners opted to share.
+
 | Area | State |
 | --- | --- |
 | Welcome and eight-step onboarding | Implemented against the approved screens |

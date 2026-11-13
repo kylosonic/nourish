@@ -38,6 +38,11 @@ Redis 7 provisioned for queue parity (no queue code yet).
 | `POST /v1/products/label` | Gemini Flash nutrition-label parsing; imagery is not retained |
 | `POST /v1/auth/firebase` | Firebase phone-auth ID-token exchange |
 | `POST /v1/auth/email-otp/request` / `verify` | Passwordless Resend/SMTP fallback |
+| `GET /v1/couples` | Authenticated couple state with only partner categories the owner opted to share |
+| `POST /v1/couples/invitations` | Create a hashed, single-use couple code valid for 24 hours |
+| `POST /v1/couples/join` | Consume an invitation and create a connection with all sharing off |
+| `PATCH /v1/couples/sharing` | Change the caller's cycle, check-in or food-streak sharing flags |
+| `DELETE /v1/couples` | End the active connection and revoke both partners' sharing preferences |
 
 Errors: `{"error":{"code","message","requestId"}}`. Codes include
 `FOOD_NOT_FOUND | VALIDATION_ERROR | RATE_LIMITED | INTERNAL`,

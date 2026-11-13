@@ -1,15 +1,22 @@
 import type {
   AccountConsent,
+  CoupleWellness,
   ConsentPatch,
+  CycleEntry,
   Meal,
+  RemoteCheckIn,
+  RemoteCycle,
   RemoteMeal,
   RemoteWater,
   RemoteWeight,
   SyncChanges,
   SyncOperation,
   WaterLog,
+  WellnessCheckIn,
   WeightLog,
 } from '../types';
+
+export const CYCLE_PROFILE_CLIENT_ID = 'cycle-profile';
 
 type RemoteChange =
   | (RemoteMeal & { kind: 'meal' })
@@ -20,6 +27,7 @@ interface LocalSyncState {
   meals: Meal[];
   water: WaterLog[];
   weights: WeightLog[];
+  coupleWellness: CoupleWellness;
   queue: SyncOperation[];
   syncCursor: string | null;
 }
@@ -36,6 +44,7 @@ export interface SyncApplyResult {
   meals: Meal[];
   water: WaterLog[];
   weights: WeightLog[];
+  coupleWellness: CoupleWellness;
   queue: SyncOperation[];
   syncCursor: string | null;
   counts: SyncApplyCounts;
@@ -58,18 +67,22 @@ function queueVersion(operation: SyncOperation | undefined): Version | null {
 }
 
 function rowVersion(
-  row: Meal | WaterLog | WeightLog,
+  row: Meal | WaterLog | WeightLog | CycleEntry | WellnessCheckIn,
 ): Version {
+  const updatedAt =
+    'createdAt' in row
+      ? row.updatedAt ?? row.createdAt
+      : 'loggedAt' in row
+        ? row.updatedAt ?? row.loggedAt
+        : row.updatedAt;
   return {
-    updatedAt:
-      row.updatedAt ??
-      ('createdAt' in row ? row.createdAt : row.loggedAt),
+    updatedAt,
     clientSeq: 'clientSeq' in row ? row.clientSeq ?? 0 : 0,
   };
 }
 
 function effectiveLocalVersion(
-  row: Meal | WaterLog | WeightLog | undefined,
+  row: Meal | WaterLog | WeightLog | CycleEntry | WellnessCheckIn | undefined,
   operation: SyncOperation | undefined,
 ): Version | null {
   const local = row ? rowVersion(row) : null;
@@ -168,6 +181,26 @@ function weightFromRemote(change: RemoteWeight): WeightLog {
   };
 }
 
+function cycleFromRemote(change: RemoteCycle): CycleEntry {
+  return {
+    id: change.clientId,
+    startDateKey: change.startDateKey,
+    endDateKey: change.endDateKey,
+    symptoms: change.symptoms,
+    updatedAt: change.updatedAt,
+    clientSeq: change.clientSeq,
+  };
+}
+
+function checkInFromRemote(change: RemoteCheckIn): WellnessCheckIn {
+  return {
+    id: change.clientId,
+    dateKey: change.dateKey,
+    updatedAt: change.updatedAt,
+    clientSeq: change.clientSeq,
+  };
+}
+
 /**
  * Merge a server delta by stable client id. Newer server rows win, equal rows
  * are no-ops, and newer local/queued writes are retained for the push path.
@@ -179,6 +212,7 @@ export function mergeRemoteChanges(
   let meals = [...local.meals];
   let water = [...local.water];
   let weights = [...local.weights];
+  let coupleWellness = { ...local.coupleWellness };
   let queue = [...local.queue];
   const counts: SyncApplyCounts = {
     applied: 0,
@@ -242,10 +276,127 @@ export function mergeRemoteChanges(
     );
   }
 
+  const applyCycle = (change: RemoteCycle): void => {
+    const index = coupleWellness.cycleEntries.findIndex(
+      (entry) => entry.id === change.clientId,
+    );
+    const existing =
+      index >= 0 ? coupleWellness.cycleEntries[index] : undefined;
+    const operation = queued.get(change.clientId);
+    const localVersion = effectiveLocalVersion(existing, operation);
+    const remote = { updatedAt: change.updatedAt, clientSeq: change.clientSeq };
+    const known = existing != null || operation != null;
+    if (!known) {
+      if (change.deletedAt != null) counts.ignored += 1;
+      else {
+        counts.applied += 1;
+        coupleWellness.trackingEnabled = true;
+        coupleWellness.cycleEntries = [
+          ...coupleWellness.cycleEntries,
+          cycleFromRemote(change),
+        ];
+      }
+      return;
+    }
+    const order = localVersion ? compare(remote, localVersion) : 1;
+    if (order <= 0) {
+      if (order < 0) counts.kept += 1;
+      else counts.unchanged += 1;
+      return;
+    }
+    queue = removeQueueAtOrBefore(queue, change.clientId, remote);
+    if (change.deletedAt != null) {
+      counts.removed += 1;
+      coupleWellness.cycleEntries = coupleWellness.cycleEntries.filter(
+        (entry) => entry.id !== change.clientId,
+      );
+      return;
+    }
+    counts.applied += 1;
+    coupleWellness.trackingEnabled = true;
+    const next = [...coupleWellness.cycleEntries];
+    if (index < 0) next.push(cycleFromRemote(change));
+    else next[index] = cycleFromRemote(change);
+    coupleWellness.cycleEntries = next;
+  };
+
+  const applyCheckIn = (change: RemoteCheckIn): void => {
+    const index = coupleWellness.checkIns.findIndex(
+      (entry) => entry.id === change.clientId,
+    );
+    const existing = index >= 0 ? coupleWellness.checkIns[index] : undefined;
+    const operation = queued.get(change.clientId);
+    const localVersion = effectiveLocalVersion(existing, operation);
+    const remote = { updatedAt: change.updatedAt, clientSeq: change.clientSeq };
+    const known = existing != null || operation != null;
+    if (!known) {
+      if (change.deletedAt != null) counts.ignored += 1;
+      else {
+        counts.applied += 1;
+        coupleWellness.trackingEnabled = true;
+        coupleWellness.checkIns = [
+          ...coupleWellness.checkIns,
+          checkInFromRemote(change),
+        ];
+      }
+      return;
+    }
+    const order = localVersion ? compare(remote, localVersion) : 1;
+    if (order <= 0) {
+      if (order < 0) counts.kept += 1;
+      else counts.unchanged += 1;
+      return;
+    }
+    queue = removeQueueAtOrBefore(queue, change.clientId, remote);
+    if (change.deletedAt != null) {
+      counts.removed += 1;
+      coupleWellness.checkIns = coupleWellness.checkIns.filter(
+        (entry) => entry.id !== change.clientId,
+      );
+      return;
+    }
+    counts.applied += 1;
+    coupleWellness.trackingEnabled = true;
+    const next = [...coupleWellness.checkIns];
+    if (index < 0) next.push(checkInFromRemote(change));
+    else next[index] = checkInFromRemote(change);
+    coupleWellness.checkIns = next;
+  };
+
+  for (const change of changes.cycles ?? []) applyCycle(change);
+  for (const change of changes.checkIns ?? []) applyCheckIn(change);
+
+  if (changes.cycleProfile) {
+    const remote = {
+      updatedAt: changes.cycleProfile.updatedAt,
+      clientSeq: 0,
+    };
+    const operation = queued.get(CYCLE_PROFILE_CLIENT_ID);
+    const localVersion = operation
+      ? queueVersion(operation)
+      : coupleWellness.profileUpdatedAt
+        ? { updatedAt: coupleWellness.profileUpdatedAt, clientSeq: 0 }
+        : null;
+    const order = localVersion ? compare(remote, localVersion) : 1;
+    if (order > 0) {
+      coupleWellness.cycleLengthDays = changes.cycleProfile.cycleLengthDays;
+      coupleWellness.periodLengthDays = changes.cycleProfile.periodLengthDays;
+      coupleWellness.profileUpdatedAt = changes.cycleProfile.updatedAt;
+      coupleWellness.trackingEnabled = true;
+      queue = removeQueueAtOrBefore(queue, CYCLE_PROFILE_CLIENT_ID, remote);
+      counts.applied += 1;
+    } else if (order < 0) {
+      counts.kept += 1;
+    } else {
+      counts.unchanged += 1;
+    }
+  }
+
   return {
     meals,
     water,
     weights,
+    coupleWellness,
     queue,
     syncCursor: changes.serverTime || local.syncCursor,
     counts,

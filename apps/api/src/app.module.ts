@@ -12,6 +12,7 @@ import { AnalysisModule } from './analysis/analysis.module';
 import { AuthModule } from './auth/auth.module';
 import { SyncModule } from './sync/sync.module';
 import { ProductsModule } from './products/products.module';
+import { CouplesModule } from './couples/couples.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ProductsModule } from './products/products.module';
     AuthModule,
     SyncModule,
     ProductsModule,
+    CouplesModule,
   ],
   providers: [
     // Throttler v6 does not auto-register the guard (unlike v4) — register

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Meal, SyncChanges } from '../types';
+import type { CoupleWellness, Meal, SyncChanges, SyncOperation } from '../types';
 import { mergeRemoteChanges } from './sync';
 
 const LATER = '2026-10-29T12:00:00.000Z';
@@ -10,7 +10,18 @@ function emptyLocal() {
     meals: [] as Meal[],
     water: [],
     weights: [],
-    queue: [],
+    coupleWellness: {
+      trackingEnabled: false,
+      cycleLengthDays: 28,
+      periodLengthDays: 5,
+      cycleEntries: [],
+      checkIns: [],
+      profileUpdatedAt: null,
+      connection: null,
+      invitation: null,
+      lastFetchedAt: null,
+    } as CoupleWellness,
+    queue: [] as SyncOperation[],
     syncCursor: null,
   };
 }
@@ -20,6 +31,9 @@ function changes(overrides: Partial<SyncChanges> = {}): SyncChanges {
     meals: [],
     water: [],
     weight: [],
+    cycles: [],
+    checkIns: [],
+    cycleProfile: null,
     serverTime: '2026-10-29T12:01:00.000Z',
     ...overrides,
   };
@@ -145,5 +159,75 @@ describe('account restore merge', () => {
     const second = mergeRemoteChanges(first, delta);
     expect(second.water).toHaveLength(1);
     expect(second.counts.unchanged).toBe(1);
+  });
+
+  it('restores private cycle data and a cycle profile without touching partner data', () => {
+    const result = mergeRemoteChanges(
+      emptyLocal(),
+      changes({
+        cycles: [
+          {
+            clientId: 'cycle-1',
+            startDateKey: '2026-10-01',
+            endDateKey: '2026-10-05',
+            symptoms: ['cramps'],
+            updatedAt: LATER,
+            deletedAt: null,
+            clientSeq: 2,
+          },
+        ],
+        checkIns: [
+          {
+            clientId: 'checkin-2026-10-29',
+            dateKey: '2026-10-29',
+            updatedAt: LATER,
+            deletedAt: null,
+            clientSeq: 1,
+          },
+        ],
+        cycleProfile: {
+          cycleLengthDays: 29,
+          periodLengthDays: 5,
+          updatedAt: LATER,
+        },
+      }),
+    );
+    expect(result.coupleWellness.cycleEntries[0].symptoms).toEqual(['cramps']);
+    expect(result.coupleWellness.checkIns[0].dateKey).toBe('2026-10-29');
+    expect(result.coupleWellness.cycleLengthDays).toBe(29);
+    expect(result.coupleWellness.connection).toBeNull();
+  });
+
+  it('keeps a newer queued cycle-profile edit over an older server profile', () => {
+    const local = emptyLocal();
+    local.coupleWellness = {
+      ...local.coupleWellness,
+      cycleLengthDays: 31,
+      periodLengthDays: 6,
+      profileUpdatedAt: LATER,
+    };
+    local.queue.push({
+      id: 'queue-profile',
+      kind: 'cycleProfile',
+      op: 'upsert',
+      clientId: 'cycle-profile',
+      clientSeq: 4,
+      updatedAt: LATER,
+      cycleLengthDays: 31,
+      periodLengthDays: 6,
+    });
+    const result = mergeRemoteChanges(
+      local,
+      changes({
+        cycleProfile: {
+          cycleLengthDays: 27,
+          periodLengthDays: 4,
+          updatedAt: EARLIER,
+        },
+      }),
+    );
+    expect(result.coupleWellness.cycleLengthDays).toBe(31);
+    expect(result.queue).toHaveLength(1);
+    expect(result.counts.kept).toBe(1);
   });
 });

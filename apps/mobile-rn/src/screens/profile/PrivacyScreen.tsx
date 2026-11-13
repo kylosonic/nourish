@@ -59,6 +59,24 @@ export function PrivacyScreen({ navigation }: Props) {
           </View>
         </Card>
 
+        <Text style={styles.sectionLabel}>COUPLE SHARING</Text>
+        <Card style={[styles.infoCard, { backgroundColor: colors.pinkCanvas }]}>
+          <Icon name="account-heart-outline" size={25} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.infoTitle}>Sharing is off by default</Text>
+            <Text style={styles.infoCopy}>
+              Only period start dates, cycle length, check-in dates, or food-log
+              dates can be shared, and each category has its own control.
+            </Text>
+            <Button
+              label="MANAGE COUPLE PRIVACY"
+              variant="secondary"
+              onPress={() => navigation.navigate('CoupleConnection')}
+              style={{ marginTop: spacing.md }}
+            />
+          </View>
+        </Card>
+
         <Text style={styles.sectionLabel}>YOUR DATA RIGHTS</Text>
         <Card style={styles.rightsCard}>
           <Text style={styles.infoTitle}>Export</Text>

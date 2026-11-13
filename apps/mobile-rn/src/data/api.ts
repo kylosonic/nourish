@@ -5,6 +5,7 @@ import type {
   AccountConsent,
   AnalysisResult,
   ConsentPatch,
+  CoupleConnectionState,
   Food,
   Meal,
   Nutrition,
@@ -17,9 +18,12 @@ const developmentBase =
   Platform.OS === 'android' ? 'http://10.0.2.2:3000' : 'http://localhost:3000';
 
 export const API_BASE_URL =
-  (Constants.expoConfig?.extra?.apiUrl as string | null | undefined)
-    ?.replace(/\/+$/, '') ||
-  process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, '') ||
+  (typeof Constants.expoConfig?.extra?.apiUrl === 'string'
+    ? Constants.expoConfig.extra.apiUrl.replace(/\/+$/, '')
+    : '') ||
+  (typeof process.env.EXPO_PUBLIC_API_URL === 'string'
+    ? process.env.EXPO_PUBLIC_API_URL.replace(/\/+$/, '')
+    : '') ||
   (__DEV__ ? developmentBase : 'https://api.nourish.app');
 
 export const RELEASE_METADATA_URL =
@@ -423,6 +427,11 @@ export async function pushChanges(
           })),
           amountMl: operation.amountMl,
           weightKg: operation.weightKg,
+          startDateKey: operation.startDateKey,
+          endDateKey: operation.endDateKey,
+          symptoms: operation.symptoms,
+          cycleLengthDays: operation.cycleLengthDays,
+          periodLengthDays: operation.periodLengthDays,
         })),
       }),
     },
@@ -448,7 +457,68 @@ export async function fetchChanges(
   ) {
     throw new ApiError('The account returned incomplete sync data.', 'MALFORMED');
   }
-  return result;
+  return {
+    ...result,
+    cycles: Array.isArray(result.cycles) ? result.cycles : [],
+    checkIns: Array.isArray(result.checkIns) ? result.checkIns : [],
+    cycleProfile: result.cycleProfile ?? null,
+  };
+}
+
+export interface CoupleStateWire {
+  connection: CoupleConnectionState | null;
+}
+
+export type CoupleSharingPatch = Partial<
+  CoupleConnectionState['mySharing']
+>;
+
+export async function fetchCoupleState(
+  session: AccountSession,
+): Promise<CoupleStateWire> {
+  return request<CoupleStateWire>('/v1/couples', {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+}
+
+export async function createCoupleInvitation(
+  session: AccountSession,
+): Promise<{ code: string; expiresAt: string }> {
+  return request('/v1/couples/invitations', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+}
+
+export async function joinCouple(
+  session: AccountSession,
+  code: string,
+): Promise<CoupleStateWire> {
+  return request('/v1/couples/join', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function updateCoupleSharing(
+  session: AccountSession,
+  patch: CoupleSharingPatch,
+): Promise<CoupleStateWire> {
+  return request('/v1/couples/sharing', {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function disconnectCouple(
+  session: AccountSession,
+): Promise<void> {
+  await request<void>('/v1/couples', {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
 }
 
 export async function fetchConsent(
