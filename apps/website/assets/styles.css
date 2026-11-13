@@ -864,6 +864,104 @@ h3 {
   font-weight: 600;
 }
 
+/* Private care and shared streaks */
+.care {
+  padding-block: var(--space-3xl);
+  background: var(--color-paper-bright);
+  border-bottom: var(--rule-3) solid var(--color-ink);
+}
+
+.care__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: var(--space-2xl);
+  align-items: center;
+}
+
+.care__copy {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.care__eyebrow {
+  width: fit-content;
+  padding: var(--space-2xs) var(--space-xs);
+  color: var(--color-accent-ink);
+  background: var(--color-accent);
+  border: var(--rule-2) solid var(--color-ink);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.care__copy h2 {
+  font-size: clamp(2.4rem, 8vw, 6rem);
+}
+
+.care__copy > p:last-child {
+  max-width: 48ch;
+  color: var(--color-ink-soft);
+  font-size: var(--text-md);
+}
+
+.care__panel {
+  padding: var(--space-lg);
+  background: var(--color-paper);
+  border: var(--rule-heavy) solid var(--color-ink);
+  box-shadow: var(--shadow-hard);
+}
+
+.care__badge {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-bottom: var(--space-md);
+  border-bottom: var(--rule-3) solid var(--color-ink);
+}
+
+.care__badge span {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+
+.care__badge strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.55rem, 5vw, 2.6rem);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.care__panel dl {
+  margin: var(--space-lg) 0;
+  border-top: var(--rule-1) solid var(--color-rule-soft);
+}
+
+.care__panel dl div {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: var(--space-md);
+  padding-block: var(--space-sm);
+  border-bottom: var(--rule-1) solid var(--color-rule-soft);
+}
+
+.care__panel dt {
+  font-size: var(--text-xs);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.care__panel dd {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.care__panel > p {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+
 /* Download */
 .download {
   padding-block: var(--space-3xl);
