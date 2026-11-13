@@ -25,8 +25,8 @@ permissions:
 env:
   APP_VERSION: ${{ inputs.version }}
   RELEASE_TAG: ${{ inputs.release_tag }}
-  NOURISH_API_URL: ${{ vars.NOURISH_API_URL }}
-  EXPO_PUBLIC_API_URL: ${{ vars.NOURISH_API_URL }}
+  NOURISH_API_URL: ${{ vars.NOURISH_API_URL || 'https://api.nourish.app' }}
+  EXPO_PUBLIC_API_URL: ${{ vars.NOURISH_API_URL || 'https://api.nourish.app' }}
   EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: ${{ vars.GOOGLE_WEB_CLIENT_ID }}
   EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: ${{ vars.GOOGLE_IOS_CLIENT_ID }}
   EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID: ${{ vars.GOOGLE_ANDROID_CLIENT_ID }}
@@ -238,16 +238,14 @@ jobs:
 
             ### What’s new
 
-            - Permission prompts are deferred until users choose camera/photo scanning or enable hydration reminders in settings.
-            - Onboarding completes without requesting camera, photo-library, or notification access.
-            - Email/password and Google account entry points, plus the existing phone OTP lane.
-            - Smoother native screen transitions and a calmer floating-navigation indicator with no spring overshoot.
-            - A slower, softer scan pulse and eased scan-stage changes, with reduced-motion preferences respected.
-            - Camera/gallery scanner recovery that always offers manual food search.
-            - Gram-level portion editing for search and scan results, including direct gram and kilogram adjustments.
-            - Scheduled hydration notifications with an immediate confirmation notification.
-            - Removed Describe Meal and Voice from the active scanning UI.
-            - Shorter copy across onboarding, scan, history, insights, progress, and settings.
+            - Private period start and end logging with optional symptom tags.
+            - Deterministic next-period and fertile-window estimates, including an irregular-cycle warning.
+            - A six-week cycle calendar and offline cycle synchronization.
+            - Personal food-logging and care-check-in streaks.
+            - A shared couple streak based only on mutually shared date activity.
+            - Expiring, single-use couple invitation codes.
+            - Separate, revocable sharing controls for cycle timing, check-ins, and food streaks.
+            - Partner views never expose symptoms, period end dates, meals, nutrition values, or account identifiers.
 
             ### Android
 
@@ -337,4 +335,4 @@ jobs:
             exit 0
           fi
           git commit -m "chore(release): publish ${{ inputs.release_tag }} metadata"
-          git push origin "HEAD:${{ github.event.repository.default_branch }}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
