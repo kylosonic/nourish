@@ -7,7 +7,7 @@ on:
       - ".github/workflows/react-native-ci.yml"
   push:
     branches:
-      - "feat/nourish-mvp"
+      - main
     paths:
       - "apps/mobile-rn/**"
       - ".github/workflows/react-native-ci.yml"

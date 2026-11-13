@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - feat/nourish-mvp
+      - main
     paths:
       - "apps/api/**"
       - ".github/workflows/api-image.yml"
